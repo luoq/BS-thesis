@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/17/2010 21:51:18
+ * Last-Updated: 03/17/2010 22:36:05
  *           By: Luo Qiang
- *     Update #: 85
+ *     Update #: 91
  * Keywords:
 
  /* Commentary:
@@ -81,8 +81,6 @@ void smat<T>::set(int r,int c,T element)
   else
     end	= columns.begin()+rowPointers[r+1];
   target = lower_bound(begin,end,c);
-  cout<<"debug : "<<(columns.end()-columns.begin())<<endl;
-  cout<<"debug : "<<(target-columns.begin())<<endl;
   if(*target==c)
     {
       //if assign 0,then do nothing
@@ -108,6 +106,23 @@ void smat<T>::set(int r,int c,T element)
 	++rowPointers[i];
     }
 }
+template<typename T>
+T smat<T>::operator()(int r,int c) const
+{
+  //NOTE:we need const_iterator here 
+  vector<int>::const_iterator begin,end,target;
+  begin = columns.begin()+rowPointers[r];
+  if(r==_rows-1)
+    end	 = columns.end();
+  else
+    end	= columns.begin()+rowPointers[r+1];
+  target = lower_bound(begin,end,c);
+  if(*target==c)
+      return *(elements.begin()+(target-columns.begin()));
+  else
+    return 0;
+}
+
 template<typename T>
 ostream & operator<<(ostream &out,const smat<T> &m)
 {
