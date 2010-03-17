@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/16/2010 14:30:14
+// Last-Updated: 03/17/2010 22:52:31
 //           By: Luo Qiang
-//     Update #: 105
+//     Update #: 106
 // Keywords:
 
 // Commentary:
@@ -22,10 +22,10 @@ inline int			randint(int n);
 //get the group of a point
 inline int			group(int point,int d);
 template<typename T> void	printVector(const vector<T> &vect);
-void				printMatrix(const Sparse_Mat<int> &matrix);
+void				printMatrix(const smat<int> &matrix);
 
-Sparse_Mat<int> regular(int n,int d){
-  Sparse_Mat<int> matrix(n,n,d);
+smat<int> regular(int n,int d){
+  smat<int> matrix(n,n,d);
   if(n*d%2!=0){
     return matrix;
   }

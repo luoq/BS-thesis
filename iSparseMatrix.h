@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/17/2010 22:36:05
+ * Last-Updated: 03/17/2010 23:02:54
  *           By: Luo Qiang
- *     Update #: 91
+ *     Update #: 95
  * Keywords:
 
  /* Commentary:
@@ -37,6 +37,7 @@ public:
   //get the element at r,c
   T operator()(int r,int c) const;
   //set element at (r,c)
+  void clear();
   void	set(int r,int c,T element);
   int rows() const {return _rows;}
   int cols() const {return _cols;}
@@ -126,17 +127,23 @@ T smat<T>::operator()(int r,int c) const
 template<typename T>
 ostream & operator<<(ostream &out,const smat<T> &m)
 {
-  out<<endl;
-  cout<<"# nnz :"<<m.elements.size()<<endl;
-  cout<<"# rows :"<<m._rows<<endl;
-  cout<<"# colums :"<<m._cols<<endl;
+  out<<"# nnz :"<<m.elements.size()<<endl;
+  out<<"# rows :"<<m._rows<<endl;
+  out<<"# colums :"<<m._cols<<endl;
   for(int i=0;i<m._rows-1;++i)
     for(int j=m.rowPointers[i];j<m.rowPointers[i+1];++j)
       out<<i<<' '<<m.columns[j]<<' '<<m.elements[j]<<endl;
   //note the situation at the last row where rowPointers[rows] is invalid
-  for(int j=m.rowPointers[m.rows()-1];j<m.elements.size();++j)
+  for(int j=m.rowPointers[m._rows-1];j<m.elements.size();++j)
     out<<m._rows-1<<' '<<m.columns[j]<<' '<<m.elements[j]<<endl;
   return out;
+}
+template<typename T>
+void smat<T>::clear()
+{
+  elements.clear();
+  columns.clear();
+  rowPointers.assign(_rows,0);
 }
 
 #endif

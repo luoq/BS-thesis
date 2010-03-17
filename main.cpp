@@ -6,9 +6,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/15/2010 19:00:21
+// Last-Updated: 03/17/2010 22:52:58
 //           By: Luo Qiang
-//     Update #: 10
+//     Update #: 14
 // Keywords: 
 
 // Commentary: 
@@ -20,9 +20,10 @@
 #include"regular.h"
 #include<iostream>
 #include<fstream>
-using		std::cout;
-using		std::cin;
-using		std::endl;
+using	std::cout;
+using	std::cin;
+using	std::endl;
+using itpp::Real_Timer;
 int main(){
   srand(time(NULL));
   int		n,d;
@@ -35,7 +36,7 @@ int main(){
   cout<<"input n and d:"<<endl;
   cin>>n>>d;
   timer.tic();
-  Sparse_Mat<int>	matrix = regular(n,d);
+  smat<int>	matrix = regular(n,d);
   timer.toc_print();
   out<<matrix;
   return 0;
