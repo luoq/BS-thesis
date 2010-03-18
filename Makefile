@@ -8,7 +8,7 @@ main.o:main.cpp regular.h
 regular.o:regular.cpp regular.h iSparseMatrix.h
 	$(CC) $(CXXFLAGS) -c $<
 clean:
-	rm *.o main 
+	rm *.o main data test
 
 test:test.cpp iSparseMatrix.h
 	$(CC) $(CXXFLAGS) -o $@ $<
