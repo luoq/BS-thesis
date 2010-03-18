@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/17/2010 16:42:44
 // Version:
-// Last-Updated: 03/17/2010 22:34:55
+// Last-Updated: 03/18/2010 15:09:39
 //           By: Luo Qiang
-//     Update #: 23
+//     Update #: 53
 // Keywords:
 
 // Commentary:
@@ -16,6 +16,7 @@
 
 // Code:
 #include "iSparseMatrix.h"
+#include "regular.h"
 
 char getch() {
   char a;
@@ -42,7 +43,26 @@ void test_get(const smat<int> &m)
 }
 int main()
 {
-  smat<int>	m(100,100,3);
+  smat<int>	m;
+  //m.set(1,0,1);
+  //m.set(0,1,1);
+  //m.set(2,0,1);
+  //m.set(0,2,1);
+  //m.set(1,2,1);
+  //m.set(2,1,1);
+  //cout<<m(2,1)<<endl;
+  //cout<<m;
+  //return 0;
+
+  int i=1;
+  while(1)
+    {
+      cout<<"   "<<i<<"    \n";
+      m = regular(3,2);
+      i++;
+    }
+  return 0;
+
   while(1)
     {
       cout<<"set(s),get(g),print(p)?\n";

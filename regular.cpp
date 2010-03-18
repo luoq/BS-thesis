@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/18/2010 11:09:56
+// Last-Updated: 03/18/2010 15:35:09
 //           By: Luo Qiang
-//     Update #: 114
+//     Update #: 137
 // Keywords:
 
 // Commentary:
@@ -16,7 +16,7 @@
 
 // Code:
 #include "regular.h"
-#define debug
+//#define debug
 
 //generate a random integer from 0 to n
 inline int			randint(int n);
@@ -31,6 +31,9 @@ smat<int> regular(int n,int d){
   if(n*d%2!=0){
     return matrix;
   }
+#ifdef debug
+  cout<<matrix<<endl;
+#endif
   vector<int> points(n*d);
   vector<int> suitablePoints,suitablePointsIndex;
  tryagain:
@@ -40,13 +43,13 @@ smat<int> regular(int n,int d){
   while(!points.empty()){
     int		index1				  = randint(points.size());
     int		group1				  = group(points[index1],d);
-#ifdef debug
-    //cout<<"matrix: \n";
-    //printMatrix(matrix);
-    cout<<"points :\n";
-    printVector(points);
-    //cout<<"1st point: "<<points[index1]<<endl;
-#endif
+    #ifdef debug
+        //cout<<"matrix: \n";
+        //printMatrix(matrix);
+        cout<<"points :\n";
+        printVector(points);
+        //cout<<"1st point: "<<points[index1]<<endl;
+    #endif
     suitablePoints.clear();
     suitablePointsIndex.clear();
     for(int i=0;i!=points.size();++i){
@@ -66,15 +69,16 @@ smat<int> regular(int n,int d){
     }
     int index2 = randint(suitablePoints.size());
     int group2 = group(suitablePoints[index2],d);
-#ifdef debug
-    //cout<<"suitable points\n";
-    //printVector(suitablePoints);
-    cout<<"points to be deleted:\n";
-    cout<<points[index1]<<' '<<suitablePoints[index2]<<endl;
-    //cout<<"2ed point: "<<suitablePoints[index2]<<endl;
-#endif
     matrix.set(group1,group2,1);
     matrix.set(group2,group1,1);
+#ifdef debug
+    cout<<"points to be deleted:\n";
+    cout<<points[index1]<<' '<<suitablePoints[index2]<<endl;
+    cout<<"add: ("<<group1<<','<<group2<<")\n";
+    cout<<matrix(group1,group2)<<endl;
+    cout<<"add: ("<<group2<<','<<group1<<")\n";
+    cout<<matrix(group2,group1)<<endl;
+#endif
     points.erase(points.begin()+index1);
     //NOTE,when index1<suitablePointsIndex[index2],the index of second point
     //changed as the erase of first point
@@ -84,7 +88,12 @@ smat<int> regular(int n,int d){
       points.erase(points.begin()+suitablePointsIndex[index2]);
   }
   #ifdef debug
-  cout<<matrix.rows()<<' '<<matrix.cols()<<endl;
+  if(matrix.nnz() != n*d)
+    {
+      cout<<matrix.rows()<<' '<<matrix.cols()<<endl;
+      cout<<matrix;
+      exit(1);
+    }
   #endif
   return matrix;
 }

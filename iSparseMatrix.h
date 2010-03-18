@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/18/2010 10:58:42
+ * Last-Updated: 03/18/2010 15:34:12
  *           By: Luo Qiang
- *     Update #: 97
+ *     Update #: 133
  * Keywords:
 
  /* Commentary:
@@ -63,7 +63,7 @@ template<typename T>
 smat<T>::smat(int rows,int colums,vector<T> elements,vector<T> rowIndex,vector<T> colIndex)
 {
 }
-template<typename T>
+template <typename T>
 void smat<T>::set(int r,int c,T element)
 {
   //this following allows change of size,which is not  useful in my experiment
@@ -76,16 +76,61 @@ void smat<T>::set(int r,int c,T element)
     _cols = c+1;
 
   vector<int>::iterator begin,end,target;
-  begin = columns.begin()+rowPointers[r];
+  begin					   = columns.begin()+rowPointers[r];
+  //if rowPointers[r] exceed the size of colums
+  //In this program it's only possible when
+  //begin == colums.end()
+  //we will push an element in,if element != 0
+  if(begin>=columns.end())
+    {
+      if(element!=0)
+	{
+	  columns.push_back(c);
+	  elements.push_back(element);
+	  for(int i=r+1;i<_rows;++i)
+	    ++rowPointers[i];
+	}
+      return;
+    }
+  //find the end of column c
   //note we begin with index 0
   if(r==_rows-1)
-    end	 = columns.end();
+    end	      = columns.end();
   else
-    end	= columns.begin()+rowPointers[r+1];
+    end	      = columns.begin()+rowPointers[r+1];
+  //if begin ==	end there is no element in that row
+  //but lower_bound will return begin,
+  //which point to a place in columns,valid to insert
+  //and we force it not check column,just insert.
+  if(begin==end)
+    {
+      if(element!=0)
+	{
+	  elements.insert(elements.begin()+(begin-columns.begin()),element);
+	  columns.insert(begin,c);
+	  for(int i=r+1;i<_rows;++i)
+	    ++rowPointers[i];
+	}
+      return;
+    }
   target = lower_bound(begin,end,c);
+  //we will add element to the last of elemets
+  //in case columns.end() has some random number equals to c
+  if(target==columns.end())
+    {
+      if(element!=0)
+	{
+	  columns.push_back(c);
+	  elements.push_back(element);
+	  for(int i=r+1;i<_rows;++i)
+	    ++rowPointers[i];
+	}
+      return;
+    }
+  //already an element exsits
   if(*target==c)
     {
-      //if assign 0,then do nothing
+      //if assign 0,then erase the element
       //this only works in int matrix
       if(element==0)
 	{
@@ -93,6 +138,7 @@ void smat<T>::set(int r,int c,T element)
 	  columns.erase(target);
 	  for(int i=r+1;i<_rows;++i)
 	    --rowPointers[i];
+	  return;
 	}
       *(elements.begin()+(target-columns.begin())) = element;
     }
@@ -107,17 +153,23 @@ void smat<T>::set(int r,int c,T element)
       for(int i=r+1;i<_rows;++i)
 	++rowPointers[i];
     }
+  return;
 }
 template<typename T>
 T smat<T>::operator()(int r,int c) const
 {
-  //NOTE:we need const_iterator here 
-  vector<int>::const_iterator begin,end,target;
-  begin = columns.begin()+rowPointers[r];
+  //NOTE:we need const_iterator here
+  
+  vector<int>::const_iterator	begin,end,target;
+  begin	      = columns.begin()+rowPointers[r];
   if(r==_rows-1)
-    end	 = columns.end();
+    end	      = columns.end();
   else
-    end	= columns.begin()+rowPointers[r+1];
+    end	      = columns.begin()+rowPointers[r+1];
+  //if begin ==	end there is no element in that row
+  //but lower_bound will return begin,causing error
+  if(begin==end)
+    return 0;
   target = lower_bound(begin,end,c);
   if(*target==c)
       return *(elements.begin()+(target-columns.begin()));
