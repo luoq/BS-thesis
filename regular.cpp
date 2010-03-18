@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/18/2010 09:44:52
+// Last-Updated: 03/18/2010 11:09:56
 //           By: Luo Qiang
-//     Update #: 108
+//     Update #: 114
 // Keywords:
 
 // Commentary:
@@ -16,6 +16,7 @@
 
 // Code:
 #include "regular.h"
+#define debug
 
 //generate a random integer from 0 to n
 inline int			randint(int n);
@@ -60,7 +61,7 @@ smat<int> regular(int n,int d){
       cout<<"try again"<<endl;
 #endif
       matrix.clear();
-      points.resize(n);
+      points.resize(n*d);
       goto tryagain;
     }
     int index2 = randint(suitablePoints.size());
@@ -82,6 +83,9 @@ smat<int> regular(int n,int d){
     else
       points.erase(points.begin()+suitablePointsIndex[index2]);
   }
+  #ifdef debug
+  cout<<matrix.rows()<<' '<<matrix.cols()<<endl;
+  #endif
   return matrix;
 }
 inline int randint(int n){

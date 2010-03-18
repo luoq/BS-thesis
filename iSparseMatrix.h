@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/17/2010 23:02:54
+ * Last-Updated: 03/18/2010 10:58:42
  *           By: Luo Qiang
- *     Update #: 95
+ *     Update #: 97
  * Keywords:
 
  /* Commentary:
@@ -30,6 +30,7 @@ template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
 
 template<typename T> class smat{
 public:
+  smat(){}
   //initialize with size and allocate at least nnz for nonzero elements
   smat(int rows,int cols,int nnz);
   //initializer with size and all the nonzero elements
