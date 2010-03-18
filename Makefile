@@ -1,6 +1,6 @@
 CC=g++
-#CXXFLAGS=-g
-CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
+CXXFLAGS=-g
+#CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
 main:main.o regular.o
 	$(CC) $^ -litpp -o $@
 main.o:main.cpp regular.h

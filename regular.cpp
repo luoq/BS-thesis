@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/17/2010 22:52:31
+// Last-Updated: 03/18/2010 09:44:52
 //           By: Luo Qiang
-//     Update #: 106
+//     Update #: 108
 // Keywords:
 
 // Commentary:
@@ -25,7 +25,8 @@ template<typename T> void	printVector(const vector<T> &vect);
 void				printMatrix(const smat<int> &matrix);
 
 smat<int> regular(int n,int d){
-  smat<int> matrix(n,n,d);
+  //n*d elements
+  smat<int> matrix(n,n,n*d);
   if(n*d%2!=0){
     return matrix;
   }
