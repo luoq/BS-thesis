@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/18/2010 15:34:12
+ * Last-Updated: 03/18/2010 15:47:40
  *           By: Luo Qiang
- *     Update #: 133
+ *     Update #: 138
  * Keywords:
 
  /* Commentary:
@@ -170,11 +170,13 @@ T smat<T>::operator()(int r,int c) const
   //but lower_bound will return begin,causing error
   if(begin==end)
     return 0;
-  target = lower_bound(begin,end,c);
-  if(*target==c)
-      return *(elements.begin()+(target-columns.begin()));
-  else
+  target      = lower_bound(begin,end,c);
+  //in case influence of random data at columns.end()
+  if(target>=columns.end())
     return 0;
+  if(*target==c)
+    return *(elements.begin()+(target-columns.begin()));
+  return 0;
 }
 
 template<typename T>
