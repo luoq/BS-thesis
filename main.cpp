@@ -39,6 +39,7 @@ int main(){
   smat<int>	matrix = regular(n,d);
   timer.toc_print();
   out<<matrix;
+  out.close();
   return 0;
 }
 
