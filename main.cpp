@@ -6,9 +6,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/19/2010 10:01:12
+// Last-Updated: 03/19/2010 12:39:21
 //           By: Luo Qiang
-//     Update #: 31
+//     Update #: 36
 // Keywords: 
 
 // Commentary: 
@@ -17,19 +17,20 @@
 
 // Code:
 //#include<itpp/itbase.h>
-#include <boost/timer.hpp>
-#include"regular.h"
-#include<iostream>
-#include<fstream>
+//using	itpp::Real_Timer;
+//typedef Real_Timer Timer
+#include "Timer.h"
+#include "regular.h"
+#include <iostream>
+#include <fstream>
 using	std::cout;
 using	std::cin;
 using	std::endl;
-//using		itpp::Real_Timer;
-using boost::timer;
 int main(){
   srand(time(NULL));
   int		n,d;
-  timer	timer;
+  Timer	timer;
+  double time;
   ofstream	out("data");
   smat<int>	matrix;
   if(!out){
@@ -38,9 +39,10 @@ int main(){
   }
   cout<<"input n and d:"<<endl;
   cin>>n>>d;
-  timer.restart();
+  timer.tic();
   matrix = regular(n,d);
-  cout<<"Time elapsed: "<<timer.elapsed()<<endl;
+  time=timer.toc();
+  cout<<"Time elapsed: "<<time<<endl;
   out<<matrix;
   out.close();
   return 0;
