@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/19/2010 19:54:57
+ * Last-Updated: 03/19/2010 21:01:54
  *           By: Luo Qiang
- *     Update #: 274
+ *     Update #: 279
  * Keywords:
 
  /* Commentary:
@@ -101,6 +101,7 @@ int svec<T>::set(int i,T value)
     {
       if(target.value!=0)
 	{
+	  _size=i+1;
 	  data.push_back(target);
 	  return 1;
 	}
@@ -132,7 +133,7 @@ int svec<T>::set(int i,T value)
   else
     {
       data.insert(targetIterator,target);
-      return 0;
+      return 1;
     }
 }
 template<typename T>
@@ -166,6 +167,7 @@ void svec<T>::clear()
 {
   _size	= 0;
   data.clear();
+
 }
 
 
@@ -198,12 +200,8 @@ protected:
 
 template<typename T>
 smat<T>::smat(int rows,int cols,int eMaxCols)
-  :_cols(cols),data(vector<svec<T> >(rows))
-{
-  _nnz=0;
-  for(int i=0;i<rows;i++)
-    data[i].data.reserve(eMaxCols);
-}
+  :_nnz(0),_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols,eMaxCols)))
+{}
 template <typename T>
 void smat<T>::set(int r,int c,T value)
 {

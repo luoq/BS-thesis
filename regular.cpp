@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/19/2010 19:51:56
+// Last-Updated: 03/19/2010 22:07:17
 //           By: Luo Qiang
-//     Update #: 139
+//     Update #: 143
 // Keywords:
 
 // Commentary:
@@ -86,14 +86,14 @@ smat<int> regular(int n,int d){
     else
       points.erase(points.begin()+suitablePointsIndex[index2]);
   }
-  #ifdef debug
-  if(matrix.nnz() != n*d)
-    {
-      cout<<matrix.rows()<<' '<<matrix.cols()<<endl;
-      cout<<matrix;
-      exit(1);
-    }
-  #endif
+  //#ifdef debug
+  //  if(matrix.nnz() != n*d)
+  //    {
+  //      cout<<matrix.rows()<<' '<<matrix.cols()<<endl;
+  //      cout<<matrix;
+  //      exit(1);
+  //    }
+  //#endif
   return matrix;
 }
 inline int randint(int n){

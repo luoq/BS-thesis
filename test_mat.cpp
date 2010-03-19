@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/17/2010 16:42:44
 // Version:
-// Last-Updated: 03/19/2010 19:48:50
+// Last-Updated: 03/19/2010 20:56:19
 //           By: Luo Qiang
-//     Update #: 57
+//     Update #: 60
 // Keywords:
 
 // Commentary:
@@ -53,8 +53,8 @@ void test_erase(smat<int> &m)
 int main()
 {
   smat<int>	m(100,100,10);
-  //m.set(1,0,1);
-  //m.set(0,1,1);
+  //m.set(1,1,1);
+  //m.set(1,1,1);
   //m.set(2,0,1);
   //m.set(0,2,1);
   //m.set(1,2,1);

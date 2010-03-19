@@ -3,6 +3,7 @@ CC=g++
 #CXXFLAGS=-g
 CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
 #CXXFLAGS=-O3
+all:main benchmark test_mat test_vec
 
 main:main.o regular.o Timer.o
 	$(CC) $^ -o $@
