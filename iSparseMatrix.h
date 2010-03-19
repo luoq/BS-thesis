@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/19/2010 10:00:00
+ * Last-Updated: 03/19/2010 17:12:39
  *           By: Luo Qiang
- *     Update #: 141
+ *     Update #: 213
  * Keywords:
 
  /* Commentary:
@@ -25,10 +25,140 @@
 
 using namespace std;
 
-template<typename T>class smat;
+template<typename T>class	element;
+template<typename T> bool operator<(const element<T> &,const element<T>&);
+template<typename T>class	svec;
+template<typename T> ostream& operator<<(ostream&,const svec<T> &m);
+template<typename T>class	smat;
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
 
+template<typename T> class element
+{
+public:
+  T	value;
+  int	index;
+  element(int index,T value)
+    :value(value),index(index)
+  {}
+};
+template<typename T> bool operator<(const element<T> &e1,const element<T> &e2)
+{
+  return e1.index<e2.index;
+}
+template <typename T> class svec
+{
+  friend class smat<T>;
+  friend ostream& operator<<<> (ostream& out,const svec<T>& m);
+public:
+  svec(int size,int ennz);
+  int size(){return _size;}
+  int nnz(){return data.size();}
+  T operator()(int i) const;
+  void set(int i,T value);
+  T erase(int i);
+protected:
+  vector<element<T> > data;
+  int		_size;
+};
+template<typename T>
+svec<T>::svec(int size,int ennz)
+  :_size(size)
+{
+  data.reserve(ennz);
+}
+template<typename T>
+T svec<T>::operator()(int i) const
+{
+  if(data.empty())
+    return 0;
+  element<T> target(i,0);
+  typename vector<element<T> >::const_iterator targetIterator
+    =lower_bound(data.begin(),data.end(),target);
+  if(targetIterator==data.end())
+    return 0;
+  if((*targetIterator).index==i)
+    return (*targetIterator).value;
+  return 0;
+}
+template<typename T>
+void svec<T>::set(int i,T value)
+{
+  element<T>	target(i,value);
+  if(data.empty())
+    {
+      if(value==0)
+	return;
+      data.push_back(target);
+      return;
+    }
+  if(i>=_size)
+    {
+      if(target.value!=0)
+	{
+	  data.push_back(target);
+	  return;
+	}
+      return;
+    }
+  typename vector<element<T> >::iterator targetIterator = lower_bound(data.begin(),data.end(),target);
+  if(targetIterator==data.end())
+    {
+      if(value==0)
+	return;
+      data.push_back(target);
+      return;
+    }
+  if((*targetIterator).index==i)
+    {
+      if(value==0)
+	{
+	  data.erase(targetIterator);
+	  return;
+	}
+      else
+	{
+	  (*targetIterator).value = value;
+	  return;
+	}
+    }
+  if(value==0)
+    return;
+  else
+    {
+      data.insert(targetIterator,target);
+      return;
+    }
+}
+template<typename T>
+T svec<T>::erase(int i)
+{
+  if(data.empty())
+    return 0;
+  element<T> target(i,0);
+  typename vector<element<T> >::iterator	targetIterator = lower_bound(data.begin(),data.end(),target);
+  if(targetIterator==data.end())
+    return 0;
+  if((*targetIterator).index==i)
+    {
+      T temp=(*targetIterator).value;
+      data.erase(targetIterator);
+      return temp;
+    }
+  return 0;
+}
+template<typename T>
+ostream& operator<< (ostream& out,const svec<T>& v)
+{
+  out<<"# size: "<<v._size<<endl;
+  out<<"# nnz: "<<v.data.size()<<endl;
+  for(typename vector<element<T> >::const_iterator i=v.data.begin();i != v.data.end();++i)
+    out<<(*i).index<<'\t'<<(*i).value<<' '<<endl;
+  return out;
+}
+
+
 template<typename T> class smat{
+  friend ostream& operator<<<> (ostream& out,const smat<T>& m);
 public:
   smat(){}
   //initialize with size and allocate at least nnz for nonzero elements
@@ -51,7 +181,6 @@ protected:
   vector<T>	elements;
   vector<T>	columns;
   vector<T>	rowPointers;
-  friend ostream& operator<<<> (ostream& out,const smat<T>& m);
 };
 
 template<typename T>
@@ -160,7 +289,7 @@ template<typename T>
 T smat<T>::operator()(int r,int c) const
 {
   //NOTE:we need const_iterator here
-  
+
   vector<int>::const_iterator	begin,end,target;
   begin	      = columns.begin()+rowPointers[r];
   if(r==rowPointers.size()-1)
@@ -198,14 +327,14 @@ T smat<T>::erase(int r,int c)
   if(target>=columns.end())
     return 0;
   if(*target==c)
-  {	
-    T temp=*(elements.begin()+(target-columns.begin()));
-	elements.erase(elements.begin()+(target-columns.begin()));
-	columns.erase(target);
-	for(int i=r+1;i<rowPointers.size();++i)
-		--rowPointers[i];
-	return temp;
-  }
+    {
+      T temp=*(elements.begin()+(target-columns.begin()));
+      elements.erase(elements.begin()+(target-columns.begin()));
+      columns.erase(target);
+      for(int i=r+1;i<rowPointers.size();++i)
+	--rowPointers[i];
+      return temp;
+    }
   return 0;
 }
 
