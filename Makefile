@@ -1,12 +1,8 @@
 CC=g++
 #CC=icpc
-CXXFLAGS=-g
-#CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
+#CXXFLAGS=-g
+CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
 #CXXFLAGS=-O3
-test_mat:test_mat.cpp regular.cpp iSparseMatrix.h
-	$(CC) $(CXXFLAGS) -o $@ $< regular.cpp
-test_vec:test_vec.cpp regular.cpp iSparseMatrix.h
-	$(CC) $(CXXFLAGS) -o $@ $< regular.cpp
 
 main:main.o regular.o Timer.o
 	$(CC) $^ -o $@
@@ -23,3 +19,8 @@ benchmark:benchmark.o regular.o Timer.o
 	$(CC) $^ -o $@
 benchmark.o:benchmark.cpp regular.h Timer.h
 	$(CC) $(CXXFLAGS) -c $<
+
+test_mat:test_mat.cpp regular.cpp iSparseMatrix.h
+	$(CC) $(CXXFLAGS) -o $@ $< regular.cpp
+test_vec:test_vec.cpp regular.cpp iSparseMatrix.h
+	$(CC) $(CXXFLAGS) -o $@ $< regular.cpp

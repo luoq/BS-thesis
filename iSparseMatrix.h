@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/19/2010 19:48:02
+ * Last-Updated: 03/19/2010 19:54:57
  *           By: Luo Qiang
- *     Update #: 273
+ *     Update #: 274
  * Keywords:
 
  /* Commentary:
@@ -251,7 +251,7 @@ ostream & operator<<(ostream &out,const smat<T> &m)
   out<<"# colums :"<<m._cols<<endl;
   for(int r=0;r<m.data.size();r++)
     for(int i=0;i<m.data[r].data.size();i++)
-      cout<<r<<'\t'<<(m.data[r].data)[i].index
+      out<<r<<'\t'<<(m.data[r].data)[i].index
 	  <<'\t'<<(m.data[r].data)[i].value<<endl;
   return out;
 }

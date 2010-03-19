@@ -31,12 +31,12 @@ public:
     ~Timer();                                   // default destructor
 
     void   start();                             // start timer
-	void   tic(){ start();}
+    void   tic(){ start();}
     void   stop();                              // stop the timer
     double getElapsedTime();                    // get elapsed time in second
     double getElapsedTimeInSec();               // get elapsed time in second (same as getElapsedTime)
     double getElapsedTimeInMilliSec();          // get elapsed time in milli-second
-	double toc(){return getElapsedTimeInMicroSec();}
+    double toc(){return getElapsedTimeInMilliSec();}
     double getElapsedTimeInMicroSec();          // get elapsed time in micro-second
 
 

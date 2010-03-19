@@ -6,9 +6,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/19/2010 12:57:43
+// Last-Updated: 03/19/2010 19:57:48
 //           By: Luo Qiang
-//     Update #: 38
+//     Update #: 41
 // Keywords: 
 
 // Commentary: 
@@ -37,16 +37,13 @@ int main(){
     cout<<"Cannot open file\n";
     return 1;
   }
-  while(1)
-    {
-      cout<<"input n and d:"<<endl;
-      cin>>n>>d;
-      timer.tic();
-      matrix = regular(n,d);
-      time   = timer.toc();
-      cout<<"Time elapsed: "<<time<<endl;
-      out<<matrix;
-    }
+  cout<<"input n and d:"<<endl;
+  cin>>n>>d;
+  timer.tic();
+  matrix = regular(n,d);
+  time   = timer.toc();
+  cout<<"Time elapsed: "<<time<<endl;
+  out<<matrix;
   out.close();
   return 0;
 }
