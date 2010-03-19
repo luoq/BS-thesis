@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/17/2010 16:42:44
 // Version:
-// Last-Updated: 03/18/2010 15:09:39
+// Last-Updated: 03/19/2010 09:52:23
 //           By: Luo Qiang
-//     Update #: 53
+//     Update #: 55
 // Keywords:
 
 // Commentary:
@@ -41,9 +41,17 @@ void test_get(const smat<int> &m)
   cin>>r>>c;
   cout<<m(r,c)<<endl;
 }
+void test_erase(smat<int> &m)
+{
+  cout<<"erase element\n";
+  cout<<"Input row,column :\n";
+  int r,c;
+  cin>>r>>c;
+  m.erase(r,c);
+}
 int main()
 {
-  smat<int>	m;
+  smat<int>	m(100,100,300);
   //m.set(1,0,1);
   //m.set(0,1,1);
   //m.set(2,0,1);
@@ -54,18 +62,9 @@ int main()
   //cout<<m;
   //return 0;
 
-  int i=1;
   while(1)
     {
-      cout<<"   "<<i<<"    \n";
-      m = regular(3,2);
-      i++;
-    }
-  return 0;
-
-  while(1)
-    {
-      cout<<"set(s),get(g),print(p)?\n";
+      cout<<"set(s),get(g),erase(e),print(p)?\n";
       char	choice = getch();
       switch(choice)
 	{
@@ -74,6 +73,9 @@ int main()
 	  break;
 	case 'g':
 	  test_get(m);
+	  break;
+	case 'e':
+	  test_erase(m);
 	  break;
 	case 'p':
 	  cout<<m;
@@ -85,8 +87,6 @@ int main()
 	}
     }
 }
-
-
 
 //
 // test.cpp ends here

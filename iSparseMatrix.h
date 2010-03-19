@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/18/2010 15:47:40
+ * Last-Updated: 03/19/2010 10:00:00
  *           By: Luo Qiang
- *     Update #: 138
+ *     Update #: 141
  * Keywords:
 
  /* Commentary:
@@ -38,13 +38,15 @@ public:
   //get the element at r,c
   T operator()(int r,int c) const;
   //set element at (r,c)
-  void clear();
   void	set(int r,int c,T element);
-  int rows() const {return _rows;}
+  //earse element (r,c) and return its value
+  T erase(int r,int c);
+  void clear();
+
+  int rows() const {return rowPointers.size();}
   int cols() const {return _cols;}
   int nnz() const {return elements.size();}
 protected:
-  int	_rows;
   int	_cols;
   vector<T>	elements;
   vector<T>	columns;
@@ -54,7 +56,7 @@ protected:
 
 template<typename T>
 smat<T>::smat(int rows,int cols,int nnz)
-  :_rows(rows),_cols(cols),rowPointers(vector<int>(rows,0))
+  :_cols(cols),rowPointers(vector<int>(rows,0))
 {
   elements.reserve(nnz);
   columns.reserve(nnz);
@@ -67,10 +69,9 @@ template <typename T>
 void smat<T>::set(int r,int c,T element)
 {
   //this following allows change of size,which is not  useful in my experiment
-  if(r>=_rows && element!=0)	//this test maybe wrong other than int type
+  if(r>=rowPointers.size() && element!=0)	//this test maybe wrong other than int type
     {
       rowPointers.resize(r+1,elements.size());
-      _rows = r+1;
     }
   if(c>=_cols && element!=0)	//this test maybe wrong other than int type
     _cols = c+1;
@@ -87,14 +88,14 @@ void smat<T>::set(int r,int c,T element)
 	{
 	  columns.push_back(c);
 	  elements.push_back(element);
-	  for(int i=r+1;i<_rows;++i)
+	  for(int i=r+1;i<rowPointers.size();++i)
 	    ++rowPointers[i];
 	}
       return;
     }
   //find the end of column c
   //note we begin with index 0
-  if(r==_rows-1)
+  if(r==rowPointers.size()-1)
     end	      = columns.end();
   else
     end	      = columns.begin()+rowPointers[r+1];
@@ -108,7 +109,7 @@ void smat<T>::set(int r,int c,T element)
 	{
 	  elements.insert(elements.begin()+(begin-columns.begin()),element);
 	  columns.insert(begin,c);
-	  for(int i=r+1;i<_rows;++i)
+	  for(int i=r+1;i<rowPointers.size();++i)
 	    ++rowPointers[i];
 	}
       return;
@@ -122,7 +123,7 @@ void smat<T>::set(int r,int c,T element)
 	{
 	  columns.push_back(c);
 	  elements.push_back(element);
-	  for(int i=r+1;i<_rows;++i)
+	  for(int i=r+1;i<rowPointers.size();++i)
 	    ++rowPointers[i];
 	}
       return;
@@ -136,7 +137,7 @@ void smat<T>::set(int r,int c,T element)
 	{
 	  elements.erase(elements.begin()+(target-columns.begin()));
 	  columns.erase(target);
-	  for(int i=r+1;i<_rows;++i)
+	  for(int i=r+1;i<rowPointers.size();++i)
 	    --rowPointers[i];
 	  return;
 	}
@@ -150,7 +151,7 @@ void smat<T>::set(int r,int c,T element)
 	return;
       elements.insert(elements.begin()+(target-columns.begin()),element);
       columns.insert(target,c);
-      for(int i=r+1;i<_rows;++i)
+      for(int i=r+1;i<rowPointers.size();++i)
 	++rowPointers[i];
     }
   return;
@@ -162,7 +163,7 @@ T smat<T>::operator()(int r,int c) const
   
   vector<int>::const_iterator	begin,end,target;
   begin	      = columns.begin()+rowPointers[r];
-  if(r==_rows-1)
+  if(r==rowPointers.size()-1)
     end	      = columns.end();
   else
     end	      = columns.begin()+rowPointers[r+1];
@@ -178,19 +179,48 @@ T smat<T>::operator()(int r,int c) const
     return *(elements.begin()+(target-columns.begin()));
   return 0;
 }
+template<typename T>
+T smat<T>::erase(int r,int c)
+{
+  vector<int>::iterator	begin,end,target;
+  begin	      = columns.begin()+rowPointers[r];
+  if(r==rowPointers.size()-1)
+    end	      = columns.end();
+  else
+    end	      = columns.begin()+rowPointers[r+1];
+  //if begin ==	end there is no element in that row
+  //but lower_bound will return begin,causing error
+  //just do nothing
+  if(begin==end)
+    return 0;
+  target = lower_bound(begin,end,c);
+  //in case influence of random data at columns.end()
+  if(target>=columns.end())
+    return 0;
+  if(*target==c)
+  {	
+    T temp=*(elements.begin()+(target-columns.begin()));
+	elements.erase(elements.begin()+(target-columns.begin()));
+	columns.erase(target);
+	for(int i=r+1;i<rowPointers.size();++i)
+		--rowPointers[i];
+	return temp;
+  }
+  return 0;
+}
 
 template<typename T>
 ostream & operator<<(ostream &out,const smat<T> &m)
 {
   out<<"# nnz :"<<m.elements.size()<<endl;
-  out<<"# rows :"<<m._rows<<endl;
+  out<<"# rows :"<<m.rowPointers.size()<<endl;
   out<<"# colums :"<<m._cols<<endl;
-  for(int i=0;i<m._rows-1;++i)
+  for(int i=0;i<m.rowPointers.size()-1;++i)
     for(int j=m.rowPointers[i];j<m.rowPointers[i+1];++j)
       out<<i<<' '<<m.columns[j]<<' '<<m.elements[j]<<endl;
   //note the situation at the last row where rowPointers[rows] is invalid
-  for(int j=m.rowPointers[m._rows-1];j<m.elements.size();++j)
-    out<<m._rows-1<<' '<<m.columns[j]<<' '<<m.elements[j]<<endl;
+  for(int j=m.rowPointers[m.rowPointers.size()-1];j<m.elements.size();++j)
+    out<<m.rowPointers.size()-1<<' '<<m.columns[j]<<' '<<m.elements[j]<<endl;
   return out;
 }
 template<typename T>
@@ -198,7 +228,7 @@ void smat<T>::clear()
 {
   elements.clear();
   columns.clear();
-  rowPointers.assign(_rows,0);
+  rowPointers.assign(rowPointers.size(),0);
 }
 
 #endif
