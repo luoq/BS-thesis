@@ -6,9 +6,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/19/2010 12:39:21
+// Last-Updated: 03/19/2010 12:57:43
 //           By: Luo Qiang
-//     Update #: 36
+//     Update #: 38
 // Keywords: 
 
 // Commentary: 
@@ -31,19 +31,22 @@ int main(){
   int		n,d;
   Timer	timer;
   double time;
-  ofstream	out("data");
+  ofstream	out("matrix.data");
   smat<int>	matrix;
   if(!out){
     cout<<"Cannot open file\n";
     return 1;
   }
-  cout<<"input n and d:"<<endl;
-  cin>>n>>d;
-  timer.tic();
-  matrix = regular(n,d);
-  time=timer.toc();
-  cout<<"Time elapsed: "<<time<<endl;
-  out<<matrix;
+  while(1)
+    {
+      cout<<"input n and d:"<<endl;
+      cin>>n>>d;
+      timer.tic();
+      matrix = regular(n,d);
+      time   = timer.toc();
+      cout<<"Time elapsed: "<<time<<endl;
+      out<<matrix;
+    }
   out.close();
   return 0;
 }

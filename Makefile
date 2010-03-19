@@ -3,6 +3,10 @@ CC=g++
 #CXXFLAGS=-O3
 CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
 #CXXFLAGS=-O3
+benchmark:benchmark.o regular.o Timer.o
+	$(CC) $^ -o $@
+benchmark.o:benchmark.cpp regular.h Timer.h
+	$(CC) $(CXXFLAGS) -c $<
 main:main.o regular.o Timer.o
 	$(CC) $^ -o $@
 main.o:main.cpp regular.h Timer.h

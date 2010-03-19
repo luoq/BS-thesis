@@ -1,2 +1,6 @@
 *~
 *.o
+*.data
+main
+benchmark
+test
