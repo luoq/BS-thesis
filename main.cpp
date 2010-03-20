@@ -1,4 +1,3 @@
-// A test
 // main.cpp --- 
 // 
 // Filename: main.cpp
@@ -6,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/20/2010 00:10:41
+// Last-Updated: 03/20/2010 10:01:31
 //           By: Luo Qiang
-//     Update #: 50
+//     Update #: 51
 // Keywords: 
 
 // Commentary: 

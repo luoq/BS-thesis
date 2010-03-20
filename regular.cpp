@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/20/2010 00:04:51
+// Last-Updated: 03/20/2010 10:16:21
 //           By: Luo Qiang
-//     Update #: 148
+//     Update #: 156
 // Keywords:
 
 // Commentary:
@@ -51,7 +51,7 @@ smat<int> regular(int n,int d){
     suitablePoints.clear();
     suitablePointsIndex.clear();
     for(int i=0;i!=points.size();++i){
-      int	group2				  = group(points[i],d);
+      int group2 = group(points[i],d);
       if(group2!=group1 && matrix(group1,group2) == 0){
 	suitablePoints.push_back(points[i]);
 	suitablePointsIndex.push_back(i);
@@ -62,20 +62,32 @@ smat<int> regular(int n,int d){
       cout<<"try again"<<endl;
 #endif
       matrix.clear();
+      //matrix=smat<int>(n,n,d);
+#ifdef debug
+      cout<<matrix;
+#endif
       points.resize(n*d);
       goto tryagain;
     }
-    int index2 = randint(suitablePoints.size());
-    int group2 = group(suitablePoints[index2],d);
+    int index2		      = randint(suitablePoints.size());
+    int group2		      = group(suitablePoints[index2],d);
     matrix.set(group1,group2,1);
     matrix.set(group2,group1,1);
 #ifdef debug
     cout<<"points to be deleted:\n";
     cout<<points[index1]<<' '<<suitablePoints[index2]<<endl;
     cout<<"add: ("<<group1<<','<<group2<<")\n";
-    cout<<matrix(group1,group2)<<endl;
+    if(matrix(group1,group2) !=	1)
+      {
+	cout<<matrix;
+	exit(1);
+      }
     cout<<"add: ("<<group2<<','<<group1<<")\n";
-    cout<<matrix(group2,group1)<<endl;
+    if(matrix(group2,group1) !=	1)
+      {
+	cout<<matrix;
+	exit(1);
+      }
 #endif
     points.erase(points.begin()+index1);
     //NOTE,when index1<suitablePointsIndex[index2],the index of second point

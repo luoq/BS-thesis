@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/20/2010 00:08:55
+ * Last-Updated: 03/20/2010 10:17:31
  *           By: Luo Qiang
- *     Update #: 301
+ *     Update #: 311
  * Keywords:
 
  /* Commentary:
@@ -84,7 +84,7 @@ T svec<T>::operator()(int i) const
   element<T> target(i,0);
   typename vector<element<T> >::const_iterator targetIterator
     =lower_bound(data.begin(),data.end(),target);
-  if(targetIterator==data.end())
+  if(targetIterator>=data.end())
     return 0;
   if((*targetIterator).index==i)
     return (*targetIterator).value;
@@ -169,9 +169,7 @@ ostream& operator<< (ostream& out,const svec<T>& v)
 template<typename T>
 void svec<T>::clear()
 {
-  _size	= 0;
   data.clear();
-
 }
 template<typename T>
 T svec<T>::sum()
@@ -275,8 +273,8 @@ template<typename T>
 void smat<T>::clear()
 {
   _nnz	= 0;
-  _cols	= 0;
-  data.clear();
+  for(int r=0;r<data.size();r++)
+    data[r].clear();
 }
 template<typename T>
 T smat<T>::row_sum(int r) const
