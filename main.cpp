@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/20/2010 10:01:31
+// Last-Updated: 03/20/2010 10:41:49
 //           By: Luo Qiang
-//     Update #: 51
+//     Update #: 55
 // Keywords: 
 
 // Commentary: 
@@ -27,7 +27,7 @@ using	std::cin;
 using	std::endl;
 int main(){
   srand(time(NULL));
-  int		n,d;
+  int		n,d,trytimes;
   Timer	timer;
   double time;
   ofstream	out("matrix.data");
@@ -38,12 +38,12 @@ int main(){
   }
   //cout<<"input n and d:"<<endl;
   //cin>>n>>d;
-  n = 4;
-  d = 2; 
+  n = 100;
+  d = 10; 
   while(1)
     {
       timer.tic();
-      matrix = regular(n,d);
+      matrix = regular(n,d,trytimes);
       time   = timer.toc();
       if(!isregular(matrix,d))
 	{
@@ -51,6 +51,7 @@ int main(){
 	  out.close();
 	  return 1;
 	}
+      cout<<"tryed "<<trytimes<<" times\n";
       cout<<"Time elapsed: "<<time<<endl;
     }
   //out<<matrix;

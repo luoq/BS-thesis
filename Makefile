@@ -1,7 +1,7 @@
 CC=g++
 #CC=icc
-CXXFLAGS=-g
-#CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
+#CXXFLAGS=-g
+CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
 #CXXFLAGS=-O3
 all:main benchmark test_mat test_vec
 

@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/19/2010 12:55:51
 // Version: 
-// Last-Updated: 03/19/2010 13:30:34
+// Last-Updated: 03/20/2010 10:46:39
 //           By: Luo Qiang
-//     Update #: 17
+//     Update #: 21
 // Keywords: 
 
 // Commentary: 
@@ -25,7 +25,7 @@ using	std::endl;
 int main()
 {
   srand(time(NULL));
-  int		n,d,repeat;
+  int		n,d,trytimes,repeat;
   Timer		timer;
   double	time;
   ofstream	out("benchmark.data");
@@ -39,15 +39,15 @@ int main()
   //for odd n,no possible regular matrix
   out<<"# bechmark for regular matrix generation with d = "<<d<<
     "\n # from n=4 to 100,repeated "<<repeat<<" times each \n";
-  for(int n=4;n<=1000;n+=2)
+  for(int n=4;n<=100;n+=2)
     {
       out<<n<<'\t';
     for(int i=0;i<repeat;++i)
       {
 	timer.tic();
-	matrix = regular(n,d);
+	matrix = regular(n,d,trytimes);
 	time   = timer.toc();
-	out<<time<<'\t';
+	out<<trytimes<<'\t'<<time<<'\t';
       }
     out<<endl;
     }

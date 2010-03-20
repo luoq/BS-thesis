@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/20/2010 10:16:21
+// Last-Updated: 03/20/2010 10:40:21
 //           By: Luo Qiang
-//     Update #: 156
+//     Update #: 162
 // Keywords:
 
 // Commentary:
@@ -24,7 +24,7 @@ inline int			group(int point,int d);
 template<typename T> void	printVector(const vector<T> &vect);
 void				printMatrix(const smat<int> &matrix);
 
-smat<int> regular(int n,int d){
+smat<int> regular(int n,int d,int &trytimes){
   smat<int> matrix(n,n,d);
   if(n*d%2!=0){
     return matrix;
@@ -34,6 +34,7 @@ smat<int> regular(int n,int d){
 #endif
   vector<int> points(n*d);
   vector<int> suitablePoints,suitablePointsIndex;
+  trytimes=1;
  tryagain:
   for(int i=0;i!=points.size();++i){
     points[i]=i;
@@ -62,11 +63,8 @@ smat<int> regular(int n,int d){
       cout<<"try again"<<endl;
 #endif
       matrix.clear();
-      //matrix=smat<int>(n,n,d);
-#ifdef debug
-      cout<<matrix;
-#endif
       points.resize(n*d);
+      trytimes++;
       goto tryagain;
     }
     int index2		      = randint(suitablePoints.size());
@@ -79,7 +77,7 @@ smat<int> regular(int n,int d){
     cout<<"add: ("<<group1<<','<<group2<<")\n";
     if(matrix(group1,group2) !=	1)
       {
-	cout<<matrix;
+	Cout<<matrix;
 	exit(1);
       }
     cout<<"add: ("<<group2<<','<<group1<<")\n";
@@ -97,14 +95,6 @@ smat<int> regular(int n,int d){
     else
       points.erase(points.begin()+suitablePointsIndex[index2]);
   }
-  //#ifdef debug
-  //  if(matrix.nnz() != n*d)
-  //    {
-  //      cout<<matrix.rows()<<' '<<matrix.cols()<<endl;
-  //      cout<<matrix;
-  //      exit(1);
-  //    }
-  //#endif
   return matrix;
 }
 inline int randint(int n){
