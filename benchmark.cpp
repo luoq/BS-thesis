@@ -39,7 +39,7 @@ int main()
   //for odd n,no possible regular matrix
   out<<"# bechmark for regular matrix generation with d = "<<d<<
     "\n # from n=4 to 100,repeated "<<repeat<<" times each \n";
-  for(int n=4;n<=500;n+=2)
+  for(int n=4;n<=1000;n+=2)
     {
       out<<n<<'\t';
     for(int i=0;i<repeat;++i)

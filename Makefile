@@ -1,7 +1,7 @@
 CC=g++
-#CC=icpc
-#CXXFLAGS=-g
-CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
+#CC=icc
+CXXFLAGS=-g
+#CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
 #CXXFLAGS=-O3
 all:main benchmark test_mat test_vec
 
@@ -14,7 +14,7 @@ regular.o:regular.cpp regular.h iSparseMatrix.h
 Timer.o:Timer.cpp Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 clean:
-	rm *.o main data test_vec test_mat
+	rm *.o main *.data test_vec test_mat
 
 benchmark:benchmark.o regular.o Timer.o
 	$(CC) $^ -o $@

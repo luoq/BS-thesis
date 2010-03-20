@@ -5,13 +5,14 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/19/2010 21:01:54
+ * Last-Updated: 03/20/2010 00:08:55
  *           By: Luo Qiang
- *     Update #: 279
+ *     Update #: 301
  * Keywords:
 
  /* Commentary:
- //use CSR format to store
+ //use vector of sparse vector format to store
+ //considering the much add and erase in my work
  //provide easy interface
 
  /* Change log:
@@ -62,6 +63,9 @@ public:
   //return 0 for nothing to erase
   T erase(int i);
   void clear();
+
+  //return sum of all elements
+  T sum();
 protected:
   vector<element<T> > data;
   int		_size;
@@ -169,6 +173,15 @@ void svec<T>::clear()
   data.clear();
 
 }
+template<typename T>
+T svec<T>::sum()
+{
+  T	sum    = 0;
+  for(int j=0;j<data.size();j++)
+    sum += data[j].value;
+  return sum;
+}
+
 
 
 template<typename T> class smat{
@@ -192,6 +205,11 @@ public:
   int	rows() const {return data.size();}
   int cols() const {return _cols;}
   int nnz() const {return _nnz;}
+
+  T	row_sum(int r) const;
+  T	col_sum(int c) const;
+  int	row_nnz(int r) const;
+  int	col_nnz(int c) const;
 protected:
   int _cols;
   int _nnz;
@@ -259,6 +277,32 @@ void smat<T>::clear()
   _nnz	= 0;
   _cols	= 0;
   data.clear();
+}
+template<typename T>
+T smat<T>::row_sum(int r) const
+{
+  return data[r].sum();
+}
+template<typename T>
+T smat<T>::col_sum(int c) const
+{
+  T	sum  = 0;
+  for(int r=0;r<data.size();r++)
+    sum	    += data[r](c);
+  return sum;
+}
+template<typename T>
+int smat<T>::row_nnz(int r) const
+{
+  return data[r].data.size();
+}
+template<typename T>
+int smat<T>::col_nnz(int c) const
+{
+  int nnz  = 0;
+  for(int r=0;r<data.size();r++)
+    nnz+=int(data[r](c)!=0);
+  return nnz;
 }
 
 #endif

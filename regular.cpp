@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/19/2010 22:07:17
+// Last-Updated: 03/20/2010 00:04:51
 //           By: Luo Qiang
-//     Update #: 143
+//     Update #: 148
 // Keywords:
 
 // Commentary:
@@ -16,7 +16,6 @@
 
 // Code:
 #include "regular.h"
-//#define debug
 
 //generate a random integer from 0 to n
 inline int			randint(int n);

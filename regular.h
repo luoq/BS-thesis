@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/15/2010 16:34:41
  * Version: 
- * Last-Updated: 03/18/2010 10:55:08
+ * Last-Updated: 03/20/2010 00:06:03
  *           By: Luo Qiang
- *     Update #: 34
+ *     Update #: 43
  * Keywords: */
 
 /* Commentary: */
@@ -22,9 +22,33 @@
 #include<vector>
 #include "iSparseMatrix.h"
 using namespace	std;
+#define debug
 
+smat<int>	regular(int n,int d);
+template<typename T> bool isregular(const smat<T> &m,int d);
 
-smat<int> regular(int n,int d);
+template<typename T>
+bool isregular(const smat<T> &m,int d)
+{
+  for(int r=0;r<m.rows();r++)
+    if(m.row_nnz(r) != d)
+      {
+#ifdef debug
+	cout<<"failed at row:"<<r<<endl;
+#endif
+	return false;
+      }
+  for(int c=0;c<m.cols();c++)
+    if(m.col_nnz(c) != d)
+      {
+#ifdef debug
+	cout<<"failed at col:"<<c<<endl;
+#endif
+	return false;
+      }
+  return true;
+}
+
 template<typename T>
 void printMatrix(const smat<T> &matrix){
   for(int i=0;i<matrix.rows();i++){
