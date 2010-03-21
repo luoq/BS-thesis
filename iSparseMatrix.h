@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/20/2010 10:17:31
+ * Last-Updated: 03/21/2010 13:19:49
  *           By: Luo Qiang
- *     Update #: 311
+ *     Update #: 348
  * Keywords:
 
  /* Commentary:
@@ -21,6 +21,8 @@
 #ifndef ISPARSEMATRIX_H
 #define ISPARSEMATRIX_H
 #include <vector>
+#include <string>
+#include <fstream>
 #include <algorithm>
 #include <iostream>
 
@@ -46,14 +48,18 @@ template<typename T> bool operator<(const element<T> &e1,const element<T> &e2)
 {
   return e1.index<e2.index;
 }
+
 template <typename T> class svec
 {
 public:
-  template <typename U> friend class smat;
+  template <typename U> friend class	smat;
   friend ostream& operator<<<> (ostream& Out,const svec<T>& v);
   friend ostream& operator<<<> (ostream& Out,const smat<T>& m);
   svec (){_size	= 0;}
   svec(int size,int ennz);
+  svec(int size)
+    :_size(size)
+  {}
   int size(){return _size;}
   int	nnz(){return data.size();}
   T operator()(int i) const;
@@ -186,10 +192,12 @@ template<typename T> class smat{
   friend ostream& operator<<<> (ostream& out,const smat<T>& m);
 public:
   smat()
-  {
-    _nnz = 0;
-    _cols=0;
-  }
+    :_nnz(0),_cols(0)
+  {}
+  smat(int rows,int cols)
+    :_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols)))
+  {}
+  bool load_octave(string path);
   //initialize with size and allocate at least eMaxCols for each row
   smat(int rows,int cols,int eMaxCols);
   //get the element at r,c
@@ -213,7 +221,6 @@ protected:
   int _nnz;
   vector<svec<T> > data;
 };
-
 template<typename T>
 smat<T>::smat(int rows,int cols,int eMaxCols)
   :_nnz(0),_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols,eMaxCols)))
@@ -303,5 +310,42 @@ int smat<T>::col_nnz(int c) const
   return nnz;
 }
 
+template<typename T>
+bool smat<T>::load_octave(string path)
+{
+  ifstream	In(path.c_str());
+  if(!In)
+    return false;
+  //get matrix size and nnz
+  //the following is ugly only work in this situation
+  int nnz,rows,cols;
+  In.ignore(1024,'\n');
+  In.ignore(1024,'\n');
+  In.ignore(1024,'\n');
+  In.ignore(1024,':');
+  In>>nnz;
+  In.ignore(1024,':');
+  In>>rows;
+  In.ignore(1024,':');
+  In>>cols;
+
+  _cols	= cols;
+  _nnz	= nnz;
+  //3 is for later calculation
+  data.assign(rows,svec<T>(cols,nnz/rows*3));
+  
+  int	r,c;
+  T	value;
+  //This actully store the transpose of what in octave
+  //But in my experiment,that's the same
+  while(In>>c>>r>>value)
+    {
+      //zero indexed
+      c--;
+      r--;
+      data[r].data.push_back(element<T>(c,value));
+    }
+  return true;
+}
 #endif
 /* iSparseMatrix.h ends here */

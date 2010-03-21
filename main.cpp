@@ -36,25 +36,18 @@ int main(){
     cout<<"Cannot open file\n";
     return 1;
   }
-  //cout<<"input n and d:"<<endl;
-  //cin>>n>>d;
-  n = 100;
-  d = 10; 
-  while(1)
-    {
-      timer.tic();
-      matrix = regular(n,d,trytimes);
-      time   = timer.toc();
-      if(!isregular(matrix,d))
-	{
-	  out<<matrix;
-	  out.close();
+  cout<<"input n and d:"<<endl;
+  cin>>n>>d;
+  timer.tic();
+  matrix = regular(n,d,trytimes);
+  time   = timer.toc();
+  cout<<"tryed "<<trytimes<<" times\n";
+  cout<<"Time elapsed: "<<time<<" ms\n";
+  out<<matrix;
+  if(!isregular(matrix,d))
+  {
 	  return 1;
-	}
-      cout<<"tryed "<<trytimes<<" times\n";
-      cout<<"Time elapsed: "<<time<<endl;
-    }
-  //out<<matrix;
+  }
   out.close();
   return 0;
 }

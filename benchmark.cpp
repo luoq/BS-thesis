@@ -37,9 +37,8 @@ int main()
   repeat = 10;
   smat<int>	matrix;
   //for odd n,no possible regular matrix
-  out<<"# bechmark for regular matrix generation with d = "<<d<<
-    "\n # from n=4 to 100,repeated "<<repeat<<" times each \n";
-  for(int n=4;n<=100;n+=2)
+  out<<"# bechmark for regular matrix generation with d = "<<d<<endl;
+  for(int n=4;n<=5000;n*=2)
     {
       out<<n<<'\t';
     for(int i=0;i<repeat;++i)
