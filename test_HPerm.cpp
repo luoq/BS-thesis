@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/21/2010 15:27:10
 // Version: 
-// Last-Updated: 03/21/2010 16:06:17
+// Last-Updated: 03/21/2010 19:32:10
 //           By: Luo Qiang
-//     Update #: 12
+//     Update #: 45
 // Keywords: 
 
 // Commentary: 
@@ -19,12 +19,25 @@
 #include "iSparseMatrix.h"
 int main()
 {
-  smat<int>	m(1,1);
-  m.set(1,1,5);
-  cout<<m;
+  //smat<int>	m(3,3);
+  //m.set(0,0,5);
+  //m.set(0,1,2);
+  //m.set(1,1,3);
+  //m.set(1,0,7);
+  //m.set(2,2,2);
+  smat<int>	m;
   //m.load_octave("../data/F30.data");
-  smat<int> mcopy(m);
-  cout<<HPerm(mcopy)<<endl;
+  m.load_octave("test.data");
+
+  smat<int>	mcopy(m);
+#ifdef plot
+  cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;ranksep=0.2;\n";
+#endif
+  int p=HPerm(mcopy);
+#ifdef plot
+  cout<<"}\n";
+#endif
+  cout<<p<<endl;
   return 0;
 }
 // 

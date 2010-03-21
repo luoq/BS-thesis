@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/21/2010 16:07:48
+ * Last-Updated: 03/21/2010 19:56:33
  *           By: Luo Qiang
- *     Update #: 490
+ *     Update #: 565
  * Keywords:
 
  /* Commentary:
@@ -36,7 +36,7 @@ template<typename T> ostream& operator<<(ostream&,const svec<T> &v);
 template<typename T> class	smat;
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
-template<typename T> T		HPerm(smat<T> &m);
+template<typename T> T		HPerm(smat<T> &m,int node=0);
 //info = -1,empty
 //info = 0,find
 //info = 1,not find,return first larger
@@ -76,7 +76,7 @@ public:
   template <typename U> friend class	smat;
   friend ostream& operator<<<> (ostream& Out,const svec<T>& v);
   friend ostream& operator<<<> (ostream& Out,const smat<T>& m);
-  friend T HPerm<>(smat<T> &m);
+  friend T HPerm<>(smat<T> &m,int node);
   svec (){_size	= 0;}
   svec(int size,int ennz);
   svec(int size)
@@ -212,7 +212,7 @@ T svec<T>::sum()
 
 template<typename T> class smat{
   friend ostream& operator<<<> (ostream& out,const smat<T>& m);
-  friend T HPerm<>(smat<T> &m);
+  friend T HPerm<>(smat<T> &m,int node);
 public:
   smat()
     :_nnz(0),_cols(0)
@@ -230,6 +230,7 @@ public:
   //earse element (r,c) and return its value
   T erase(int r,int c);
   void erase_row(int r);
+  void erase_col(int c);
   void clear();
 
   int	rows() const {return data.size();}
@@ -240,6 +241,7 @@ public:
   T	col_sum(int c) const;
   int	row_nnz(int r) const;
   int	col_nnz(int c) const;
+  void print() const;
 protected:
   int _cols;
   int _nnz;
@@ -294,6 +296,25 @@ void smat<T>::erase_row(int r)
     return;
   _nnz-=data[r].data.size();
   data.erase(data.begin()+r);
+}
+template<typename T>
+void smat<T>::erase_col(int c)
+{
+  if(c>=_cols)
+    return;
+  element<T>	target(c,0);
+  int pos,info;
+  for(int r=0;r<data.size();r++)
+    {
+      pos = lower_bound_find(data[r].data.begin(),data[r].data.end(),target,info)-data[r].data.begin();
+      if(info=-1 || info==2)
+	continue;
+      for(int col=pos;col<=data[r].data.size();col++)
+	data[r].data[col].index--;
+      if(info==0)
+	data[r].data.erase(data[r].data.begin()+pos);
+    }
+  _cols--;
 }
 
 template<typename T>
@@ -381,19 +402,37 @@ bool smat<T>::load_octave(string path)
 }
 
 template<typename T>
-T HPerm(smat<T> &m)
+T HPerm(smat<T> &m,int node=0)
 {
+  int max = 5;
+  int child=1;
+#ifdef plot
+  cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
+  m.print();
+  cout<<"\"];\n";
+#endif
   if(m.data.size() == 1)
-    return m(0,0);
+    {
+#ifdef debug
+      cout<<"1*1 matrix:\n";
+      cout<<m(0,0)<<endl;
+#endif
+      return m(0,0);
+    }
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(int r=0;r<rowSize.size();r++)
     rowSize[r]=m.data[r].data.size();
   int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int	minSize	= rowSize[minRow];
+#ifdef debug
+  cout<<"choose min row :"<<minRow<<" with size: "<<minSize<<endl;
+#endif
 
   if(minSize==0)
-    return 0;
+    {
+      return 0;
+    }
 
   T ret=0;
   for(int i=0;i<minSize/2;i++)
@@ -402,6 +441,9 @@ T HPerm(smat<T> &m)
       T		value1	= m.data[minRow].data[0].value;
       int	c2	= m.data[minRow].data[1].index;
       T		value2	= m.data[minRow].data[1].value;
+#ifdef debug
+  cout<<"will eliminate columns: "<<c1<<" and "<<c2<<endl;
+#endif
       m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
       m.data[minRow].data.erase(m.data[minRow].data.begin());
       m._nnz	       -= 2;//This is not necesaray for m is local
@@ -414,18 +456,28 @@ T HPerm(smat<T> &m)
       for(int r=0;r<mtemp.data.size();r++)
 	//eliminate two elements each row
 	{
-	  pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)-mtemp.data[r].data.begin();
+	  pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)
+	    -mtemp.data[r].data.begin();
 	  if(info1==-1 || info1==2)
 	    continue;
-	  pos2 = lower_bound_find(mtemp.data[r].data.begin()+pos1,mtemp.data[r].data.end(),target1,info1)-mtemp.data[r].data.begin();
+	  pos2 = lower_bound_find(mtemp.data[r].data.begin()+pos1,mtemp.data[r].data.end(),target2,info2)-mtemp.data[r].data.begin();
+#ifdef debug
+	  cout<<"info1: "<<info1<<" info2: "<<info2<<endl;
+#endif
+	  for(int c=pos2;c<mtemp.data[r].data.size();c++)
+	    mtemp.data[r].data[c].index--;
 	  if(info1==0)
 	    {
 	      if(info2!=0)
 		mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value;
 	      else
 		{
+#ifdef debug
+		  cout<<"actually * and +\n";
+#endif
 		  mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value+
 		    value1*mtemp.data[r].data[pos2].value;
+		  //fix:is that always !=0
 		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2);
 		  mtemp._nnz--;
 		}
@@ -442,15 +494,28 @@ T HPerm(smat<T> &m)
 	      continue;
 	    }
 	}
-      ret+=HPerm(mtemp);
+      mtemp._cols--;
+#ifdef plot
+      cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+      ret+=HPerm(mtemp,node*max+child);
+#ifdef plot
+      child++;
+#endif
     }
   if(!m.data[minRow].data.empty())
     {
       int c= m.data[minRow].data[0].index;
+      T value= m.data[minRow].data[0].value;
+#ifdef debug
+  cout<<"will eliminate columns: "<<c<<endl;
+#endif
       m.erase_row(minRow);
-      for(int r=0;r<m.data.size();r++)
-	m.erase(r,c);
-      ret+=HPerm(m);
+      m.erase_col(c);
+#ifdef plot
+      cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+      ret+=value*HPerm(m,node*max+child);
     }
   return ret;
 }
@@ -471,6 +536,16 @@ ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
   else
     info		    = 1;
   return ret;
+}
+template <typename T>
+void smat<T>::print() const
+{
+  for(int i=0;i<data.size();i++)
+    {
+      for(int j=0;j<_cols;j++)
+	cout<<this->operator()(i,j)<<' ';
+      cout<<"\\n";
+    }
 }
 #endif
 /* iSparseMatrix.h ends here */

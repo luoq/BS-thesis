@@ -1,6 +1,6 @@
 CC=g++
 #CC=icc
-CXXFLAGS=-g
+CXXFLAGS=-g -Dplot
 #CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
 #CXXFLAGS=-O3
 test_HPerm:test_HPerm.cpp iSparseMatrix.h
