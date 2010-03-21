@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/21/2010 13:19:49
+ * Last-Updated: 03/21/2010 16:07:48
  *           By: Luo Qiang
- *     Update #: 348
+ *     Update #: 490
  * Keywords:
 
  /* Commentary:
@@ -28,12 +28,23 @@
 
 using namespace std;
 
-template<typename T>class	element;
+template<typename T> class	element;
 template<typename T> bool operator<(const element<T> &,const element<T>&);
-template<typename T>class	svec;
+template<typename T> bool operator==(const element<T> &,const element<T>&);
+template<typename T> class	svec;
 template<typename T> ostream& operator<<(ostream&,const svec<T> &v);
-template<typename T>class	smat;
+template<typename T> class	smat;
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
+template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
+template<typename T> T		HPerm(smat<T> &m);
+//info = -1,empty
+//info = 0,find
+//info = 1,not find,return first larger
+//info = 2,not find,at end
+template <class			ForwardIterator, class T>
+ForwardIterator lower_bound_find(ForwardIterator first, ForwardIterator last,
+				 const T& value,int & info);
+
 
 template<typename T> class element
 {
@@ -43,10 +54,20 @@ public:
   element(int index,T value)
     :value(value),index(index)
   {}
+  element<T>&operator =	(const element<T>& other)
+  {
+    value = other.value;
+    index = other.index;
+    return *this;
+  }
 };
 template<typename T> bool operator<(const element<T> &e1,const element<T> &e2)
 {
   return e1.index<e2.index;
+}
+template<typename T> bool operator==(const element<T> &e1,const element<T> &e2)
+{
+  return e1.index==e2.index;
 }
 
 template <typename T> class svec
@@ -55,6 +76,7 @@ public:
   template <typename U> friend class	smat;
   friend ostream& operator<<<> (ostream& Out,const svec<T>& v);
   friend ostream& operator<<<> (ostream& Out,const smat<T>& m);
+  friend T HPerm<>(smat<T> &m);
   svec (){_size	= 0;}
   svec(int size,int ennz);
   svec(int size)
@@ -78,7 +100,7 @@ protected:
 };
 template<typename T>
 svec<T>::svec(int size,int ennz)
-  :_size(size)
+ :_size(size)
 {
   data.reserve(ennz);
 }
@@ -190,12 +212,13 @@ T svec<T>::sum()
 
 template<typename T> class smat{
   friend ostream& operator<<<> (ostream& out,const smat<T>& m);
+  friend T HPerm<>(smat<T> &m);
 public:
   smat()
     :_nnz(0),_cols(0)
   {}
   smat(int rows,int cols)
-    :_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols)))
+    :_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols))),_nnz(0)
   {}
   bool load_octave(string path);
   //initialize with size and allocate at least eMaxCols for each row
@@ -206,6 +229,7 @@ public:
   void	set(int r,int c,T element);
   //earse element (r,c) and return its value
   T erase(int r,int c);
+  void erase_row(int r);
   void clear();
 
   int	rows() const {return data.size();}
@@ -223,7 +247,7 @@ protected:
 };
 template<typename T>
 smat<T>::smat(int rows,int cols,int eMaxCols)
-  :_nnz(0),_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols,eMaxCols)))
+ :_nnz(0),_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols,eMaxCols)))
 {}
 template <typename T>
 void smat<T>::set(int r,int c,T value)
@@ -263,6 +287,14 @@ T smat<T>::erase(int r,int c)
     _nnz--;
   return ret;
 }
+template<typename T>
+void smat<T>::erase_row(int r)
+{
+  if(r>=data.size())
+    return;
+  _nnz-=data[r].data.size();
+  data.erase(data.begin()+r);
+}
 
 template<typename T>
 ostream & operator<<(ostream &out,const smat<T> &m)
@@ -273,7 +305,7 @@ ostream & operator<<(ostream &out,const smat<T> &m)
   for(int r=0;r<m.data.size();r++)
     for(int i=0;i<m.data[r].data.size();i++)
       out<<r<<'\t'<<(m.data[r].data)[i].index
-	  <<'\t'<<(m.data[r].data)[i].value<<endl;
+	 <<'\t'<<(m.data[r].data)[i].value<<endl;
   return out;
 }
 template<typename T>
@@ -333,7 +365,7 @@ bool smat<T>::load_octave(string path)
   _nnz	= nnz;
   //3 is for later calculation
   data.assign(rows,svec<T>(cols,nnz/rows*3));
-  
+
   int	r,c;
   T	value;
   //This actully store the transpose of what in octave
@@ -346,6 +378,99 @@ bool smat<T>::load_octave(string path)
       data[r].data.push_back(element<T>(c,value));
     }
   return true;
+}
+
+template<typename T>
+T HPerm(smat<T> &m)
+{
+  if(m.data.size() == 1)
+    return m(0,0);
+  //find the row with minimal element
+  vector<int>	rowSize(m.data.size());
+  for(int r=0;r<rowSize.size();r++)
+    rowSize[r]=m.data[r].data.size();
+  int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+  int	minSize	= rowSize[minRow];
+
+  if(minSize==0)
+    return 0;
+
+  T ret=0;
+  for(int i=0;i<minSize/2;i++)
+    {
+      int	c1	= m.data[minRow].data[0].index;
+      T		value1	= m.data[minRow].data[0].value;
+      int	c2	= m.data[minRow].data[1].index;
+      T		value2	= m.data[minRow].data[1].value;
+      m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
+      m.data[minRow].data.erase(m.data[minRow].data.begin());
+      m._nnz	       -= 2;//This is not necesaray for m is local
+
+      smat<T> mtemp(m);
+      mtemp.erase_row(minRow);
+      element<T> target1(c1,0),target2(c2,0);
+      int		info1,info2;
+      int		pos1,pos2;
+      for(int r=0;r<mtemp.data.size();r++)
+	//eliminate two elements each row
+	{
+	  pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)-mtemp.data[r].data.begin();
+	  if(info1==-1 || info1==2)
+	    continue;
+	  pos2 = lower_bound_find(mtemp.data[r].data.begin()+pos1,mtemp.data[r].data.end(),target1,info1)-mtemp.data[r].data.begin();
+	  if(info1==0)
+	    {
+	      if(info2!=0)
+		mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value;
+	      else
+		{
+		  mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value+
+		    value1*mtemp.data[r].data[pos2].value;
+		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2);
+		  mtemp._nnz--;
+		}
+	      continue;
+	    }
+	  if(info1==1)
+	    {
+	      if(info2==0)
+		{
+		  mtemp.data[r].data.insert(mtemp.data[r].data.begin()+pos1,
+					    element<T>(c1,value1*mtemp.data[r].data[pos2].value));
+		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2);
+		}
+	      continue;
+	    }
+	}
+      ret+=HPerm(mtemp);
+    }
+  if(!m.data[minRow].data.empty())
+    {
+      int c= m.data[minRow].data[0].index;
+      m.erase_row(minRow);
+      for(int r=0;r<m.data.size();r++)
+	m.erase(r,c);
+      ret+=HPerm(m);
+    }
+  return ret;
+}
+template <class ForwardIterator, class T>
+ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
+				   const T& value,int & info)
+{
+  if(first>=last)
+    {
+      info = -1;
+      return first;
+    }
+  ForwardIterator	ret = lower_bound(first,last,value);
+  if(ret==last)
+    info		    = 2;
+  if(*ret==value)
+    info		    = 0;
+  else
+    info		    = 1;
+  return ret;
 }
 #endif
 /* iSparseMatrix.h ends here */
