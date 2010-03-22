@@ -97,7 +97,7 @@ template <typename T> class svec
   T sum();
  protected:
   vector<element<T> > data;
-  unsigned		_size;
+  int		_size;
 };
 template<typename T>
 svec<T>::svec(int size,int ennz)
@@ -227,13 +227,13 @@ template<typename T> class smat{
   //initialize with size and allocate at least eMaxCols for each row
   smat(int rows,int cols,int eMaxCols);
   //get the element at r,c
-  T operator()(unsigned r,unsigned c) const;
+  T operator()(int r,int c) const;
   //set element at (r,c)
   void	set(int r,int c,T element);
   //earse element (r,c) and return its value
   T erase(int r,int c);
-  void erase_row(unsigned r);
-  void erase_col(unsigned c);
+  void erase_row(int r);
+  void erase_col(int c);
   void clear();
 
   int	rows() const {return data.size();}
@@ -247,8 +247,8 @@ template<typename T> class smat{
   vector<int> col_nnzs() const;
   void print() const;
  protected:
-  unsigned _cols;
-  unsigned _nnz;
+  int _cols;
+  int _nnz;
   vector<svec<T> > data;
 };
 template<typename T>
@@ -276,7 +276,7 @@ void smat<T>::set(int r,int c,T value)
   _nnz+=(data[r]).set(c,value);
 }
 template<typename T>
-T smat<T>::operator()(unsigned r,unsigned c) const
+T smat<T>::operator()(int r,int c) const
 {
   if(r>=data.size())
     return 0;
@@ -294,7 +294,7 @@ T smat<T>::erase(int r,int c)
   return ret;
 }
 template<typename T>
-void smat<T>::erase_row(unsigned r)
+void smat<T>::erase_row(int r)
 {
   if(r>=data.size())
     return;
@@ -302,19 +302,19 @@ void smat<T>::erase_row(unsigned r)
   data.erase(data.begin()+r);
 }
 template<typename T>
-void smat<T>::erase_col(unsigned c)
+void smat<T>::erase_col(int c)
 {
   if(c>=_cols)
     return;
   element<T>	target(c,0);
   int		pos,info;
   int numErased=0;
-  for(unsigned r=0;r<data.size();r++)
+  for(int r=0;r<data.size();r++)
     {
       pos = lower_bound_find(data[r].data.begin(),data[r].data.end(),target,info)-data[r].data.begin();
       if(info==-1 || info==2)
 	continue;
-      for(unsigned col=pos;col<data[r].data.size();col++)
+      for(int col=pos;col<data[r].data.size();col++)
 	data[r].data[col].index--;
       if(info==0)
 	{
@@ -463,15 +463,15 @@ T HPerm(smat<T> &m,int node=0)
 
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
-  for(unsigned r=0;r<rowSize.size();r++)
+  for(int r=0;r<rowSize.size();r++)
     rowSize[r] = m.data[r].data.size();
-  int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
-  int		minRowSize	= rowSize[minRow];
+  int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+  int 	minRowSize	= rowSize[minRow];
 
   vector<int>	colSize	   = m.col_nnzs();
   int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
-  int	minColSize = colSize[minCol];
-  if(minRowSize<=minColSize)
+  int 	minColSize = colSize[minCol];
+  if(minRowSize<minColSize)
     {
 #ifdef plot
 		cerr<<"node"<<node<<" min row :"<<minRow<<endl;
@@ -496,7 +496,7 @@ T HPerm(smat<T> &m,int node=0)
 	  element<T> target1(c1,0),target2(c2,0);
 	  int		info1,info2;
 	  int		pos1,pos2;
-	  for(unsigned r=0;r<mtemp.data.size();r++)
+	  for(int r=0;r<mtemp.data.size();r++)
 	    //eliminate two elements each row
 	    {
 	      pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)
@@ -508,7 +508,7 @@ T HPerm(smat<T> &m,int node=0)
 //	      cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
 //	      cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
 //#endif
-	      for(unsigned c=pos2;c<mtemp.data[r].data.size();c++)
+	      for(int c=pos2;c<mtemp.data[r].data.size();c++)
 		mtemp.data[r].data[c].index--;
 	      if(info1==0)
 		{
@@ -578,7 +578,7 @@ T HPerm(smat<T> &m,int node=0)
       vector<T> values;
       rows.reserve(minColSize);
       values.reserve(minColSize);
-      for(unsigned r=0;rows.size()<minColSize;r++)
+      for(int r=0;rows.size()<minColSize;r++)
 	{
 	  T temp=m(r,minCol);
 	  if(temp!=0)
@@ -587,7 +587,7 @@ T HPerm(smat<T> &m,int node=0)
 	      values.push_back(temp);
 	    }
 	}
-      for(unsigned i=0;i<minColSize-1;i+=2)
+      for(int i=0;i<minColSize-1;i+=2)
 	{
 	  int	r1	= rows[i];
 	  T	value1	= values[i];
