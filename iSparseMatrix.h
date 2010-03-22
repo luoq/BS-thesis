@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/22/2010 10:43:48
+ * Last-Updated: 03/22/2010 14:48:14
  *           By: Luo Qiang
- *     Update #: 637
+ *     Update #: 650
  * Keywords:
  */
 
@@ -400,9 +400,8 @@ bool smat<T>::load(char* path)
   In>>cols;
 
   _cols	= cols;
-  _nnz	= nnz;
   //3 is for later calculation
-  data.assign(rows,svec<T>(cols,nnz/rows*3));
+  data.assign(rows,svec<T>(cols,nnz/rows));
 
   int	r,c;
   T	value;
@@ -419,8 +418,8 @@ bool smat<T>::load(char* path)
 template<typename T>
 T HPerm(smat<T> &m,int node=0)
 {
-  int max = 5;
-  int child=1;
+  int	max   = 5;
+  int	child =	1;
 #ifdef plot
   cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
   m.print();
@@ -559,6 +558,7 @@ ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
 template <typename T>
 void smat<T>::print() const
 {
+  cout<<100*(double)_nnz/(_cols*_cols)<<" %\\n";
   for(int i=0;i<data.size();i++)
     {
       for(int j=0;j<_cols;j++)

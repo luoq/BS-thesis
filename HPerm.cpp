@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/21/2010 15:27:10
 // Version: 
-// Last-Updated: 03/22/2010 10:44:06
+// Last-Updated: 03/22/2010 14:40:57
 //           By: Luo Qiang
-//     Update #: 69
+//     Update #: 73
 // Keywords: 
 
 // Commentary: 
@@ -44,7 +44,7 @@ int main(int argc,char** argv)
 #endif
 
   Timer t;
-  int	time;
+  double time;
   t.tic();
   int	p = HPerm(m);
   time	  = t.toc();

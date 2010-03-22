@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/19/2010 12:55:51
 // Version: 
-// Last-Updated: 03/22/2010 13:30:08
+// Last-Updated: 03/22/2010 12:51:13
 //           By: Luo Qiang
-//     Update #: 41
+//     Update #: 23
 // Keywords: 
 
 // Commentary: 
@@ -17,7 +17,6 @@
 // Code:
 #include "Timer.h"
 #include "regular.h"
-#include "iSparseMatrix.h"
 #include <iostream>
 #include <fstream>
 using	std::cout;
@@ -26,8 +25,8 @@ using	std::endl;
 int main()
 {
   Timer		timer;
-  double	t=0;
-  ofstream	out("../data/benchmark-HPerm.data",ofstream::app);
+  double	time;
+  ofstream	out("benchmark.data");
   if(!out){
     cout<<"Cannot open file\n";
     return 1;
@@ -36,25 +35,26 @@ int main()
   srand(time(NULL));
   int		n,d,trytimes,repeat;
   d	 = 3;
-  repeat = 5;
+  repeat = 10;
   smat<int>	matrix;
-  int P;
   //for odd n,no possible regular matrix
   out<<"# bechmark for regular matrix generation with d = "<<d<<endl;
-  out<<"# size\ttime\tPermanent\n";
-  for(int n=4;n<=50;n+=2)
+  for(int n=4;n<=5000;n*=2)
     {
       out<<n<<'\t';
     for(int i=0;i<repeat;++i)
       {
-	matrix = regular(n,d,trytimes);
 	timer.tic();
-	P=HPerm(matrix);
-	t = timer.toc();
-	out<<t<<'\t'<<P<<'\t';
+	matrix = regular(n,d,trytimes);
+	time   = timer.toc();
+	out<<trytimes<<'\t'<<time<<'\t';
       }
     out<<endl;
     }
+
+
+
+  
   out.close();
   return 0;
 }

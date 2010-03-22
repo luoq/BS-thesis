@@ -3,11 +3,11 @@ CC=g++
 #CXXFLAGS=-g -Wall
 CXXFLAGS=-march=i686 -mtune=native -O3 -pipe -Dplot
 #CXXFLAGS=-O3
-all:HPerm main benchmark test_mat test_vec test_load 
+all:HPerm genRegular benchmark #test_mat test_vec test_load 
 
-main:main.o regular.o Timer.o
+genRegular:genRegular.o regular.o Timer.o
 	$(CC) $^ -o $@
-main.o:main.cpp regular.h Timer.h
+genRegular.o:genRegular.cpp regular.h Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 regular.o:regular.cpp regular.h iSparseMatrix.h
 	$(CC) $(CXXFLAGS) -c $<

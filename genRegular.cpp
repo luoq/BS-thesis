@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/22/2010 09:29:36
+// Last-Updated: 03/22/2010 14:31:14
 //           By: Luo Qiang
-//     Update #: 61
+//     Update #: 71
 // Keywords: 
 
 // Commentary: 
@@ -25,19 +25,26 @@
 using	std::cout;
 using	std::cin;
 using	std::endl;
-int main(){
+int main(int argc,char** argv){
   srand(time(NULL));
-  int		n,d,trytimes;
+  int	n,d,trytimes;
   Timer	timer;
   double time;
-  ofstream	out("../data/test.data");
-  smat<int>	matrix;
+  smat<int> matrix;
+
+  if(argc!=4)
+    {
+      cout<<"Usage: "<<argv[0]<<" n d pathtosave\n";
+      return 1;
+    }
+  ofstream	out(argv[3]);
+  n=atoi(argv[1]);
+  d=atoi(argv[2]);
   if(!out){
     cout<<"Cannot open file\n";
     return 1;
   }
-  cout<<"input n and d:"<<endl;
-  cin>>n>>d;
+  
   timer.tic();
   matrix = regular(n,d,trytimes);
   time   = timer.toc();
@@ -47,6 +54,7 @@ int main(){
   if(!isregular(matrix,d))
   {
     cout<<"regular check failed\n";
+    out.close();
     return 1;
   }
   out.close();
