@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/17/2010 16:42:44
 // Version:
-// Last-Updated: 03/21/2010 20:49:14
+// Last-Updated: 03/22/2010 15:38:23
 //           By: Luo Qiang
-//     Update #: 69
+//     Update #: 75
 // Keywords:
 
 // Commentary:
@@ -68,6 +68,12 @@ void test_erase_col(smat<int> &m)
   m.erase_col(c);
   cout<<m<<endl;
 }
+void test_col_nnzs(smat<int> &m)
+{
+  vector<int>	col_nnzs = m.col_nnzs();
+  for(int c=0;c<col_nnzs.size();c++)
+    cout<<"column "<<c<<" has "<<col_nnzs[c]<<" elements.\n";
+}
 int main()
 {
   smat<int>	m(4,4,2);
@@ -78,14 +84,14 @@ int main()
   m.set(1,2,1);
   m.set(2,1,1);
   cout<<m;
-  cout<<"erase col:"<<1<<endl;
-  m.erase_col(1);
-  cout<<m;
-  return 0;
+  //cout<<"erase col:"<<1<<endl;
+  //m.erase_col(1);
+  //cout<<m;
+  //return 0;
 
   while(1)
     {
-      cout<<"set(s),get(g),erase(e),erase_row(r),erase_col(c),print(p)?\n";
+      cout<<"set(s),get(g),erase(e),erase_row(r),erase_col(c),print(p),col_nnzs(x)?\n";
       char	choice = getch();
       switch(choice)
 	{
@@ -103,6 +109,9 @@ int main()
 	  break;
 	case 'c':
 	  test_erase_col(m);
+	  break;
+	case 'x':
+	  test_col_nnzs(m);
 	  break;
 	case 'p':
 	  cout<<m;

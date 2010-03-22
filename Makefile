@@ -1,7 +1,7 @@
 CC=g++
 #CC=icc
 #CXXFLAGS=-g -Wall
-CXXFLAGS=-march=i686 -mtune=native -O3 -pipe -Dplot
+CXXFLAGS=-march=i686 -mtune=native -O3 -pipe 
 #CXXFLAGS=-O3
 all:HPerm genRegular benchmark #test_mat test_vec test_load 
 

@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/22/2010 14:48:14
+ * Last-Updated: 03/22/2010 16:04:05
  *           By: Luo Qiang
- *     Update #: 650
+ *     Update #: 674
  * Keywords:
  */
 
@@ -244,6 +244,7 @@ public:
   T	col_sum(int c) const;
   int	row_nnz(int r) const;
   int	col_nnz(int c) const;
+  vector<int> col_nnzs() const;
   void print() const;
 protected:
   unsigned _cols;
@@ -416,6 +417,33 @@ bool smat<T>::load(char* path)
 }
 
 template<typename T>
+vector<int> smat<T>::col_nnzs() const
+{
+  //get column with minimal elements
+  vector<int>	helpIndex(data.size(),-1);
+  vector<int>	colSize(_cols,0);
+  for(int r=0;r<helpIndex.size();r++)
+    if(!data[r].data.empty())
+      helpIndex[r] = 0;
+  for(int c=0;c<_cols;c++)
+    {
+      for(int r=0;r<data.size();r++)
+	{
+	  if(helpIndex[r]==-1)
+	    continue;
+	  if(c==data[r].data[helpIndex[r]].index)
+	    {
+	      colSize[c]++;
+	      if(helpIndex[r]==data[r].data.size()-1)
+		helpIndex[r] = -1;
+	      else
+		helpIndex[r]++;
+	    }
+	}
+    }
+  return colSize;
+}
+template<typename T>
 T HPerm(smat<T> &m,int node=0)
 {
   int	max   = 5;
@@ -432,23 +460,30 @@ T HPerm(smat<T> &m,int node=0)
 #endif
       return m(0,0);
     }
+
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r]=m.data[r].data.size();
-  int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
-  int	minSize	= rowSize[minRow];
+    rowSize[r]		= m.data[r].data.size();
+  int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+  int		minRowSize	= rowSize[minRow];
+
+  vector<int>	colSize	   = m.col_nnzs();
+  int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
+  int	minColSize = colSize[minCol];
 #ifdef plot
   cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
+  if(minColSize==0)
+    return 0;
 
-  if(minSize==0)
+  if(minRowSize==0)
     {
       return 0;
     }
 
   T ret=0;
-  for(int i=0;i<minSize/2;i++)
+  for(int i=0;i<minRowSize/2;i++)
     {
       int	c1	= m.data[minRow].data[0].index;
       T		value1	= m.data[minRow].data[0].value;
