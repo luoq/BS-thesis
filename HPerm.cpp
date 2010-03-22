@@ -33,7 +33,7 @@ int main(int argc,char** argv)
   //m.set(3,3,1);
 
   
-  smat<int>	m;
+  smat<long long>	m;
   if(!m.load(argv[1]))
     {
       cout<<"file not found\n";
@@ -46,7 +46,7 @@ int main(int argc,char** argv)
   Timer t;
   double time;
   t.tic();
-  int	p = HPerm(m);
+  long long	p = HPerm(m);
   time	  = t.toc();
 #ifdef plot
   cout<<"}\n";
