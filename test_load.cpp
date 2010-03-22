@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/21/2010 13:14:33
 // Version: 
-// Last-Updated: 03/21/2010 13:17:11
+// Last-Updated: 03/22/2010 09:27:16
 //           By: Luo Qiang
-//     Update #: 3
+//     Update #: 7
 // Keywords: 
 
 // Commentary: 
@@ -21,7 +21,8 @@
 int main()
 {
   smat<int>	m;
-  m.load_octave("../data/F30.data");
+  if(!m.load("../data/matrix.data"))
+    return 1;
   cout<<m;
   return 0;
 }

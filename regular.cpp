@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/20/2010 10:40:21
+// Last-Updated: 03/21/2010 21:21:08
 //           By: Luo Qiang
-//     Update #: 162
+//     Update #: 166
 // Keywords:
 
 // Commentary:
@@ -26,6 +26,7 @@ void				printMatrix(const smat<int> &matrix);
 
 smat<int> regular(int n,int d,int &trytimes){
   smat<int> matrix(n,n,d);
+  trytimes=1;
   if(n*d%2!=0){
     return matrix;
   }
@@ -34,9 +35,8 @@ smat<int> regular(int n,int d,int &trytimes){
 #endif
   vector<int> points(n*d);
   vector<int> suitablePoints,suitablePointsIndex;
-  trytimes=1;
  tryagain:
-  for(int i=0;i!=points.size();++i){
+  for(unsigned i=0;i!=points.size();++i){
     points[i]=i;
   }
   while(!points.empty()){
@@ -51,7 +51,7 @@ smat<int> regular(int n,int d,int &trytimes){
     #endif
     suitablePoints.clear();
     suitablePointsIndex.clear();
-    for(int i=0;i!=points.size();++i){
+    for(unsigned i=0;i!=points.size();++i){
       int group2 = group(points[i],d);
       if(group2!=group1 && matrix(group1,group2) == 0){
 	suitablePoints.push_back(points[i]);

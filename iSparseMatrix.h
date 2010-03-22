@@ -5,19 +5,20 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/21/2010 19:56:33
+ * Last-Updated: 03/22/2010 10:43:48
  *           By: Luo Qiang
- *     Update #: 565
+ *     Update #: 637
  * Keywords:
+ */
 
- /* Commentary:
+ // Commentary:
  //use vector of sparse vector format to store
  //considering the much add and erase in my work
  //provide easy interface
 
- /* Change log:
+ // Change log:
 
- /* Code: */
+ // Code: 
 #ifndef ISPARSEMATRIX_H
 #define ISPARSEMATRIX_H
 #include <vector>
@@ -96,7 +97,7 @@ public:
   T sum();
 protected:
   vector<element<T> > data;
-  int		_size;
+  unsigned		_size;
 };
 template<typename T>
 svec<T>::svec(int size,int ennz)
@@ -215,22 +216,24 @@ template<typename T> class smat{
   friend T HPerm<>(smat<T> &m,int node);
 public:
   smat()
-    :_nnz(0),_cols(0)
-  {}
+  {
+    _nnz = 0;
+    _cols=0;
+  }
   smat(int rows,int cols)
     :_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols))),_nnz(0)
   {}
-  bool load_octave(string path);
+  bool load(char* path);
   //initialize with size and allocate at least eMaxCols for each row
   smat(int rows,int cols,int eMaxCols);
   //get the element at r,c
-  T operator()(int r,int c) const;
+  T operator()(unsigned r,unsigned c) const;
   //set element at (r,c)
   void	set(int r,int c,T element);
   //earse element (r,c) and return its value
   T erase(int r,int c);
-  void erase_row(int r);
-  void erase_col(int c);
+  void erase_row(unsigned r);
+  void erase_col(unsigned c);
   void clear();
 
   int	rows() const {return data.size();}
@@ -243,8 +246,8 @@ public:
   int	col_nnz(int c) const;
   void print() const;
 protected:
-  int _cols;
-  int _nnz;
+  unsigned _cols;
+  unsigned _nnz;
   vector<svec<T> > data;
 };
 template<typename T>
@@ -272,7 +275,7 @@ void smat<T>::set(int r,int c,T value)
   _nnz+=(data[r]).set(c,value);
 }
 template<typename T>
-T smat<T>::operator()(int r,int c) const
+T smat<T>::operator()(unsigned r,unsigned c) const
 {
   if(r>=data.size())
     return 0;
@@ -290,7 +293,7 @@ T smat<T>::erase(int r,int c)
   return ret;
 }
 template<typename T>
-void smat<T>::erase_row(int r)
+void smat<T>::erase_row(unsigned r)
 {
   if(r>=data.size())
     return;
@@ -298,31 +301,39 @@ void smat<T>::erase_row(int r)
   data.erase(data.begin()+r);
 }
 template<typename T>
-void smat<T>::erase_col(int c)
+void smat<T>::erase_col(unsigned c)
 {
   if(c>=_cols)
     return;
   element<T>	target(c,0);
-  int pos,info;
-  for(int r=0;r<data.size();r++)
+  int		pos,info;
+  int numErased=0;
+  for(unsigned r=0;r<data.size();r++)
     {
       pos = lower_bound_find(data[r].data.begin(),data[r].data.end(),target,info)-data[r].data.begin();
-      if(info=-1 || info==2)
+      if(info==-1 || info==2)
 	continue;
-      for(int col=pos;col<=data[r].data.size();col++)
+      for(unsigned col=pos;col<data[r].data.size();col++)
 	data[r].data[col].index--;
       if(info==0)
-	data[r].data.erase(data[r].data.begin()+pos);
+	{
+	  numErased++;
+	  data[r].data.erase(data[r].data.begin()+pos);
+	}
     }
+  _nnz-=numErased;
   _cols--;
 }
 
 template<typename T>
 ostream & operator<<(ostream &out,const smat<T> &m)
 {
-  out<<"# nnz :"<<m._nnz<<endl;
-  out<<"# rows :"<<m.data.size()<<endl;
-  out<<"# colums :"<<m._cols<<endl;
+  out<<"# Created by iSpareMatrix"<<endl;
+  out<<"# who am i"<<endl;
+  out<<"# type: sparse matrix"<<endl;
+  out<<"# nnz:"<<m._nnz<<endl;
+  out<<"# rows:"<<m.data.size()<<endl;
+  out<<"# columns:"<<m._cols<<endl;
   for(int r=0;r<m.data.size();r++)
     for(int i=0;i<m.data[r].data.size();i++)
       out<<r<<'\t'<<(m.data[r].data)[i].index
@@ -364,15 +375,21 @@ int smat<T>::col_nnz(int c) const
 }
 
 template<typename T>
-bool smat<T>::load_octave(string path)
+bool smat<T>::load(char* path)
 {
-  ifstream	In(path.c_str());
+  ifstream	In(path);
   if(!In)
     return false;
+
+  //get head and parse
+  string	head;
+  int		minIndex   = 0;
+  getline(In,head);
+  if(head.find("Octave ") != string::npos)
+    minIndex=1;
+
   //get matrix size and nnz
-  //the following is ugly only work in this situation
   int nnz,rows,cols;
-  In.ignore(1024,'\n');
   In.ignore(1024,'\n');
   In.ignore(1024,'\n');
   In.ignore(1024,':');
@@ -389,14 +406,12 @@ bool smat<T>::load_octave(string path)
 
   int	r,c;
   T	value;
-  //This actully store the transpose of what in octave
-  //But in my experiment,that's the same
-  while(In>>c>>r>>value)
+  while(In>>r>>c>>value)
     {
-      //zero indexed
-      c--;
-      r--;
-      data[r].data.push_back(element<T>(c,value));
+      r	-= minIndex;
+      c	-= minIndex;
+      //data[r].data.push_back(element<T>(c,value));
+      this->set(r,c,value);
     }
   return true;
 }
@@ -413,20 +428,19 @@ T HPerm(smat<T> &m,int node=0)
 #endif
   if(m.data.size() == 1)
     {
-#ifdef debug
-      cout<<"1*1 matrix:\n";
-      cout<<m(0,0)<<endl;
+#ifdef plot
+      cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
 #endif
       return m(0,0);
     }
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
-  for(int r=0;r<rowSize.size();r++)
+  for(unsigned r=0;r<rowSize.size();r++)
     rowSize[r]=m.data[r].data.size();
   int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int	minSize	= rowSize[minRow];
-#ifdef debug
-  cout<<"choose min row :"<<minRow<<" with size: "<<minSize<<endl;
+#ifdef plot
+  cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
 
   if(minSize==0)
@@ -441,19 +455,16 @@ T HPerm(smat<T> &m,int node=0)
       T		value1	= m.data[minRow].data[0].value;
       int	c2	= m.data[minRow].data[1].index;
       T		value2	= m.data[minRow].data[1].value;
-#ifdef debug
-  cout<<"will eliminate columns: "<<c1<<" and "<<c2<<endl;
-#endif
       m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
       m.data[minRow].data.erase(m.data[minRow].data.begin());
-      m._nnz	       -= 2;//This is not necesaray for m is local
+      m._nnz	       -= 2;
 
       smat<T> mtemp(m);
       mtemp.erase_row(minRow);
       element<T> target1(c1,0),target2(c2,0);
       int		info1,info2;
       int		pos1,pos2;
-      for(int r=0;r<mtemp.data.size();r++)
+      for(unsigned r=0;r<mtemp.data.size();r++)
 	//eliminate two elements each row
 	{
 	  pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)
@@ -461,10 +472,11 @@ T HPerm(smat<T> &m,int node=0)
 	  if(info1==-1 || info1==2)
 	    continue;
 	  pos2 = lower_bound_find(mtemp.data[r].data.begin()+pos1,mtemp.data[r].data.end(),target2,info2)-mtemp.data[r].data.begin();
-#ifdef debug
-	  cout<<"info1: "<<info1<<" info2: "<<info2<<endl;
+#ifdef plot
+	  cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
+	  cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
 #endif
-	  for(int c=pos2;c<mtemp.data[r].data.size();c++)
+	  for(unsigned c=pos2;c<mtemp.data[r].data.size();c++)
 	    mtemp.data[r].data[c].index--;
 	  if(info1==0)
 	    {
@@ -472,12 +484,10 @@ T HPerm(smat<T> &m,int node=0)
 		mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value;
 	      else
 		{
-#ifdef debug
-		  cout<<"actually * and +\n";
-#endif
-		  mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value+
-		    value1*mtemp.data[r].data[pos2].value;
-		  //fix:is that always !=0
+		  T	tempValue =	value2*mtemp.data[r].data[pos1].value+value1*mtemp.data[r].data[pos2].value;
+		  if(tempValue==0)
+		    continue;
+		  mtemp.data[r].data[pos1].value  =tempValue;
 		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2);
 		  mtemp._nnz--;
 		}
@@ -487,18 +497,21 @@ T HPerm(smat<T> &m,int node=0)
 	    {
 	      if(info2==0)
 		{
+		  //value1!=0
 		  mtemp.data[r].data.insert(mtemp.data[r].data.begin()+pos1,
 					    element<T>(c1,value1*mtemp.data[r].data[pos2].value));
-		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2);
+		  //NOTE erase pos2+1 becuase the insert before
+		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2+1);
 		}
 	      continue;
 	    }
 	}
       mtemp._cols--;
 #ifdef plot
+      cerr<<"node"<<node<<" eliminate col :"<<c1<<'\t'<<c2<<endl;
       cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
 #endif
-      ret+=HPerm(mtemp,node*max+child);
+      ret += HPerm(mtemp,node*max+child);
 #ifdef plot
       child++;
 #endif
@@ -513,12 +526,18 @@ T HPerm(smat<T> &m,int node=0)
       m.erase_row(minRow);
       m.erase_col(c);
 #ifdef plot
+      cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
       cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
 #endif
       ret+=value*HPerm(m,node*max+child);
     }
+#ifdef plot
+      cerr<<"node"<<node<<" return :"<<ret<<endl;
+#endif
   return ret;
 }
+
+
 template <class ForwardIterator, class T>
 ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
 				   const T& value,int & info)
@@ -529,12 +548,12 @@ ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
       return first;
     }
   ForwardIterator	ret = lower_bound(first,last,value);
-  if(ret==last)
-    info		    = 2;
-  if(*ret==value)
-    info		    = 0;
+  if(ret>=last)
+    info = 2;
+  else if(*ret==value)
+    info = 0;
   else
-    info		    = 1;
+    info = 1;
   return ret;
 }
 template <typename T>

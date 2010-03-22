@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/17/2010 16:42:44
 // Version:
-// Last-Updated: 03/20/2010 00:12:15
+// Last-Updated: 03/21/2010 20:49:14
 //           By: Luo Qiang
-//     Update #: 61
+//     Update #: 69
 // Keywords:
 
 // Commentary:
@@ -50,22 +50,42 @@ void test_erase(smat<int> &m)
   m.erase(r,c);
   cout<<m<<endl;
 }
+void test_erase_row(smat<int> &m)
+{
+  cout<<"erase row\n";
+  cout<<"Input row :\n";
+  int r;
+  cin>>r;
+  m.erase_row(r);
+  cout<<m<<endl;
+}
+void test_erase_col(smat<int> &m)
+{
+  cout<<"erase col\n";
+  cout<<"Input column :\n";
+  int c;
+  cin>>c;
+  m.erase_col(c);
+  cout<<m<<endl;
+}
 int main()
 {
   smat<int>	m(4,4,2);
-  //m.set(1,1,1);
-  //m.set(1,1,1);
-  //m.set(2,0,1);
-  //m.set(0,2,1);
-  //m.set(1,2,1);
-  //m.set(2,1,1);
-  //cout<<m(2,1)<<endl;
-  //cout<<m;
-  //return 0;
+  m.set(1,0,1);
+  m.set(1,1,1);
+  m.set(2,0,1);
+  m.set(0,2,1);
+  m.set(1,2,1);
+  m.set(2,1,1);
+  cout<<m;
+  cout<<"erase col:"<<1<<endl;
+  m.erase_col(1);
+  cout<<m;
+  return 0;
 
   while(1)
     {
-      cout<<"set(s),get(g),erase(e),print(p)?\n";
+      cout<<"set(s),get(g),erase(e),erase_row(r),erase_col(c),print(p)?\n";
       char	choice = getch();
       switch(choice)
 	{
@@ -77,6 +97,12 @@ int main()
 	  break;
 	case 'e':
 	  test_erase(m);
+	  break;
+	case 'r':
+	  test_erase_row(m);
+	  break;
+	case 'c':
+	  test_erase_col(m);
 	  break;
 	case 'p':
 	  cout<<m;

@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/20/2010 10:41:49
+// Last-Updated: 03/22/2010 09:29:36
 //           By: Luo Qiang
-//     Update #: 55
+//     Update #: 61
 // Keywords: 
 
 // Commentary: 
@@ -30,7 +30,7 @@ int main(){
   int		n,d,trytimes;
   Timer	timer;
   double time;
-  ofstream	out("matrix.data");
+  ofstream	out("../data/test.data");
   smat<int>	matrix;
   if(!out){
     cout<<"Cannot open file\n";
@@ -46,7 +46,8 @@ int main(){
   out<<matrix;
   if(!isregular(matrix,d))
   {
-	  return 1;
+    cout<<"regular check failed\n";
+    return 1;
   }
   out.close();
   return 0;

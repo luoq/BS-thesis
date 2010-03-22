@@ -1,12 +1,9 @@
 CC=g++
 #CC=icc
-CXXFLAGS=-g -Dplot
-#CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
+#CXXFLAGS=-g -Wall
+CXXFLAGS=-march=i686 -mtune=native -O3 -pipe -Dplot
 #CXXFLAGS=-O3
-test_HPerm:test_HPerm.cpp iSparseMatrix.h
-	$(CC) $(CXXFLAGS) -o $@ $<
-
-all:main benchmark test_mat test_vec test_load test_HPerm
+all:HPerm main benchmark test_mat test_vec test_load 
 
 main:main.o regular.o Timer.o
 	$(CC) $^ -o $@
@@ -17,7 +14,7 @@ regular.o:regular.cpp regular.h iSparseMatrix.h
 Timer.o:Timer.cpp Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 clean:
-	rm *.o main *.data test_vec test_mat test_load test_HPerm
+	rm *.o main *.data test_vec test_mat test_load HPerm
 
 benchmark:benchmark.o regular.o Timer.o
 	$(CC) $^ -o $@
@@ -29,4 +26,9 @@ test_mat:test_mat.cpp regular.cpp iSparseMatrix.h
 test_vec:test_vec.cpp regular.cpp iSparseMatrix.h
 	$(CC) $(CXXFLAGS) -o $@ $< regular.cpp
 test_load:test_load.cpp iSparseMatrix.h
-	$(CC) $(CXXFLAGS) -o $@ $< 
+	$(CC) $(CXXFLAGS) -o $@ $<
+
+HPerm.o:HPerm.cpp iSparseMatrix.h
+	$(CC) $(CXXFLAGS) -c $<
+HPerm:HPerm.o Timer.o
+	$(CC) -o $@ $^
