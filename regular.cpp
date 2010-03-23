@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 03/21/2010 21:21:08
+// Last-Updated: 03/23/2010 12:12:58
 //           By: Luo Qiang
-//     Update #: 166
+//     Update #: 171
 // Keywords:
 
 // Commentary:
@@ -17,11 +17,8 @@
 // Code:
 #include "regular.h"
 
-//generate a random integer from 0 to n
-inline int			randint(int n);
 //get the group of a point
-inline int			group(int point,int d);
-template<typename T> void	printVector(const vector<T> &vect);
+int			group(int point,int d);
 void				printMatrix(const smat<int> &matrix);
 
 smat<int> regular(int n,int d,int &trytimes){
@@ -77,7 +74,7 @@ smat<int> regular(int n,int d,int &trytimes){
     cout<<"add: ("<<group1<<','<<group2<<")\n";
     if(matrix(group1,group2) !=	1)
       {
-	Cout<<matrix;
+	cout<<matrix;
 	exit(1);
       }
     cout<<"add: ("<<group2<<','<<group1<<")\n";
@@ -97,16 +94,7 @@ smat<int> regular(int n,int d,int &trytimes){
   }
   return matrix;
 }
-inline int randint(int n){
-  return rand()%n;
-}
-inline int group(int point,int d){
+int group(int point,int d){
   return int(point/d);
-}
-template<typename T> 
-void printVector(const vector<T> &vect){
-  for(typename vector<T>::const_iterator iter=vect.begin();iter != vect.end();++iter)
-    cout<<*iter<<' ';
-  cout<<endl;
 }
 // regular.cpp ends here

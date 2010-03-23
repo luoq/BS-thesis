@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/15/2010 16:34:41
  * Version: 
- * Last-Updated: 03/20/2010 10:44:23
+ * Last-Updated: 03/23/2010 11:14:16
  *           By: Luo Qiang
- *     Update #: 46
+ *     Update #: 48
  * Keywords: */
 
 /* Commentary: */
@@ -21,6 +21,7 @@
 #include<iostream>
 #include<vector>
 #include "iSparseMatrix.h"
+#include "misc.h"
 using namespace	std;
 //#define debug
 

@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/22/2010 18:24:51
+ * Last-Updated: 03/23/2010 12:12:14
  *           By: Luo Qiang
- *     Update #: 676
+ *     Update #: 725
  * Keywords:
  */
 
@@ -26,6 +26,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iostream>
+#include "misc.h"
 
 using namespace std;
 
@@ -38,6 +39,7 @@ template<typename T> class	smat;
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
 template<typename T> T		HPerm(smat<T> &m,int node=0);
+template<typename T> vector<int> aPerfectMatch(const smat<T>&,int& trytimes);
 //info = -1,empty
 //info = 0,find
 //info = 1,not find,return first larger
@@ -78,6 +80,7 @@ template <typename T> class svec
   friend ostream& operator<<<> (ostream& Out,const svec<T>& v);
   friend ostream& operator<<<> (ostream& Out,const smat<T>& m);
   friend T HPerm<>(smat<T> &m,int node);
+  friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
   svec (){_size	= 0;}
   svec(int size,int ennz);
  svec(int size)
@@ -97,7 +100,7 @@ template <typename T> class svec
   T sum();
  protected:
   vector<element<T> > data;
-  int		_size;
+  unsigned		_size;
 };
 template<typename T>
 svec<T>::svec(int size,int ennz)
@@ -209,11 +212,11 @@ T svec<T>::sum()
   return sum;
 }
 
-
-
 template<typename T> class smat{
   friend ostream& operator<<<> (ostream& out,const smat<T>& m);
   friend T HPerm<>(smat<T> &m,int node);
+  //generate a perfect match
+  friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
  public:
   smat()
     {
@@ -227,18 +230,19 @@ template<typename T> class smat{
   //initialize with size and allocate at least eMaxCols for each row
   smat(int rows,int cols,int eMaxCols);
   //get the element at r,c
-  T operator()(int r,int c) const;
+  T operator()(unsigned r,unsigned c) const;
   //set element at (r,c)
   void	set(int r,int c,T element);
   //earse element (r,c) and return its value
   T erase(int r,int c);
-  void erase_row(int r);
-  void erase_col(int c);
+  void erase_row(unsigned r);
+  void erase_col(unsigned c);
   void clear();
 
-  int	rows() const {return data.size();}
+  int rows() const {return data.size();}
   int cols() const {return _cols;}
   int nnz() const {return _nnz;}
+
 
   T	row_sum(int r) const;
   T	col_sum(int c) const;
@@ -247,8 +251,8 @@ template<typename T> class smat{
   vector<int> col_nnzs() const;
   void print() const;
  protected:
-  int _cols;
-  int _nnz;
+  unsigned _cols;
+  unsigned _nnz;
   vector<svec<T> > data;
 };
 template<typename T>
@@ -276,7 +280,7 @@ void smat<T>::set(int r,int c,T value)
   _nnz+=(data[r]).set(c,value);
 }
 template<typename T>
-T smat<T>::operator()(int r,int c) const
+T smat<T>::operator()(unsigned r,unsigned c) const
 {
   if(r>=data.size())
     return 0;
@@ -294,7 +298,7 @@ T smat<T>::erase(int r,int c)
   return ret;
 }
 template<typename T>
-void smat<T>::erase_row(int r)
+void smat<T>::erase_row(unsigned r)
 {
   if(r>=data.size())
     return;
@@ -302,19 +306,19 @@ void smat<T>::erase_row(int r)
   data.erase(data.begin()+r);
 }
 template<typename T>
-void smat<T>::erase_col(int c)
+void smat<T>::erase_col(unsigned c)
 {
   if(c>=_cols)
     return;
   element<T>	target(c,0);
   int		pos,info;
   int numErased=0;
-  for(int r=0;r<data.size();r++)
+  for(unsigned r=0;r<data.size();r++)
     {
       pos = lower_bound_find(data[r].data.begin(),data[r].data.end(),target,info)-data[r].data.begin();
       if(info==-1 || info==2)
 	continue;
-      for(int col=pos;col<data[r].data.size();col++)
+      for(unsigned col=pos;col<data[r].data.size();col++)
 	data[r].data[col].index--;
       if(info==0)
 	{
@@ -463,15 +467,15 @@ T HPerm(smat<T> &m,int node=0)
 
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
-  for(int r=0;r<rowSize.size();r++)
+  for(unsigned r=0;r<rowSize.size();r++)
     rowSize[r] = m.data[r].data.size();
-  int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
-  int 	minRowSize	= rowSize[minRow];
+  int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+  int		minRowSize	= rowSize[minRow];
 
   vector<int>	colSize	   = m.col_nnzs();
   int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
-  int 	minColSize = colSize[minCol];
-  if(minRowSize<minColSize)
+  int	minColSize = colSize[minCol];
+  if(minRowSize<=minColSize)
     {
 #ifdef plot
 		cerr<<"node"<<node<<" min row :"<<minRow<<endl;
@@ -496,7 +500,7 @@ T HPerm(smat<T> &m,int node=0)
 	  element<T> target1(c1,0),target2(c2,0);
 	  int		info1,info2;
 	  int		pos1,pos2;
-	  for(int r=0;r<mtemp.data.size();r++)
+	  for(unsigned r=0;r<mtemp.data.size();r++)
 	    //eliminate two elements each row
 	    {
 	      pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)
@@ -508,7 +512,7 @@ T HPerm(smat<T> &m,int node=0)
 //	      cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
 //	      cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
 //#endif
-	      for(int c=pos2;c<mtemp.data[r].data.size();c++)
+	      for(unsigned c=pos2;c<mtemp.data[r].data.size();c++)
 		mtemp.data[r].data[c].index--;
 	      if(info1==0)
 		{
@@ -578,7 +582,7 @@ T HPerm(smat<T> &m,int node=0)
       vector<T> values;
       rows.reserve(minColSize);
       values.reserve(minColSize);
-      for(int r=0;rows.size()<minColSize;r++)
+      for(unsigned r=0;rows.size()<minColSize;r++)
 	{
 	  T temp=m(r,minCol);
 	  if(temp!=0)
@@ -587,7 +591,7 @@ T HPerm(smat<T> &m,int node=0)
 	      values.push_back(temp);
 	    }
 	}
-      for(int i=0;i<minColSize-1;i+=2)
+      for(unsigned i=0;i<minColSize-1;i+=2)
 	{
 	  int	r1	= rows[i];
 	  T	value1	= values[i];
@@ -727,6 +731,41 @@ void smat<T>::print() const
 	cout<<this->operator()(i,j)<<' ';
       cout<<"\\n";
     }
+}
+template <typename T>
+vector<int> aPerfectMatch(const smat<T> &m,int& trytimes)
+{
+  vector<int>	ret;
+  trytimes = 1;
+ tryagain:
+  //if(trytimes > 10000)
+  //  return ret;
+  for(int r=0;r<m.data.size();r++)
+    {
+      vector<int>	candidates;
+      for(int i=0;i<m.data[r].data.size();i++)
+	{
+	  int candidate = m.data[r].data[i].index;
+	  if(ret.empty()||find(ret.begin(),ret.end(),candidate)==ret.end())
+	    candidates.push_back(candidate);
+	}
+#ifdef debug
+      cout<<"At row : "<<r<<endl;
+      cout<<"ret = ";
+      printVector(ret);
+      cout<<"candidates = ";
+      printVector(candidates);
+#endif
+      if(candidates.empty())
+	{
+	  ret.clear();
+	  trytimes++;
+	  goto tryagain;
+	}
+      else
+	ret.push_back(candidates[randint(candidates.size())]);
+    }
+  return ret;    
 }
 #endif
 /* iSparseMatrix.h ends here */
