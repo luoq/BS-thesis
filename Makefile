@@ -1,8 +1,6 @@
 CC=g++
-#CC=icc
 #CXXFLAGS=-g -Dplot
-CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
-#CXXFLAGS=-O3
+CXXFLAGS=-march=i686 -mtune=native -O3 -pipe -Dplot
 all:research HPerm genRegular benchmark #test_mat test_vec test_load 
 
 research:research.o misc.o regular.o Timer.o
@@ -18,7 +16,7 @@ regular.o:regular.cpp regular.h iSparseMatrix.h misc.h
 Timer.o:Timer.cpp Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 clean:
-	rm *.o main *.data test_vec test_mat test_load HPerm
+	rm *.o *.data test_vec test_mat test_load HPerm research benchmark genRegular
 
 benchmark:benchmark.o regular.o Timer.o misc.o
 	$(CC) $^ -o $@

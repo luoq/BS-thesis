@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/23/2010 12:12:14
+ * Last-Updated: 03/23/2010 14:35:02
  *           By: Luo Qiang
- *     Update #: 725
+ *     Update #: 726
  * Keywords:
  */
 
@@ -45,24 +45,24 @@ template<typename T> vector<int> aPerfectMatch(const smat<T>&,int& trytimes);
 //info = 1,not find,return first larger
 //info = 2,not find,at end
 template <class			ForwardIterator, class T>
-  ForwardIterator lower_bound_find(ForwardIterator first, ForwardIterator last,
-				   const T& value,int & info);
+ForwardIterator lower_bound_find(ForwardIterator first, ForwardIterator last,
+				 const T& value,int & info);
 
 
 template<typename T> class element
 {
- public:
+public:
   T	value;
   int	index;
- element(int index,T value)
-   :value(value),index(index)
+  element(int index,T value)
+    :value(value),index(index)
   {}
   element<T>&operator =	(const element<T>& other)
-    {
-      value = other.value;
-      index = other.index;
-      return *this;
-    }
+  {
+    value = other.value;
+    index = other.index;
+    return *this;
+  }
 };
 template<typename T> bool operator<(const element<T> &e1,const element<T> &e2)
 {
@@ -75,7 +75,7 @@ template<typename T> bool operator==(const element<T> &e1,const element<T> &e2)
 
 template <typename T> class svec
 {
- public:
+public:
   template <typename U> friend class	smat;
   friend ostream& operator<<<> (ostream& Out,const svec<T>& v);
   friend ostream& operator<<<> (ostream& Out,const smat<T>& m);
@@ -83,8 +83,8 @@ template <typename T> class svec
   friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
   svec (){_size	= 0;}
   svec(int size,int ennz);
- svec(int size)
-   :_size(size)
+  svec(int size)
+    :_size(size)
   {}
   int size(){return _size;}
   int	nnz(){return data.size();}
@@ -98,13 +98,13 @@ template <typename T> class svec
 
   //return sum of all elements
   T sum();
- protected:
+protected:
   vector<element<T> > data;
   unsigned		_size;
 };
 template<typename T>
 svec<T>::svec(int size,int ennz)
-:_size(size)
+ :_size(size)
 {
   data.reserve(ennz);
 }
@@ -217,15 +217,15 @@ template<typename T> class smat{
   friend T HPerm<>(smat<T> &m,int node);
   //generate a perfect match
   friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
- public:
+public:
   smat()
-    {
-      _nnz = 0;
-      _cols=0;
-    }
- smat(int rows,int cols)
-   :_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols))),_nnz(0)
-    {}
+  {
+    _nnz = 0;
+    _cols=0;
+  }
+  smat(int rows,int cols)
+    :_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols))),_nnz(0)
+  {}
   bool load(char* path);
   //initialize with size and allocate at least eMaxCols for each row
   smat(int rows,int cols,int eMaxCols);
@@ -250,14 +250,14 @@ template<typename T> class smat{
   int	col_nnz(int c) const;
   vector<int> col_nnzs() const;
   void print() const;
- protected:
+protected:
   unsigned _cols;
   unsigned _nnz;
   vector<svec<T> > data;
 };
 template<typename T>
 smat<T>::smat(int rows,int cols,int eMaxCols)
-:_nnz(0),_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols,eMaxCols)))
+ :_nnz(0),_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols,eMaxCols)))
 {}
 template <typename T>
 void smat<T>::set(int r,int c,T value)
@@ -450,7 +450,7 @@ vector<int> smat<T>::col_nnzs() const
 template<typename T>
 T HPerm(smat<T> &m,int node=0)
 {
-  int	max   = 5;
+  int	max   = 3;
   int	child =	1;
 #ifdef plot
   cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
@@ -459,7 +459,7 @@ T HPerm(smat<T> &m,int node=0)
 #endif
   if(m.data.size() == 1)
     {
-#ifdef plot
+#ifdef debug
       cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
 #endif
       return m(0,0);
@@ -478,11 +478,11 @@ T HPerm(smat<T> &m,int node=0)
   if(minRowSize<=minColSize)
     {
 #ifdef plot
-		cerr<<"node"<<node<<" min row :"<<minRow<<endl;
+      cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
 
       if(minRowSize==0)
-		  return 0;
+	return 0;
 
       T ret=0;
       for(int i=0;i<minRowSize/2;i++)
@@ -508,10 +508,10 @@ T HPerm(smat<T> &m,int node=0)
 	      if(info1==-1 || info1==2)
 		continue;
 	      pos2 = lower_bound_find(mtemp.data[r].data.begin()+pos1,mtemp.data[r].data.end(),target2,info2)-mtemp.data[r].data.begin();
-//#ifdef plot
-//	      cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
-//	      cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
-//#endif
+	      //#ifdef plot
+	      //	      cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
+	      //	      cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
+	      //#endif
 	      for(unsigned c=pos2;c<mtemp.data[r].data.size();c++)
 		mtemp.data[r].data[c].index--;
 	      if(info1==0)
@@ -572,7 +572,7 @@ T HPerm(smat<T> &m,int node=0)
   else
     {
 #ifdef plot
-		cerr<<"node"<<node<<" min col :"<<minCol<<endl;
+      cerr<<"node"<<node<<" min col :"<<minCol<<endl;
 #endif
       if(minColSize==0)
 	return 0;
@@ -608,78 +608,79 @@ T HPerm(smat<T> &m,int node=0)
 
 	  int i1=0,i2=0;
 	  while(i1!=-1||i2!=-1)
-	  {
-		  if(i1==-1)
-		  {
+	    {
+	      if(i1==-1)
+		{
 #ifdef plot
-			  cerr<<"node"<<node<<" situation 4"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
+		  cerr<<"node"<<node<<" situation 4"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
 #endif
-			  mtemp.data[r1].data.push_back(element<T>(mtemp.data[r2].data[i2].index,value1*mtemp.data[r2].data[i2].value));
-			  if(i2==mtemp.data[r2].data.size()-1)
-				  i2=-1;
-			  else
-				  i2++;
-		  }
-		  else if(i2==-1)
-		  {
-#ifdef plot
-			  cerr<<"node"<<node<<" situation 5"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
-#endif
-			  mtemp.data[r1].data[i1].value*=value2;
-			  if(i1==mtemp.data[r1].data.size()-1)
-				  i1=-1;
-			  else
-				  i1++;
-		  }
-		  else if(mtemp.data[r1].data[i1].index<mtemp.data[r2].data[i2].index)
-		  {
-#ifdef plot
-			  cerr<<"node"<<node<<" situation 1"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
-#endif
-			  mtemp.data[r1].data[i1].value*=value2;
-			  if(i1==mtemp.data[r1].data.size()-1)
-				  i1=-1;
-			  else
-				  i1++;
-		  }
-		  else if(mtemp.data[r1].data[i1].index>mtemp.data[r2].data[i2].index)
-		  {
-#ifdef plot
-			  cerr<<"node"<<node<<" situation 2"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
-			  cerr<<"node"<<node<<" i2 = "<<i2<<" "<<mtemp.data[r2].data.size()<<endl;
-#endif
-			  mtemp.data[r1].data.insert(mtemp.data[r1].data.begin()+i1,
-					  element<T>(mtemp.data[r2].data[i2].index,value1*mtemp.data[r2].data[i2].value));
-			  mtemp._nnz++;//This is manaul managed
-			  i1++;//because sth inser before
-			  if(i2==mtemp.data[r2].data.size()-1)
-				  i2=-1;
-			  else
-				  i2++;
-		  }
+		  mtemp.data[r1].data.push_back(element<T>(mtemp.data[r2].data[i2].index,value1*mtemp.data[r2].data[i2].value));
+		  mtemp._nnz++;
+		  if(i2==mtemp.data[r2].data.size()-1)
+		    i2=-1;
 		  else
-		  {
+		    i2++;
+		}
+	      else if(i2==-1)
+		{
 #ifdef plot
-			  cerr<<"node"<<node<<" situation 3"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<" with new value "<<value2*mtemp.data[r1].data[i1].value+value1*mtemp.data[r2].data[i2].value<<endl;
+		  cerr<<"node"<<node<<" situation 5"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
 #endif
-			  mtemp.data[r1].data[i1].value=value2*mtemp.data[r1].data[i1].value+value1*mtemp.data[r2].data[i2].value;
-			  if(i1==mtemp.data[r1].data.size()-1)
-				  i1=-1;
-			  else
-				  i1++;
-			  if(i2==mtemp.data[r2].data.size()-1)
-				  i2=-1;
-			  else
-				  i2++;
-		  }
-	  }
+		  mtemp.data[r1].data[i1].value*=value2;
+		  if(i1==mtemp.data[r1].data.size()-1)
+		    i1=-1;
+		  else
+		    i1++;
+		}
+	      else if(mtemp.data[r1].data[i1].index<mtemp.data[r2].data[i2].index)
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 1"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
+#endif
+		  mtemp.data[r1].data[i1].value*=value2;
+		  if(i1==mtemp.data[r1].data.size()-1)
+		    i1=-1;
+		  else
+		    i1++;
+		}
+	      else if(mtemp.data[r1].data[i1].index>mtemp.data[r2].data[i2].index)
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 2"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
+		  cerr<<"node"<<node<<" i2 = "<<i2<<" "<<mtemp.data[r2].data.size()<<endl;
+#endif
+		  mtemp.data[r1].data.insert(mtemp.data[r1].data.begin()+i1,
+					     element<T>(mtemp.data[r2].data[i2].index,value1*mtemp.data[r2].data[i2].value));
+		  mtemp._nnz++;//This is manaul managed
+		  i1++;//because sth inser before
+		  if(i2==mtemp.data[r2].data.size()-1)
+		    i2=-1;
+		  else
+		    i2++;
+		}
+	      else
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 3"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<" with new value "<<value2*mtemp.data[r1].data[i1].value+value1*mtemp.data[r2].data[i2].value<<endl;
+#endif
+		  mtemp.data[r1].data[i1].value=value2*mtemp.data[r1].data[i1].value+value1*mtemp.data[r2].data[i2].value;
+		  if(i1==mtemp.data[r1].data.size()-1)
+		    i1=-1;
+		  else
+		    i1++;
+		  if(i2==mtemp.data[r2].data.size()-1)
+		    i2=-1;
+		  else
+		    i2++;
+		}
+	    }
 	  mtemp.erase_row(r2);
 #ifdef plot
 	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
 #endif
 	  ret += HPerm(mtemp,node*max+child);
 #ifdef plot
-      cerr<<"node"<<node<<" return :"<<ret<<endl;
+	  cerr<<"node"<<node<<" return :"<<ret<<endl;
 #endif
 	}
       if(minColSize%2==1)
@@ -703,8 +704,8 @@ T HPerm(smat<T> &m,int node=0)
 
 
 template <class ForwardIterator, class T>
-  ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
-				     const T& value,int & info)
+ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
+				   const T& value,int & info)
 {
   if(first>=last)
     {
@@ -765,7 +766,7 @@ vector<int> aPerfectMatch(const smat<T> &m,int& trytimes)
       else
 	ret.push_back(candidates[randint(candidates.size())]);
     }
-  return ret;    
+  return ret;
 }
 #endif
 /* iSparseMatrix.h ends here */
