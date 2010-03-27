@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/27/2010 13:33:28
 // Version: 
-// Last-Updated: 03/27/2010 17:20:36
+// Last-Updated: 03/27/2010 19:47:21
 //           By: Luo Qiang
-//     Update #: 9
+//     Update #: 11
 // Keywords: 
 
 // Commentary: 
@@ -23,7 +23,7 @@ using namespace std;
 int main()
 {
   int			index,addOrRemove,card;
-  subsetGenerator	g(5);
+  subsetGenerator	g(6);
   while(!g.end())
     {
       g.next(index,addOrRemove,card);

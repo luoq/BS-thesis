@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/23/2010 15:38:00
  * Version: 
- * Last-Updated: 03/27/2010 17:32:15
+ * Last-Updated: 03/27/2010 19:46:35
  *           By: Luo Qiang
- *     Update #: 35
+ *     Update #: 36
  * Keywords: 
 
 /* Commentary: 
@@ -23,11 +23,11 @@
 
 
 template<typename T>
-double RNW(fmat<T> m)
+T RNW(fmat<T> m)
 {
   int	n = m.rows();
-  double	P = 0,sigma=1;
-  double *	S = new double[n];
+  T	P = 0,sigma=1;
+  T *	S = new T[n];
   for(int r=0;r<n;r++)
     S[r]=0;
   
