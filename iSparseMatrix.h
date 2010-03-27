@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/23/2010 14:35:02
+ * Last-Updated: 03/27/2010 17:30:05
  *           By: Luo Qiang
- *     Update #: 726
+ *     Update #: 753
  * Keywords:
  */
 
@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <iostream>
 #include "misc.h"
+#include "iFullMatrix.h"
 
 using namespace std;
 
@@ -226,7 +227,7 @@ public:
   smat(int rows,int cols)
     :_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols))),_nnz(0)
   {}
-  bool load(char* path);
+  bool	load(char* path);
   //initialize with size and allocate at least eMaxCols for each row
   smat(int rows,int cols,int eMaxCols);
   //get the element at r,c
@@ -234,10 +235,12 @@ public:
   //set element at (r,c)
   void	set(int r,int c,T element);
   //earse element (r,c) and return its value
-  T erase(int r,int c);
-  void erase_row(unsigned r);
-  void erase_col(unsigned c);
-  void clear();
+  T	erase(int r,int c);
+  void	erase_row(unsigned r);
+  void	erase_col(unsigned c);
+  void	clear();
+  //convert to a full matrix
+  fmat<T> full() const;
 
   int rows() const {return data.size();}
   int cols() const {return _cols;}
@@ -353,6 +356,15 @@ void smat<T>::clear()
     data[r].clear();
 }
 template<typename T>
+fmat<T> smat<T>::full() const
+{
+  fmat<T>	m(data.size(),_cols);
+  for(int r=0;r<data.size();r++)
+    for(int i=0;i<data[r].data.size();i++)
+      m(r,data[r].data[i].index)=data[r].data[i].value;
+  return m;
+}
+template<typename T>
 T smat<T>::row_sum(int r) const
 {
   return data[r].sum();
@@ -452,6 +464,10 @@ T HPerm(smat<T> &m,int node=0)
 {
   int	max   = 3;
   int	child =	1;
+#ifdef stat
+  cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
+#endif
+  
 #ifdef plot
   cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
   m.print();
@@ -459,8 +475,11 @@ T HPerm(smat<T> &m,int node=0)
 #endif
   if(m.data.size() == 1)
     {
-#ifdef debug
+#ifdef plot
       cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
+#endif
+#ifdef stat
+      cerr<<m.data.size()<<endl;
 #endif
       return m(0,0);
     }
@@ -475,6 +494,9 @@ T HPerm(smat<T> &m,int node=0)
   vector<int>	colSize	   = m.col_nnzs();
   int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
   int	minColSize = colSize[minCol];
+#ifdef stat
+  cerr<<(minRowSize<=minColSize?minRowSize:minColSize)<<endl;
+#endif
   if(minRowSize<=minColSize)
     {
 #ifdef plot

@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/23/2010 10:30:53
  * Version: 
- * Last-Updated: 03/23/2010 12:22:12
+ * Last-Updated: 03/27/2010 17:14:55
  *           By: Luo Qiang
- *     Update #: 20
+ *     Update #: 37
  * Keywords: 
 
 /* Commentary: 
@@ -26,7 +26,6 @@ using namespace std;
 int randint(int n);
 template<typename T> void printVector(const vector<T> &vect);
 
-
 template<typename T> 
 ostream& operator<<(ostream& out,const vector<T> &vect)
 {
@@ -34,5 +33,20 @@ ostream& operator<<(ostream& out,const vector<T> &vect)
     out<<*iter<<' ';
   out<<endl;
 }
+
+//return next subset in gray code order
+class subsetGenerator
+{
+public:
+  subsetGenerator(int n);
+  void	next(int& nextIndex,int & addOrRemove,int& k);
+  bool end(){return _end;}
+  ~subsetGenerator();
+private:
+  int n;
+  int _k;
+  bool _end;
+  bool* set;
+};
 #endif
 /* misc.h ends here */
