@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/19/2010 12:55:51
 // Version: 
-// Last-Updated: 03/27/2010 19:55:17
+// Last-Updated: 03/27/2010 20:36:24
 //           By: Luo Qiang
-//     Update #: 43
+//     Update #: 50
 // Keywords: 
 
 // Commentary: 
@@ -27,7 +27,7 @@ int main()
 {
   Timer		timer;
   double	t=0;
-  ofstream	out("../data/benchmark-HPerm.data",ofstream::app);
+  ofstream	out("../data/benchmark-HPerm-6.data",ofstream::app);
   if(!out){
     cout<<"Cannot open file\n";
     return 1;

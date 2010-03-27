@@ -42,7 +42,7 @@ test_fmat:test_fmat.cpp iFullMatrix.h misc.h
 
 HPerm.o:HPerm.cpp iSparseMatrix.h
 	$(CC) $(CXXFLAGS) -c $<
-HPerm:HPerm.o Timer.o
+HPerm:HPerm.o Timer.o misc.o
 	$(CC) -o $@ $^
 
 misc.o:misc.cpp misc.h

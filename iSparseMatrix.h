@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/27/2010 17:30:05
+ * Last-Updated: 03/27/2010 22:12:28
  *           By: Luo Qiang
- *     Update #: 753
+ *     Update #: 792
  * Keywords:
  */
 
@@ -28,6 +28,7 @@
 #include <iostream>
 #include "misc.h"
 #include "iFullMatrix.h"
+#include "R-NW.h"
 
 using namespace std;
 
@@ -459,6 +460,8 @@ vector<int> smat<T>::col_nnzs() const
     }
   return colSize;
 }
+
+const int changePoint=6;
 template<typename T>
 T HPerm(smat<T> &m,int node=0)
 {
@@ -473,16 +476,20 @@ T HPerm(smat<T> &m,int node=0)
   m.print();
   cout<<"\"];\n";
 #endif
-  if(m.data.size() == 1)
-    {
-#ifdef plot
-      cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
-#endif
-#ifdef stat
-      cerr<<m.data.size()<<endl;
-#endif
-      return m(0,0);
-    }
+
+
+  if(m.data.size() <= changePoint)
+    return RNW(m.full());
+  //  if(m.data.size() == 1)
+  //    {
+  //#ifdef plot
+  //      cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
+  //#endif
+  //#ifdef stat
+  //      cerr<<m.data.size()<<endl;
+  //#endif
+  //      return m(0,0);
+  //    }
 
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
