@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/19/2010 12:55:51
 // Version: 
-// Last-Updated: 03/22/2010 12:51:13
+// Last-Updated: 03/29/2010 16:45:29
 //           By: Luo Qiang
-//     Update #: 23
+//     Update #: 25
 // Keywords: 
 
 // Commentary: 
@@ -51,15 +51,10 @@ int main()
       }
     out<<endl;
     }
-
-
-
   
   out.close();
   return 0;
 }
-
-
 
 // 
 // benchmark.cpp ends here

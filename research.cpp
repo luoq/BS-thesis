@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/23/2010 11:08:58
 // Version: 
-// Last-Updated: 03/23/2010 12:42:09
+// Last-Updated: 04/04/2010 10:08:12
 //           By: Luo Qiang
-//     Update #: 54
+//     Update #: 55
 // Keywords: 
 
 // Commentary: 
@@ -66,7 +66,7 @@ int main(int argc,char** argv)
   cout<<"calculating permanent of original matrix "<<repeat<<"times\n";
   timer.tic();
   smat<int> mtemp(m);
-  int	P = HPerm(mtemp,0);
+  int	P = H(mtemp,0);
   t	  = timer.toc();
   out<<P<<'\t'<<t;
   cout<<"permanent: "<<P<<"\ntime elapsed : "<<t<<"ms ";
@@ -74,7 +74,7 @@ int main(int argc,char** argv)
   {
       mtemp=m;
       timer.tic();
-	  HPerm(mtemp,0);
+	  H(mtemp,0);
       t	  = timer.toc();
       out<<'\t'<<t;
       cout<<t<<"ms ";
@@ -88,7 +88,7 @@ int main(int argc,char** argv)
       cout<<"calculating permanent of matrix with ("<<r<<","<<selectedCols[r]<<") erased\n";
       mtemp=m;
       timer.tic();
-      int	P = HPerm(mtemp,0);
+      int	P = H(mtemp,0);
       t	  = timer.toc();
       out<<P<<'\t'<<t;
       cout<<"permanent: "<<P<<"\ntime elapsed : "<<t<<"ms ";
@@ -96,7 +96,7 @@ int main(int argc,char** argv)
 	  {
 		  mtemp=m;
 		  timer.tic();
-		  HPerm(mtemp,0);
+		  H(mtemp,0);
 		  t	  = timer.toc();
 		  out<<'\t'<<t;
 		  cout<<t<<"ms ";

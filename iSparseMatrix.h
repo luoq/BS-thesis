@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 03/27/2010 22:12:28
+ * Last-Updated: 04/04/2010 11:11:42
  *           By: Luo Qiang
- *     Update #: 792
+ *     Update #: 806
  * Keywords:
  */
 
@@ -40,7 +40,9 @@ template<typename T> ostream& operator<<(ostream&,const svec<T> &v);
 template<typename T> class	smat;
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
-template<typename T> T		HPerm(smat<T> &m,int node=0);
+template<typename T> T		H(smat<T> &m,int node=0);
+template<typename T> T		IDEM(smat<T> &m,int node=0);
+template<typename T> T		IDEM0(smat<T> &m,int node=0);
 template<typename T> vector<int> aPerfectMatch(const smat<T>&,int& trytimes);
 //info = -1,empty
 //info = 0,find
@@ -81,7 +83,9 @@ public:
   template <typename U> friend class	smat;
   friend ostream& operator<<<> (ostream& Out,const svec<T>& v);
   friend ostream& operator<<<> (ostream& Out,const smat<T>& m);
-  friend T HPerm<>(smat<T> &m,int node);
+  friend T H<>(smat<T> &m,int node);
+  friend T IDEM<>(smat<T> &m,int node);
+  friend T IDEM0<>(smat<T> &m,int node);
   friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
   svec (){_size	= 0;}
   svec(int size,int ennz);
@@ -106,7 +110,7 @@ protected:
 };
 template<typename T>
 svec<T>::svec(int size,int ennz)
- :_size(size)
+  :_size(size)
 {
   data.reserve(ennz);
 }
@@ -216,7 +220,9 @@ T svec<T>::sum()
 
 template<typename T> class smat{
   friend ostream& operator<<<> (ostream& out,const smat<T>& m);
-  friend T HPerm<>(smat<T> &m,int node);
+  friend T H<>(smat<T> &m,int node);
+  friend T IDEM<>(smat<T> &m,int node);
+  friend T IDEM0<>(smat<T> &m,int node);
   //generate a perfect match
   friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
 public:
@@ -261,8 +267,11 @@ protected:
 };
 template<typename T>
 smat<T>::smat(int rows,int cols,int eMaxCols)
- :_nnz(0),_cols(cols),data(vector<svec<T> >(rows,svec<T>(cols,eMaxCols)))
-{}
+  :_nnz(0),_cols(cols)
+{
+  data.reserve(rows);
+  data.assign(rows,svec<T>(cols,eMaxCols));
+}
 template <typename T>
 void smat<T>::set(int r,int c,T value)
 {
@@ -463,14 +472,14 @@ vector<int> smat<T>::col_nnzs() const
 
 const int changePoint=6;
 template<typename T>
-T HPerm(smat<T> &m,int node=0)
+T H(smat<T> &m,int node=0)
 {
   int	max   = 3;
   int	child =	1;
 #ifdef stat
   cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
 #endif
-  
+
 #ifdef plot
   cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
   m.print();
@@ -576,7 +585,7 @@ T HPerm(smat<T> &m,int node=0)
 	  cerr<<"node"<<node<<" eliminate col :"<<c1<<'\t'<<c2<<endl;
 	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
 #endif
-	  ret += HPerm(mtemp,node*max+child);
+	  ret += H(mtemp,node*max+child);
 #ifdef plot
 	  child++;
 #endif
@@ -591,7 +600,7 @@ T HPerm(smat<T> &m,int node=0)
 	  cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
 	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
 #endif
-	  ret+=value*HPerm(m,node*max+child);
+	  ret+=value*H(m,node*max+child);
 	}
 #ifdef plot
       cerr<<"node"<<node<<" return :"<<ret<<endl;
@@ -707,7 +716,7 @@ T HPerm(smat<T> &m,int node=0)
 #ifdef plot
 	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
 #endif
-	  ret += HPerm(mtemp,node*max+child);
+	  ret += H(mtemp,node*max+child);
 #ifdef plot
 	  cerr<<"node"<<node<<" return :"<<ret<<endl;
 #endif
@@ -722,7 +731,7 @@ T HPerm(smat<T> &m,int node=0)
 	  cerr<<"node"<<node<<" eliminate row :"<<r<<endl;
 	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
 #endif
-	  ret+=value*HPerm(m,node*max+child);
+	  ret+=value*H(m,node*max+child);
 	}
 #ifdef plot
       cerr<<"node"<<node<<" return :"<<ret<<endl;
@@ -731,6 +740,403 @@ T HPerm(smat<T> &m,int node=0)
     }
 }
 
+
+template<typename T>
+T IDEM(smat<T> &m,int node=0)
+{
+  int	max   = 3;
+  int	child =	1;
+#ifdef stat
+  cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
+#endif
+
+#ifdef plot
+  cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
+  m.print();
+  cout<<"\"];\n";
+#endif
+
+
+  if(m.data.size() == 1)
+    {
+#ifdef plot
+      cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
+#endif
+#ifdef stat
+      cerr<<m.data.size()<<endl;
+#endif
+      return m(0,0);
+    }
+
+  //find the row with minimal element
+  vector<int>	rowSize(m.data.size());
+  for(unsigned r=0;r<rowSize.size();r++)
+    rowSize[r] = m.data[r].data.size();
+  int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+  int		minRowSize	= rowSize[minRow];
+
+  vector<int>	colSize	   = m.col_nnzs();
+  int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
+  int	minColSize = colSize[minCol];
+#ifdef stat
+  cerr<<(minRowSize<=minColSize?minRowSize:minColSize)<<endl;
+#endif
+  if(minRowSize<=minColSize)
+    {
+#ifdef plot
+      cerr<<"node"<<node<<" min row :"<<minRow<<endl;
+#endif
+
+      if(minRowSize==0)
+	return 0;
+
+      T ret=0;
+      for(int i=0;i<minRowSize/2;i++)
+	{
+	  int	c1	= m.data[minRow].data[0].index;
+	  T		value1	= m.data[minRow].data[0].value;
+	  int	c2	= m.data[minRow].data[1].index;
+	  T		value2	= m.data[minRow].data[1].value;
+	  m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
+	  m.data[minRow].data.erase(m.data[minRow].data.begin());
+	  m._nnz	       -= 2;
+
+	  smat<T> mtemp(m);
+	  mtemp.erase_row(minRow);
+	  element<T> target1(c1,0),target2(c2,0);
+	  int		info1,info2;
+	  int		pos1,pos2;
+	  for(unsigned r=0;r<mtemp.data.size();r++)
+	    //eliminate two elements each row
+	    {
+	      pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)
+		-mtemp.data[r].data.begin();
+	      if(info1==-1 || info1==2)
+		continue;
+	      pos2 = lower_bound_find(mtemp.data[r].data.begin()+pos1,mtemp.data[r].data.end(),target2,info2)-mtemp.data[r].data.begin();
+	      //#ifdef plot
+	      //	      cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
+	      //	      cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
+	      //#endif
+	      for(unsigned c=pos2;c<mtemp.data[r].data.size();c++)
+		mtemp.data[r].data[c].index--;
+	      if(info1==0)
+		{
+		  if(info2!=0)
+		    mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value;
+		  else
+		    {
+		      T	tempValue =	value2*mtemp.data[r].data[pos1].value+value1*mtemp.data[r].data[pos2].value;
+		      if(tempValue==0)
+			continue;
+		      mtemp.data[r].data[pos1].value  =tempValue;
+		      mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2);
+		      mtemp._nnz--;
+		    }
+		  continue;
+		}
+	      if(info1==1)
+		{
+		  if(info2==0)
+		    {
+		      //value1!=0
+		      mtemp.data[r].data.insert(mtemp.data[r].data.begin()+pos1,
+						element<T>(c1,value1*mtemp.data[r].data[pos2].value));
+		      //NOTE erase pos2+1 becuase the insert before
+		      mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2+1);
+		    }
+		  continue;
+		}
+	    }
+	  mtemp._cols--;
+#ifdef plot
+	  cerr<<"node"<<node<<" eliminate col :"<<c1<<'\t'<<c2<<endl;
+	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+	  ret += IDEM(mtemp,node*max+child);
+#ifdef plot
+	  child++;
+#endif
+	}
+      if(!m.data[minRow].data.empty())
+	{
+	  int c= m.data[minRow].data[0].index;
+	  T value= m.data[minRow].data[0].value;
+	  m.erase_row(minRow);
+	  m.erase_col(c);
+#ifdef plot
+	  cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
+	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+	  ret+=value*IDEM(m,node*max+child);
+	}
+#ifdef plot
+      cerr<<"node"<<node<<" return :"<<ret<<endl;
+#endif
+      return ret;
+    }
+  else
+    {
+#ifdef plot
+      cerr<<"node"<<node<<" min col :"<<minCol<<endl;
+#endif
+      if(minColSize==0)
+	return 0;
+
+      T ret=0;
+      vector<int> rows;
+      vector<T> values;
+      rows.reserve(minColSize);
+      values.reserve(minColSize);
+      for(unsigned r=0;rows.size()<minColSize;r++)
+	{
+	  T temp=m(r,minCol);
+	  if(temp!=0)
+	    {
+	      rows.push_back(r);
+	      values.push_back(temp);
+	    }
+	}
+      for(unsigned i=0;i<minColSize-1;i+=2)
+	{
+	  int	r1	= rows[i];
+	  T	value1	= values[i];
+	  int	r2	= rows[i+1];
+	  T	value2	= values[i+1];
+
+	  smat<T> mtemp(m);
+	  mtemp.erase_col(minCol);
+#ifdef plot
+	  cerr<<"node"<<node<<" eliminate row "<<r1<<' '<<r2<<" with value "<<value1<<' '<<value2<<endl;
+	  cerr<<"node"<<node<<"  row nnz "<<mtemp.data[r1].data.size()<<' '<<mtemp.data[r2].data.size()<<endl;
+#endif
+
+
+	  int i1=0,i2=0;
+	  while(i1!=-1||i2!=-1)
+	    {
+	      if(i1==-1)
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 4"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
+#endif
+		  mtemp.data[r1].data.push_back(element<T>(mtemp.data[r2].data[i2].index,value1*mtemp.data[r2].data[i2].value));
+		  mtemp._nnz++;
+		  if(i2==mtemp.data[r2].data.size()-1)
+		    i2=-1;
+		  else
+		    i2++;
+		}
+	      else if(i2==-1)
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 5"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
+#endif
+		  mtemp.data[r1].data[i1].value*=value2;
+		  if(i1==mtemp.data[r1].data.size()-1)
+		    i1=-1;
+		  else
+		    i1++;
+		}
+	      else if(mtemp.data[r1].data[i1].index<mtemp.data[r2].data[i2].index)
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 1"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
+#endif
+		  mtemp.data[r1].data[i1].value*=value2;
+		  if(i1==mtemp.data[r1].data.size()-1)
+		    i1=-1;
+		  else
+		    i1++;
+		}
+	      else if(mtemp.data[r1].data[i1].index>mtemp.data[r2].data[i2].index)
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 2"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<endl;
+		  cerr<<"node"<<node<<" i2 = "<<i2<<" "<<mtemp.data[r2].data.size()<<endl;
+#endif
+		  mtemp.data[r1].data.insert(mtemp.data[r1].data.begin()+i1,
+					     element<T>(mtemp.data[r2].data[i2].index,value1*mtemp.data[r2].data[i2].value));
+		  mtemp._nnz++;//This is manaul managed
+		  i1++;//because sth inser before
+		  if(i2==mtemp.data[r2].data.size()-1)
+		    i2=-1;
+		  else
+		    i2++;
+		}
+	      else
+		{
+#ifdef plot
+		  cerr<<"node"<<node<<" situation 3"<<" col "<<mtemp.data[r1].data[i1].index<<"\t"<<mtemp.data[r2].data[i2].index<<" with new value "<<value2*mtemp.data[r1].data[i1].value+value1*mtemp.data[r2].data[i2].value<<endl;
+#endif
+		  mtemp.data[r1].data[i1].value=value2*mtemp.data[r1].data[i1].value+value1*mtemp.data[r2].data[i2].value;
+		  if(i1==mtemp.data[r1].data.size()-1)
+		    i1=-1;
+		  else
+		    i1++;
+		  if(i2==mtemp.data[r2].data.size()-1)
+		    i2=-1;
+		  else
+		    i2++;
+		}
+	    }
+	  mtemp.erase_row(r2);
+#ifdef plot
+	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+	  ret += IDEM(mtemp,node*max+child);
+#ifdef plot
+	  cerr<<"node"<<node<<" return :"<<ret<<endl;
+#endif
+	}
+      if(minColSize%2==1)
+	{
+	  int r=rows.back();
+	  T value=values.back();
+	  m.erase_row(r);
+	  m.erase_col(minCol);
+#ifdef plot
+	  cerr<<"node"<<node<<" eliminate row :"<<r<<endl;
+	  cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+	  ret+=value*IDEM(m,node*max+child);
+	}
+#ifdef plot
+      cerr<<"node"<<node<<" return :"<<ret<<endl;
+#endif
+      return ret;
+    }
+}
+
+template<typename T>
+T IDEM0(smat<T> &m,int node=0)
+{
+  int	max   = 3;
+  int	child =	1;
+#ifdef stat
+  cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
+#endif
+
+#ifdef plot
+  cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
+  m.print();
+  cout<<"\"];\n";
+#endif
+
+
+  if(m.data.size() == 1)
+    {
+#ifdef plot
+      cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
+#endif
+#ifdef stat
+      cerr<<m.data.size()<<endl;
+#endif
+      return m(0,0);
+    }
+
+  //find the row with minimal element
+  vector<int>	rowSize(m.data.size());
+  for(unsigned r=0;r<rowSize.size();r++)
+    rowSize[r] = m.data[r].data.size();
+  int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+  int		minRowSize	= rowSize[minRow];
+
+#ifdef stat
+  cerr<<minRowSize<<endl;
+#endif
+#ifdef plot
+  cerr<<"node"<<node<<" min row :"<<minRow<<endl;
+#endif
+
+  if(minRowSize==0)
+    return 0;
+
+  T ret=0;
+  for(int i=0;i<minRowSize/2;i++)
+    {
+      int	c1	= m.data[minRow].data[0].index;
+      T		value1	= m.data[minRow].data[0].value;
+      int	c2	= m.data[minRow].data[1].index;
+      T		value2	= m.data[minRow].data[1].value;
+      m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
+      m.data[minRow].data.erase(m.data[minRow].data.begin());
+      m._nnz	       -= 2;
+
+      smat<T> mtemp(m);
+      mtemp.erase_row(minRow);
+      element<T> target1(c1,0),target2(c2,0);
+      int		info1,info2;
+      int		pos1,pos2;
+      for(unsigned r=0;r<mtemp.data.size();r++)
+	//eliminate two elements each row
+	{
+	  pos1 = lower_bound_find(mtemp.data[r].data.begin(),mtemp.data[r].data.end(),target1,info1)
+	    -mtemp.data[r].data.begin();
+	  if(info1==-1 || info1==2)
+	    continue;
+	  pos2 = lower_bound_find(mtemp.data[r].data.begin()+pos1,mtemp.data[r].data.end(),target2,info2)-mtemp.data[r].data.begin();
+	  //#ifdef plot
+	  //	      cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
+	  //	      cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
+	  //#endif
+	  for(unsigned c=pos2;c<mtemp.data[r].data.size();c++)
+	    mtemp.data[r].data[c].index--;
+	  if(info1==0)
+	    {
+	      if(info2!=0)
+		mtemp.data[r].data[pos1].value = value2*mtemp.data[r].data[pos1].value;
+	      else
+		{
+		  T	tempValue =	value2*mtemp.data[r].data[pos1].value+value1*mtemp.data[r].data[pos2].value;
+		  if(tempValue==0)
+		    continue;
+		  mtemp.data[r].data[pos1].value  =tempValue;
+		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2);
+		  mtemp._nnz--;
+		}
+	      continue;
+	    }
+	  if(info1==1)
+	    {
+	      if(info2==0)
+		{
+		  //value1!=0
+		  mtemp.data[r].data.insert(mtemp.data[r].data.begin()+pos1,
+					    element<T>(c1,value1*mtemp.data[r].data[pos2].value));
+		  //NOTE erase pos2+1 becuase the insert before
+		  mtemp.data[r].data.erase(mtemp.data[r].data.begin()+pos2+1);
+		}
+	      continue;
+	    }
+	}
+      mtemp._cols--;
+#ifdef plot
+      cerr<<"node"<<node<<" eliminate col :"<<c1<<'\t'<<c2<<endl;
+      cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+      ret += IDEM0(mtemp,node*max+child);
+#ifdef plot
+      child++;
+#endif
+    }
+  if(!m.data[minRow].data.empty())
+    {
+      int c= m.data[minRow].data[0].index;
+      T value= m.data[minRow].data[0].value;
+      m.erase_row(minRow);
+      m.erase_col(c);
+#ifdef plot
+      cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
+      cout<<"\""<<node*max+child<<"\"->\""<<node<<"\";\n";
+#endif
+      ret+=value*IDEM0(m,node*max+child);
+    }
+#ifdef plot
+  cerr<<"node"<<node<<" return :"<<ret<<endl;
+#endif
+  return ret;
+}
 
 template <class ForwardIterator, class T>
 ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,

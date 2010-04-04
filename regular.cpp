@@ -18,8 +18,8 @@
 #include "regular.h"
 
 //get the group of a point
-int			group(int point,int d);
-void				printMatrix(const smat<int> &matrix);
+int	group(int point,int d);
+void	printMatrix(const smat<int> &matrix);
 
 smat<int> regular(int n,int d,int &trytimes){
   smat<int> matrix(n,n,d);
@@ -39,13 +39,13 @@ smat<int> regular(int n,int d,int &trytimes){
   while(!points.empty()){
     int		index1				  = randint(points.size());
     int		group1				  = group(points[index1],d);
-    #ifdef debug
-        //cout<<"matrix: \n";
-        //printMatrix(matrix);
-        cout<<"points :\n";
-        printVector(points);
-        //cout<<"1st point: "<<points[index1]<<endl;
-    #endif
+#ifdef debug
+    //cout<<"matrix: \n";
+    //printMatrix(matrix);
+    cout<<"points :\n";
+    printVector(points);
+    //cout<<"1st point: "<<points[index1]<<endl;
+#endif
     suitablePoints.clear();
     suitablePointsIndex.clear();
     for(unsigned i=0;i!=points.size();++i){
