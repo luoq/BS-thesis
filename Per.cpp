@@ -21,6 +21,7 @@
 int main(int argc,char** argv)
 {
   smat<long long>	m,mtemp;
+  long long p;
   if(!m.load(argv[1]))
     {
       cout<<"file not found\n";
@@ -33,35 +34,35 @@ int main(int argc,char** argv)
   Timer t;
   double time;
 
-  mtemp=m;
-  t.tic();
-  long long	p = IDEM0(mtemp);
-  time		  = t.toc();
-#ifdef plot
-  cout<<"}\n";
-  cerr<<"Time elapsed : "<<time<<" ms\n";
-  cerr<<"Result : "<<p<<endl;
-#else
-  cout<<"using IDEM0\n";
-  cout<<"Time elapsed : "<<time<<" ms\n";
-  cout<<"Result : "<<p<<endl;
-#endif
-
-
-  p=0;
-  mtemp=m;
-  t.tic();
-  p = IDEM(mtemp);
-  time		  = t.toc();
-#ifdef plot
-  cout<<"}\n";
-  cerr<<"Time elapsed : "<<time<<" ms\n";
-  cerr<<"Result : "<<p<<endl;
-#else
-  cout<<"using IDEM\n";
-  cout<<"Time elapsed : "<<time<<" ms\n";
-  cout<<"Result : "<<p<<endl;
-#endif
+//  mtemp=m;
+//  t.tic();
+//  p = IDEM0(mtemp);
+//  time		  = t.toc();
+//#ifdef plot
+//  cout<<"}\n";
+//  cerr<<"Time elapsed : "<<time<<" ms\n";
+//  cerr<<"Result : "<<p<<endl;
+//#else
+//  cout<<"using IDEM0\n";
+//  cout<<"Time elapsed : "<<time<<" ms\n";
+//  cout<<"Result : "<<p<<endl;
+//#endif
+//
+//
+//  p=0;
+//  mtemp=m;
+//  t.tic();
+//  p = IDEM(mtemp);
+//  time		  = t.toc();
+//#ifdef plot
+//  cout<<"}\n";
+//  cerr<<"Time elapsed : "<<time<<" ms\n";
+//  cerr<<"Result : "<<p<<endl;
+//#else
+//  cout<<"using IDEM\n";
+//  cout<<"Time elapsed : "<<time<<" ms\n";
+//  cout<<"Result : "<<p<<endl;
+//#endif
 
   p=0;
   mtemp=m;
@@ -78,7 +79,6 @@ int main(int argc,char** argv)
   cout<<"Result : "<<p<<endl;
 #endif
 
-  
   return 0;
 }
 // 

@@ -1,7 +1,7 @@
 CC=g++
 #CXXFLAGS=-g -Ddebug_rnw
 CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
-all:research Per genRegular benchmark RNW #test_fmat test_mat test_vec test_load test_subsetGenerator
+all:research Per genRegular benchmark benchmark_H RNW #test_fmat test_mat test_vec test_load test_subsetGenerator
 
 research:research.o misc.o regular.o Timer.o
 	$(CC) $^ -o $@
@@ -15,12 +15,14 @@ regular.o:regular.cpp regular.h iSparseMatrix.h misc.h
 	$(CC) $(CXXFLAGS) -c $<
 Timer.o:Timer.cpp Timer.h
 	$(CC) $(CXXFLAGS) -c $<
-clean:
-	rm *.o test_vec test_mat test_load Per research benchmark genRegular test_fmat RNW test_subsetGenerator
 
 benchmark:benchmark.o regular.o Timer.o misc.o
 	$(CC) $^ -o $@
 benchmark.o:benchmark.cpp regular.h Timer.h
+	$(CC) $(CXXFLAGS) -c $<
+benchmark_H:benchmark_H.o regular.o Timer.o misc.o
+	$(CC) $^ -o $@
+benchmark_H.o:benchmark_H.cpp regular.h Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 
 test_mat:test_mat.cpp regular.cpp iSparseMatrix.h
@@ -43,3 +45,5 @@ Per:Per.o Timer.o misc.o
 
 misc.o:misc.cpp misc.h
 	$(CC) $(CXXFLAGS) -c $<
+clean:
+	rm *.o test_vec test_mat test_load Per research benchmark benchmark_H genRegular test_fmat RNW test_subsetGenerator
