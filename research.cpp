@@ -1,16 +1,16 @@
-// research.cpp --- 
-// 
+// research.cpp ---
+//
 // Filename: research.cpp
-// Description: 
+// Description:
 // Author: Luo Qiang
 // Created: 03/23/2010 11:08:58
-// Version: 
-// Last-Updated: 04/04/2010 10:08:12
+// Version:
+// Last-Updated: 04/06/2010 16:03:09
 //           By: Luo Qiang
-//     Update #: 55
-// Keywords: 
+//     Update #: 75
+// Keywords:
 
-// Commentary: 
+// Commentary:
 
 // Change log:
 
@@ -18,22 +18,23 @@
 #include "iSparseMatrix.h"
 #include "regular.h"
 #include "Timer.h"
+#include "Timer.h"
 int main(int argc,char** argv)
 {
-  if(argc!=3)
+  if(argc!=4)
     {
-      cerr<<"usage : "<<argv[0]<<" path_to_load path_to_save\n";
+      cerr<<"usage : "<<argv[0]<<" repeat-times path_to_load path_to_save\n";
       return 1;
     }
-  cout<<"loading matrix\n";
-  smat<int>	m;
-  if(!m.load(argv[1]))
+  //cout<<"loading matrix\n";
+  smat<int>	m,mtemp;
+  if(!m.load(argv[2]))
     {
       cerr<<"Cannot open file"<<endl;
       return 2;
     }
-  cout<<"done\n\n";
-  ofstream	out(argv[2]);
+  //cout<<"done\n\n";
+  ofstream	out(argv[3]);
   if(!out)
     {
       cerr<<"Cannot write file\n";
@@ -43,9 +44,9 @@ int main(int argc,char** argv)
   srand(time(NULL));
   Timer		timer;
   double	t;
-  
+
   int		trytimes;
-  cout<<"selecting columns\n";
+  //cout<<"selecting columns\n";
   vector<int>	selectedCols = aPerfectMatch(m,trytimes);
   if(selectedCols.empty())
     {
@@ -53,59 +54,60 @@ int main(int argc,char** argv)
       cerr<<"Try again,or check if there is any\n";
       return 4;
     }
-  cout<<"done with columns\n";
-  cout<<selectedCols;
-  cout<<"after "<<trytimes<<" tries\n\n";
+  //cout<<"done with columns\n";
+  //cout<<selectedCols;
+  //cout<<"after "<<trytimes<<" tries\n\n";
   out<<"#research with matrix load from "<<argv[1]<<endl;
   out<<"#selected columns :\n#";
   out<<selectedCols;
   out<<"#after "<<trytimes<<" tries\n";
 
-  int repeat=10;
-  out<<"repeat "<<repeat<<" times each\n";
-  cout<<"calculating permanent of original matrix "<<repeat<<"times\n";
+  int repeat=atoi(argv[1]),num=m.cols();
+  out<<"#repeat "<<repeat<<" times each\n";
+  //cout<<"calculating permanent of original matrix "<<repeat<<"times\n";
+  mtemp=m;
   timer.tic();
-  smat<int> mtemp(m);
   int	P = H(mtemp,0);
   t	  = timer.toc();
-  out<<P<<'\t'<<t;
-  cout<<"permanent: "<<P<<"\ntime elapsed : "<<t<<"ms ";
+  out<<num<<'\t'<<P<<'\t'<<t;
+  //cout<<"permanent: "<<P<<"\ntime elapsed : "<<t<<"ms ";
   for(int i=0;i<repeat-1;i++)
-  {
+    {
       mtemp=m;
       timer.tic();
-	  H(mtemp,0);
+      H(mtemp,0);
       t	  = timer.toc();
       out<<'\t'<<t;
-      cout<<t<<"ms ";
-  }
+      //cout<<t<<"ms ";
+    }
   out<<endl;
-  cout<<endl<<endl;
+  //cout<<endl<<endl;
 
   for(int r=0;r<m.rows();r++)
     {
       m.erase(r,selectedCols[r]);
-      cout<<"calculating permanent of matrix with ("<<r<<","<<selectedCols[r]<<") erased\n";
+      //cout<<"calculating permanent of matrix with ("<<r<<","<<selectedCols[r]<<") erased\n";
       mtemp=m;
       timer.tic();
       int	P = H(mtemp,0);
       t	  = timer.toc();
-      out<<P<<'\t'<<t;
-      cout<<"permanent: "<<P<<"\ntime elapsed : "<<t<<"ms ";
-	  for(int i=0;i<repeat-1;i++)
-	  {
-		  mtemp=m;
-		  timer.tic();
-		  H(mtemp,0);
-		  t	  = timer.toc();
-		  out<<'\t'<<t;
-		  cout<<t<<"ms ";
-	  }
-	  out<<endl;
-	  cout<<endl<<endl;
+      num--;
+      out<<num<<'\t'<<P<<'\t'<<t;
+      //cout<<"permanent: "<<P<<"\ntime elapsed : "<<t<<"ms ";
+      for(int i=0;i<repeat-1;i++)
+	{
+	  mtemp=m;
+	  timer.tic();
+	  H(mtemp,0);
+	  t	  = timer.toc();
+	  out<<'\t'<<t;
+	  //cout<<t<<"ms ";
+	}
+      out<<endl;
+      //cout<<endl<<endl;
     }
-  return 0;  
+  return 0;
 }
 
-// 
+//
 // research.cpp ends here

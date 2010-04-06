@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 04/04/2010 11:11:42
+ * Last-Updated: 04/05/2010 10:59:57
  *           By: Luo Qiang
- *     Update #: 806
+ *     Update #: 815
  * Keywords:
  */
 
@@ -474,32 +474,23 @@ const int changePoint=7;
 template<typename T>
 T H(smat<T> &m,int node=0)
 {
-  int	max   = 3;
+  int	max   = 10;
   int	child =	1;
+
+  if(m.data.size() <= changePoint)
+  {		
+#ifdef plot
+	  cout<<"\""<<node<<"\"[label=\"";
+      //m.print();
+      cout<<"end";
+      cout<<"\",fillcolor=red];\n";
+#endif
+    return RNW(m.full());
+  }	
+
 #ifdef stat
   cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
 #endif
-
-#ifdef plot
-  cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
-  m.print();
-  cout<<"\"];\n";
-#endif
-
-
-  if(m.data.size() <= changePoint)
-    return RNW(m.full());
-  //  if(m.data.size() == 1)
-  //    {
-  //#ifdef plot
-  //      cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
-  //#endif
-  //#ifdef stat
-  //      cerr<<m.data.size()<<endl;
-  //#endif
-  //      return m(0,0);
-  //    }
-
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
@@ -513,14 +504,22 @@ T H(smat<T> &m,int node=0)
 #ifdef stat
   cerr<<(minRowSize<=minColSize?minRowSize:minColSize)<<endl;
 #endif
+
+
   if(minRowSize<=minColSize)
     {
 #ifdef plot
       cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
-
       if(minRowSize==0)
 	return 0;
+
+#ifdef plot
+      cout<<"\""<<node<<"\"[label=\"";
+      //m.print();
+      cout<<minRowSize;
+      cout<<"\"];\n";
+#endif
 
       T ret=0;
       for(int i=0;i<minRowSize/2;i++)
@@ -614,6 +613,13 @@ T H(smat<T> &m,int node=0)
 #endif
       if(minColSize==0)
 	return 0;
+
+#ifdef plot
+      cout<<"\""<<node<<"\"[label=\"";
+      //m.print();
+      cout<<minColSize;
+      cout<<"\",fillcolor=green];\n";
+#endif
 
       T ret=0;
       vector<int> rows;
@@ -718,7 +724,7 @@ T H(smat<T> &m,int node=0)
 #endif
 	  ret += H(mtemp,node*max+child);
 #ifdef plot
-	  cerr<<"node"<<node<<" return :"<<ret<<endl;
+	  child++;
 #endif
 	}
       if(minColSize%2==1)

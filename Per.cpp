@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/21/2010 15:27:10
 // Version: 
-// Last-Updated: 04/04/2010 11:13:15
+// Last-Updated: 04/05/2010 10:41:10
 //           By: Luo Qiang
-//     Update #: 85
+//     Update #: 86
 // Keywords: 
 
 // Commentary: 
@@ -28,7 +28,7 @@ int main(int argc,char** argv)
       return 1;
     }
 #ifdef plot
-  cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;ranksep=0.2;\n";
+  cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;\n";
 #endif
 
   Timer t;
