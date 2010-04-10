@@ -63,22 +63,36 @@ int main(int argc,char** argv)
 //  cout<<"Time elapsed : "<<time<<" ms\n";
 //  cout<<"Result : "<<p<<endl;
 //#endif
+//
+//  p=0;
+//  mtemp=m;
+//  t.tic();
+//  p = H(mtemp);
+//  time		  = t.toc();
+//#ifdef plot
+//  cout<<"}\n";
+//  cerr<<"Time elapsed : "<<time<<" ms\n";
+//  cerr<<"Result : "<<p<<endl;
+//#else
+//  cout<<"using hybrid\n";
+//  cout<<"Time elapsed : "<<time<<" ms\n";
+//  cout<<"Result : "<<p<<endl;
+//#endif
 
   p=0;
   mtemp=m;
   t.tic();
-  p = H(mtemp);
+  p = DEM(mtemp);
   time		  = t.toc();
 #ifdef plot
   cout<<"}\n";
   cerr<<"Time elapsed : "<<time<<" ms\n";
   cerr<<"Result : "<<p<<endl;
 #else
-  cout<<"using hybrid\n";
+  cout<<"using DEM\n";
   cout<<"Time elapsed : "<<time<<" ms\n";
   cout<<"Result : "<<p<<endl;
 #endif
-
   return 0;
 }
 // 

@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/19/2010 12:55:51
 // Version: 
-// Last-Updated: 03/27/2010 20:36:24
+// Last-Updated: 04/10/2010 11:27:04
 //           By: Luo Qiang
-//     Update #: 50
+//     Update #: 51
 // Keywords: 
 
 // Commentary: 
@@ -27,7 +27,7 @@ int main()
 {
   Timer		timer;
   double	t=0;
-  ofstream	out("../data/benchmark-H-8.data",ofstream::app);
+  ofstream	out("../data/benchmark-DEM.data",ofstream::app);
   if(!out){
     cout<<"Cannot open file\n";
     return 1;
@@ -49,7 +49,7 @@ int main()
       {
 	matrix = regular(n,d,trytimes);
 	timer.tic();
-	P=H(matrix);
+	P=DEM(matrix);
 	t = timer.toc();
 	out<<t<<'\t'<<P<<'\t';
       }
@@ -58,8 +58,5 @@ int main()
   out.close();
   return 0;
 }
-
-
-
 // 
 // benchmark.cpp ends here
