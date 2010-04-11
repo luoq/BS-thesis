@@ -29,7 +29,6 @@
 #include "misc.h"
 #include "iFullMatrix.h"
 #include "R-NW.h"
-
 using namespace std;
 
 template<typename T> class	element;
@@ -1230,8 +1229,8 @@ T DEM(smat<T> &m,int node=1)
 	vector<int>	rowSize(m.data.size());
 	for(unsigned r=0;r<rowSize.size();r++)
 		rowSize[r] = m.data[r].data.size();
-	int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
-	int		minRowSize	= rowSize[minRow];
+	int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+	int	minRowSize	= rowSize[minRow];
 
 #ifdef stat
 	cerr<<minRowSize<<endl;
