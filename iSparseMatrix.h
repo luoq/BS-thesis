@@ -43,8 +43,11 @@ template<typename T> T		H(smat<T> &m,int node=0);
 template<typename T> T		IDEM(smat<T> &m,int node=0);
 template<typename T> T		IDEM0(smat<T> &m,int node=0);
 template<typename T> T		DEM(smat<T> &m,int node=1);
+template<typename T> inline void		peelDEM(smat<T> &m,bool& end,T& ret);
+template<typename T> T		DEMiter(smat<T> &m,int node=1);
 template<typename T> vector<int> aPerfectMatch(const smat<T>&,int& trytimes);
-template<typename T> void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2);
+template<typename T> inline void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2);
+template<typename T> inline void eliminate1(smat<T> &m,int r,int c);
 //info = -1,empty
 //info = 0,find
 //info = 1,not find,return first larger
@@ -80,7 +83,6 @@ template<typename T> bool operator==(const element<T> &e1,const element<T> &e2)
 
 template <typename T> class svec
 {
-	public:
 		template <typename U> friend class	smat;
 		friend ostream& operator<<<> (ostream& Out,const svec<T>& v);
 		friend ostream& operator<<<> (ostream& Out,const smat<T>& m);
@@ -90,6 +92,9 @@ template <typename T> class svec
 		friend T IDEM0<>(smat<T> &m,int node);
 		friend T DEM<>(smat<T> &m,int node);
 		friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
+		friend void peelDEM<>(smat<T> &m,bool& end,T& ret);
+		friend T DEMiter<>(smat<T> &m,int node);
+	public:
 		svec (){_size	= 0;}
 		svec(int size,int ennz);
 		svec(int size)
@@ -230,6 +235,8 @@ template<typename T> class smat{
 	friend T DEM<>(smat<T> &m,int node);
 	//generate a perfect match
 	friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
+	friend void peelDEM<>(smat<T> &m,bool& end,T& ret);
+	friend T DEMiter<>(smat<T> &m,int node);
 	public:
 	smat()
 	{
@@ -1201,6 +1208,12 @@ void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2)
 	m._cols--;
 }
 	template<typename T>
+void eliminate1(smat<T> &m,int r,int c)
+{
+	m.erase_row(r);
+	m.erase_col(c);
+}
+	template<typename T>
 T DEM(smat<T> &m,int node=1)
 {
 #ifdef stat
@@ -1250,8 +1263,7 @@ T DEM(smat<T> &m,int node=1)
 
 		int c= m.data[minRow].data[0].index;
 		T value= m.data[minRow].data[0].value;
-		m.erase_row(minRow);
-		m.erase_col(c);
+		eliminate1(m,minRow,c);
 #ifdef plot
 		cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
 		cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=green];\n";
@@ -1314,17 +1326,20 @@ T DEM(smat<T> &m,int node=1)
 			value1 = m.data[r].data[0].value;
 			value2 = m.data[r].data[1].value;
 		}
-		smat<T> mtemp=m;
-		eliminate2(mtemp,r,c1,c2,value1,value2);
+
+		T p=0;
+		{
+			smat<T> mtemp=m;
+			eliminate2(mtemp,r,c1,c2,value1,value2);
 #ifdef plot
-		cerr<<"node"<<node<<" eliminate col :"<<c1<<','<<c2<<endl;
-		cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=blue];\n";
+			cerr<<"node"<<node<<" eliminate col :"<<c1<<','<<c2<<endl;
+			cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=blue];\n";
 #endif
-		T p=DEM(mtemp,2*node);
+			p=DEM(mtemp,2*node);
+		}	
 
 		T value = m.data[r].data[icc].value;
-		m.erase_row(r);
-		m.erase_col(maxCol);
+		eliminate1(m,r,maxCol);
 #ifdef plot
 		cerr<<"node"<<node<<" eliminate col :"<<maxCol<<endl;
 		cout<<"\""<<2*node+1<<"\"->\""<<node<<"\"[color=green];\n";
@@ -1333,6 +1348,131 @@ T DEM(smat<T> &m,int node=1)
 		return p;
 	}
 }
+	template<typename T>
+void peelDEM(smat<T> &m,bool& end,T& ret)
+{
+	end=false;
+	ret=1;
+	while(true)
+	{
+		if(m.data.size()==1)
+		{
+			end=true;
+			ret*=m(0,0);
+			return;
+		}
+		vector<int>	rowSize(m.data.size());
+		for(unsigned r=0;r<rowSize.size();r++)
+			rowSize[r] = m.data[r].data.size();
+		int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+		int	minRowSize	= rowSize[minRow];
+		if(minRowSize==0)
+		{
+			end=true;
+			ret=0;
+			return;
+		}
+		else if(minRowSize==1)
+		{
+
+			int c= m.data[minRow].data[0].index;
+			ret*=m.data[minRow].data[0].value;
+			eliminate1(m,minRow,c);
+		}
+		else if(minRowSize==2)
+		{
+
+			int	c1     = m.data[minRow].data[0].index;
+			int	c2     = m.data[minRow].data[1].index;
+			T		value1 = m.data[minRow].data[0].value;
+			T		value2 = m.data[minRow].data[1].value;
+			eliminate2(m,minRow,c1,c2,value1,value2);
+		}
+		else//minRowSize==3
+			return;
+	}
+}
+	template<typename T>
+T DEMiter(smat<T> &m,int node=1)
+{
+#ifdef stat
+	cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
+#endif
+
+#ifdef plot
+	cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
+	m.print();
+	cout<<"\"];\n";
+#endif
+	vector<int>	colSize	 = m.col_nnzs();
+	int		maxCol	 = max_element(colSize.begin(),colSize.end())-colSize.begin();
+	int		r;
+	for(r=0;r<m.data.size();r++)
+		if (m(r,maxCol)	!= 0)
+			break;
+#ifdef plot
+	cerr<<"node"<<node<<" eliminate row :"<<r<<endl;
+#endif
+
+	int		icc;	//index of column where c belongs to
+	for(icc = 0;icc<3;icc++)
+		if(m.data[r].data[icc].index==maxCol)
+			break;
+	int c1,c2;
+	T value1,value2;
+	if(icc==0)
+	{
+		c1     = m.data[r].data[1].index;
+		c2     = m.data[r].data[2].index;
+		value1 = m.data[r].data[1].value;
+		value2 = m.data[r].data[2].value;
+	}
+	else if(icc==1)
+	{
+		c1     = m.data[r].data[0].index;
+		c2     = m.data[r].data[2].index;
+		value1 = m.data[r].data[0].value;
+		value2 = m.data[r].data[2].value;
+	}
+	else
+	{
+		c1     = m.data[r].data[0].index;
+		c2     = m.data[r].data[1].index;
+		value1 = m.data[r].data[0].value;
+		value2 = m.data[r].data[1].value;
+	}
+
+	T p;
+	{
+		smat<T> mtemp=m;
+		eliminate2(mtemp,r,c1,c2,value1,value2);
+#ifdef plot
+		cerr<<"node"<<node<<" eliminate col :"<<c1<<','<<c2<<endl;
+		cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=blue];\n";
+#endif
+		bool end;T ret;
+		peelDEM(mtemp,end,ret);
+		if(end)
+			p=ret;
+		else
+			p=ret*DEMiter(mtemp);
+	}
+
+	T value = m.data[r].data[icc].value;
+	eliminate1(m,r,maxCol);
+#ifdef plot
+	cerr<<"node"<<node<<" eliminate col :"<<maxCol<<endl;
+	cout<<"\""<<2*node+1<<"\"->\""<<node<<"\"[color=green];\n";
+#endif
+	bool end;T ret;
+	peelDEM(m,end,ret);
+	if(end)
+		p+=value*ret;
+	else
+		p+=value*ret*DEMiter(m);
+	return p;
+}
+
 
 	template <class ForwardIterator, class T>
 ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,

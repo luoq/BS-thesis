@@ -1,7 +1,7 @@
 CC=g++
 #CXXFLAGS=-g -Ddebug_rnw
 CXXFLAGS=-march=i686 -mtune=native -O3 -pipe 
-all:research Per genRegular benchmark benchmark-one RNW #test_fmat test_mat test_vec test_load test_subsetGenerator
+all:research Per genRegular #benchmark benchmark-one RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 
 research:research.o misc.o regular.o Timer.o
 	$(CC) $^ -o $@

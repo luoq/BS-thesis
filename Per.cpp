@@ -20,8 +20,8 @@
 #include "Timer.h"
 int main(int argc,char** argv)
 {
-  smat<long long>	m,mtemp;
-  long long p;
+  smat<long>	m,mtemp;
+  long p;
   if(!m.load(argv[1]))
     {
       cout<<"file not found\n";
@@ -90,6 +90,21 @@ int main(int argc,char** argv)
   cerr<<"Result : "<<p<<endl;
 #else
   cout<<"using DEM\n";
+  cout<<"Time elapsed : "<<time<<" ms\n";
+  cout<<"Result : "<<p<<endl;
+#endif
+
+  p=0;
+  mtemp=m;
+  t.tic();
+  p = DEMiter(mtemp);
+  time		  = t.toc();
+#ifdef plot
+  cout<<"}\n";
+  cerr<<"Time elapsed : "<<time<<" ms\n";
+  cerr<<"Result : "<<p<<endl;
+#else
+  cout<<"using DEMiter\n";
   cout<<"Time elapsed : "<<time<<" ms\n";
   cout<<"Result : "<<p<<endl;
 #endif

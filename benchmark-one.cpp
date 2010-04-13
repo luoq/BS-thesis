@@ -27,7 +27,7 @@ int main()
 {
   Timer		timer;
   double	t=0;
-  ofstream	out("../data/benchmark-DEM.data",ofstream::app);
+  ofstream	out("../data/benchmark-DEM-inline.data",ofstream::app);
   if(!out){
     cout<<"Cannot open file\n";
     return 1;
