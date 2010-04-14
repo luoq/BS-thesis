@@ -18,98 +18,46 @@
 
 #include "iSparseMatrix.h"
 #include "Timer.h"
+	template<typename T>
+void test(T (*f)(smat<T>&,int),smat<T> m,string name)
+{
+	Timer t;
+	double time;
+	int p;
+
+	t.tic();
+	p = f(m,1);
+	time		  = t.toc();
+#ifdef plot
+	cout<<"}\n";
+	cerr<<"Time elapsed : "<<time<<" ms\n";
+	cerr<<"Result : "<<p<<endl;
+#else
+	cout<<name<<"\n";
+	cout<<"Time elapsed : "<<time<<" ms\n";
+	cout<<"Result : "<<p<<endl<<endl;
+#endif
+}
 int main(int argc,char** argv)
 {
-  smat<long>	m,mtemp;
-  long p;
-  if(!m.load(argv[1]))
-    {
-      cout<<"file not found\n";
-      return 1;
-    }
+	smat<int>	m;
+	if(!m.load(argv[1]))
+	{
+		cout<<"file not found\n";
+		return 1;
+	}
 #ifdef plot
-  cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;\n";
+	cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;\n";
 #endif
-
-  Timer t;
-  double time;
-
-//  mtemp=m;
-//  t.tic();
-//  p = IDEM0(mtemp);
-//  time		  = t.toc();
-//#ifdef plot
-//  cout<<"}\n";
-//  cerr<<"Time elapsed : "<<time<<" ms\n";
-//  cerr<<"Result : "<<p<<endl;
-//#else
-//  cout<<"using IDEM0\n";
-//  cout<<"Time elapsed : "<<time<<" ms\n";
-//  cout<<"Result : "<<p<<endl;
-//#endif
-//
-//
-  p=0;
-  mtemp=m;
-  t.tic();
-  p = IDEM(mtemp);
-  time		  = t.toc();
-#ifdef plot
-  cout<<"}\n";
-  cerr<<"Time elapsed : "<<time<<" ms\n";
-  cerr<<"Result : "<<p<<endl;
-#else
-  cout<<"using IDEM\n";
-  cout<<"Time elapsed : "<<time<<" ms\n";
-  cout<<"Result : "<<p<<endl;
-#endif
-//
-//  p=0;
-//  mtemp=m;
-//  t.tic();
-//  p = H(mtemp);
-//  time		  = t.toc();
-//#ifdef plot
-//  cout<<"}\n";
-//  cerr<<"Time elapsed : "<<time<<" ms\n";
-//  cerr<<"Result : "<<p<<endl;
-//#else
-//  cout<<"using hybrid\n";
-//  cout<<"Time elapsed : "<<time<<" ms\n";
-//  cout<<"Result : "<<p<<endl;
-//#endif
-
-//  p=0;
-//  mtemp=m;
-//  t.tic();
-//  p = DEM(mtemp);
-//  time		  = t.toc();
-//#ifdef plot
-//  cout<<"}\n";
-//  cerr<<"Time elapsed : "<<time<<" ms\n";
-//  cerr<<"Result : "<<p<<endl;
-//#else
-//  cout<<"using DEM\n";
-//  cout<<"Time elapsed : "<<time<<" ms\n";
-//  cout<<"Result : "<<p<<endl;
-//#endif
-
-//  p=0;
-//  mtemp=m;
-//  t.tic();
-//  p = DEMiter(mtemp);
-//  time		  = t.toc();
-//#ifdef plot
-//  cout<<"}\n";
-//  cerr<<"Time elapsed : "<<time<<" ms\n";
-//  cerr<<"Result : "<<p<<endl;
-//#else
-//  cout<<"using DEMiter\n";
-//  cout<<"Time elapsed : "<<time<<" ms\n";
-//  cout<<"Result : "<<p<<endl;
-//#endif
-
-  return 0;
+	//test(&IDEM0<int>,m,"IDEM0");
+	//test(&IDEM<int>,m,"IDEM");
+	test(&H<int>,m,"H");
+	//test(&IDEM3<int>,m,"IDEM3");
+	//test(&H3<int>,m,"H3");
+	//test(&DEM<int>,m,"DEM");
+	//test(&DEM2<int>,m,"DEM2");
+	//test(&DEMiter<int>,m,"DEMiter");
+	return 0;
 }
 // 
 // test_H.cpp ends here

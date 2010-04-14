@@ -39,12 +39,33 @@ template<typename T> ostream& operator<<(ostream&,const svec<T> &v);
 template<typename T> class	smat;
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
 template<typename T> ostream& operator<<(ostream&,const smat<T> &m);
-template<typename T> T		H(smat<T> &m,int node=0);
-template<typename T> T		IDEM(smat<T> &m,int node=0);
-template<typename T> T		IDEM0(smat<T> &m,int node=0);
-template<typename T> T		DEM(smat<T> &m,int node=1);
-template<typename T> void		peelDEM(smat<T> &m,bool& end,T& ret);
-template<typename T> T		DEMiter(smat<T> &m,int node=1);
+//eliminate minimal row
+template<typename T> T	IDEM0(smat<T> &m,int node=0);
+//eliminate minimal row and column
+template<typename T> T	IDEM(smat<T> &m,int node=0);
+//hybrd IDEM and RNW
+template<typename T> T	H(smat<T> &m,int node=0);
+//for 3-regular only
+//eliminate row with <=2 elements
+//then eliminate row intersecting with maxium column
+template<typename T> T	DEM(smat<T> &m,int node=1);
+//for 3-regular only
+//change some recursion to iteration
+template<typename T> T	DEMiter(smat<T> &m,int node=1);
+//for 3-regular only
+//eliminate row with <=2 elements 
+//then column <=1 elements
+//then eliminate row intersecting with maxium column
+template<typename T> T	DEM2(smat<T> &m,int node=1);
+//for 3-regular only
+//eliminate row with <=2 elements 
+//then column <=1 elements
+//then row with minimal elements
+template<typename T> T	IDEM3(smat<T> &m,int node=1);
+//for 3-regular only
+//hybrid IDEM3 and RNW
+template<typename T> T	H3(smat<T> &m,int node=1);
+template<typename T> void	peelDEM(smat<T> &m,bool& end,T& ret);
 template<typename T> vector<int> aPerfectMatch(const smat<T>&,int& trytimes);
 template<typename T> void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2);
 template<typename T> void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2);
@@ -90,9 +111,12 @@ template <typename T> class svec
 	friend void eliminate2<>(smat<T> &m,int r,int c1,int c2,T value1,T value2);
 	friend void eliminate2T<>(smat<T> &m,int c,int r1,int r2,T value1,T value2);
 	friend T H<>(smat<T> &m,int node);
+	friend T H3<>(smat<T> &m,int node);
 	friend T IDEM<>(smat<T> &m,int node);
 	friend T IDEM0<>(smat<T> &m,int node);
 	friend T DEM<>(smat<T> &m,int node);
+	friend T DEM2<>(smat<T> &m,int node);
+	friend T IDEM3<>(smat<T> &m,int node);
 	friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
 	friend void peelDEM<>(smat<T> &m,bool& end,T& ret);
 	friend T DEMiter<>(smat<T> &m,int node);
@@ -233,9 +257,12 @@ template<typename T> class smat{
 	friend void eliminate2<>(smat<T> &m,int r,int c1,int c2,T value1,T value2);
 	friend void eliminate2T<>(smat<T> &m,int c,int r1,int r2,T value1,T value2);
 	friend T H<>(smat<T> &m,int node);
+	friend T H3<>(smat<T> &m,int node);
 	friend T IDEM<>(smat<T> &m,int node);
 	friend T IDEM0<>(smat<T> &m,int node);
 	friend T DEM<>(smat<T> &m,int node);
+	friend T DEM2<>(smat<T> &m,int node);
+	friend T IDEM3<>(smat<T> &m,int node);
 	//generate a perfect match
 	friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
 	friend void peelDEM<>(smat<T> &m,bool& end,T& ret);
@@ -466,12 +493,12 @@ vector<int> smat<T>::col_nnzs() const
 	for(int r=0;r<helpIndex.size();r++)
 		if(!data[r].data.empty())
 			helpIndex[r] = 0;
-	for(int c=0;c<_cols;c++)
+	for(int r=0;r<data.size();r++)
 	{
-		for(int r=0;r<data.size();r++)
+		for(int c=0;c<_cols;c++)
 		{
 			if(helpIndex[r]==-1)
-				continue;
+				break;
 			if(c==data[r].data[helpIndex[r]].index)
 			{
 				colSize[c]++;
@@ -658,7 +685,9 @@ T IDEM(smat<T> &m,int node=0)
 #endif
 
 
-	if(m.data.size() == 1)
+//	if(m.data.size() == 1)
+//		return m(0,0);
+	if(m.data.size() == 3)
 	{
 #ifdef plot
 		cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
@@ -666,7 +695,10 @@ T IDEM(smat<T> &m,int node=0)
 #ifdef stat
 		cerr<<m.data.size()<<endl;
 #endif
-		return m(0,0);
+		return 
+			m(0,0)*(m(1,1)*m(2,2)+m(1,2)*m(2,1))+
+			m(0,1)*(m(1,0)*m(2,2)+m(1,2)*m(2,0))+
+			m(0,2)*(m(1,0)*m(2,1)+m(1,1)*m(2,0));
 	}
 
 	//find the row with minimal element
@@ -787,6 +819,172 @@ T IDEM(smat<T> &m,int node=0)
 		cerr<<"node"<<node<<" return :"<<ret<<endl;
 #endif
 		return ret;
+	}
+}
+
+	template<typename T>
+T IDEM3(smat<T> &m,int node=1)
+{
+	if(m.data.size() == 3)
+	{
+#ifdef plot
+		cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
+#endif
+#ifdef stat
+		cerr<<m.data.size()<<endl;
+#endif
+		return 
+			m(0,0)*(m(1,1)*m(2,2)+m(1,2)*m(2,1))+
+			m(0,1)*(m(1,0)*m(2,2)+m(1,2)*m(2,0))+
+			m(0,2)*(m(1,0)*m(2,1)+m(1,1)*m(2,0));
+	}
+
+	//find the row with minimal element
+	vector<int>	rowSize(m.data.size());
+	for(unsigned r=0;r<rowSize.size();r++)
+		rowSize[r] = m.data[r].data.size();
+	int	minRow= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+	int	minRowSize	= rowSize[minRow];
+	if(minRowSize==0)
+		return 0;
+	else if(minRowSize==1)
+	{
+		int c= m.data[minRow].data[0].index;
+		T value= m.data[minRow].data[0].value;
+		eliminate1(m,minRow,c);
+		return value*IDEM3(m,2*node);
+	}
+	else if(minRowSize==2)
+	{
+		int	c1     = m.data[minRow].data[0].index;
+		int	c2     = m.data[minRow].data[1].index;
+		T		value1 = m.data[minRow].data[0].value;
+		T		value2 = m.data[minRow].data[1].value;
+		eliminate2(m,minRow,c1,c2,value1,value2);
+		return IDEM3(m,2*node);
+	}
+	else
+	{
+		vector<int>	colSize	  = m.col_nnzs();
+		int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
+		int	minColSize = colSize[minCol];
+		if(minColSize==0)
+			return 0;
+		vector<int> rows;
+		vector<T> values;
+		rows.reserve(minColSize);
+		values.reserve(minColSize);
+		for(unsigned r=0;rows.size()<minColSize;r++)
+		{
+			T temp=m(r,minCol);
+			if(temp!=0)
+			{
+				rows.push_back(r);
+				values.push_back(temp);
+			}
+		}
+		if(minColSize==1)
+		{
+			eliminate1(m,rows[0],minCol);
+			return values[0]*IDEM3(m,2*node);
+		}
+		else
+		{
+			T ret;
+			{
+				smat<T> mtemp=m;
+				eliminate2(mtemp,minRow,
+						mtemp.data[minRow].data[0].index,
+						mtemp.data[minRow].data[1].index,
+						mtemp.data[minRow].data[0].value,
+						mtemp.data[minRow].data[1].value);
+				ret=IDEM3(mtemp,2*node);
+			}
+			T value=m.data[minRow].data[2].value;
+			eliminate1(m,minRow,m.data[minRow].data[2].index);
+			ret+=value*IDEM3(m,2*node+1);
+			return ret;
+		}
+	}
+}
+
+	template<typename T>
+T H3(smat<T> &m,int node=1)
+{
+	if(m.data.size() <= 6)
+		return RNW(m.full());
+
+	//find the row with minimal element
+	vector<int>	rowSize(m.data.size());
+	for(unsigned r=0;r<rowSize.size();r++)
+		rowSize[r] = m.data[r].data.size();
+	int	minRow= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+	int	minRowSize	= rowSize[minRow];
+	if(minRowSize==0)
+		return 0;
+	else if(minRowSize==1)
+	{
+		int c= m.data[minRow].data[0].index;
+		T value= m.data[minRow].data[0].value;
+		eliminate1(m,minRow,c);
+		return value*H3(m,2*node);
+	}
+	else if(minRowSize==2)
+	{
+		int	c1     = m.data[minRow].data[0].index;
+		int	c2     = m.data[minRow].data[1].index;
+		T	value1 = m.data[minRow].data[0].value;
+		T	value2 = m.data[minRow].data[1].value;
+		eliminate2(m,minRow,c1,c2,value1,value2);
+		return H3(m,2*node);
+	}
+	else
+	{
+		vector<int>	colSize	  = m.col_nnzs();
+		int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
+		int	minColSize = colSize[minCol];
+		if(minColSize==0)
+			return 0;
+		vector<int> rows;
+		vector<T> values;
+		rows.reserve(minColSize);
+		values.reserve(minColSize);
+		for(unsigned r=0;rows.size()<minColSize;r++)
+		{
+			T temp=m(r,minCol);
+			if(temp!=0)
+			{
+				rows.push_back(r);
+				values.push_back(temp);
+			}
+		}
+		if(minColSize==1)
+		{
+			eliminate1(m,rows[0],minCol);
+			return values[0]*H3(m,2*node);
+		}
+		//else if(minColSize==2)
+		//{
+		//	eliminate2T(m,minCol,rows[0],rows[1],values[0],values[1]);
+		//	return IDEM3(m,2*node);
+		//}
+		else
+		{
+			T ret;
+			{
+				smat<T> mtemp=m;
+				eliminate2(mtemp,minRow,
+						mtemp.data[minRow].data[0].index,
+						mtemp.data[minRow].data[1].index,
+						mtemp.data[minRow].data[0].value,
+						mtemp.data[minRow].data[1].value);
+				ret=H3(mtemp,2*node);
+			}
+			T value=m.data[minRow].data[2].value;
+			eliminate1(m,minRow,m.data[minRow].data[2].index);
+			ret+=value*H3(m,2*node+1);
+			return ret;
+		}
 	}
 }
 
@@ -1084,6 +1282,157 @@ T DEM(smat<T> &m,int node=1)
 	else
 	{
 		vector<int>	colSize	 = m.col_nnzs();
+		int		maxCol	 = max_element(colSize.begin(),colSize.end())-colSize.begin();
+		int		r;
+		for(r=0;r<m.data.size();r++)
+			if (m(r,maxCol)		!= 0)
+				break;
+#ifdef plot
+		cerr<<"node"<<node<<" eliminate row :"<<r<<endl;
+#endif
+
+		int		icc;	//index of column where c belongs to
+		for(icc = 0;icc<3;icc++)
+			if(m.data[r].data[icc].index==maxCol)
+				break;
+		int c1,c2;
+		T value1,value2;
+		if(icc==0)
+		{
+			c1     = m.data[r].data[1].index;
+			c2     = m.data[r].data[2].index;
+			value1 = m.data[r].data[1].value;
+			value2 = m.data[r].data[2].value;
+		}
+		else if(icc==1)
+		{
+			c1     = m.data[r].data[0].index;
+			c2     = m.data[r].data[2].index;
+			value1 = m.data[r].data[0].value;
+			value2 = m.data[r].data[2].value;
+		}
+		else
+		{
+			c1     = m.data[r].data[0].index;
+			c2     = m.data[r].data[1].index;
+			value1 = m.data[r].data[0].value;
+			value2 = m.data[r].data[1].value;
+		}
+
+		T p=0;
+		{
+			smat<T> mtemp=m;
+			eliminate2(mtemp,r,c1,c2,value1,value2);
+#ifdef plot
+			cerr<<"node"<<node<<" eliminate col :"<<c1<<','<<c2<<endl;
+			cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=blue];\n";
+#endif
+			p=DEM(mtemp,2*node);
+		}	
+
+		T value = m.data[r].data[icc].value;
+		eliminate1(m,r,maxCol);
+#ifdef plot
+		cerr<<"node"<<node<<" eliminate col :"<<maxCol<<endl;
+		cout<<"\""<<2*node+1<<"\"->\""<<node<<"\"[color=green];\n";
+#endif
+		p	+= value*DEM(m,2*node+1);
+		return p;
+	}
+}
+	template<typename T>
+T DEM2(smat<T> &m,int node=1)
+{
+#ifdef stat
+	cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
+#endif
+
+#ifdef plot
+	cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
+	m.print();
+	cout<<"\"];\n";
+#endif
+
+
+	if(m.data.size() == 1)
+	{
+#ifdef plot
+		cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
+#endif
+#ifdef stat
+		cerr<<m.data.size()<<endl;
+#endif
+		return m(0,0);
+	}
+
+	//find the row with minimal element
+	vector<int>	rowSize(m.data.size());
+	for(unsigned r=0;r<rowSize.size();r++)
+		rowSize[r] = m.data[r].data.size();
+	int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+	int	minRowSize	= rowSize[minRow];
+
+#ifdef stat
+	cerr<<minRowSize<<endl;
+#endif
+	if(minRowSize==0)
+	{
+		return 0;
+#ifdef plot
+		cerr<<"node"<<node<<" return "<<0<<endl;
+#endif
+	}
+	else if(minRowSize==1)
+	{
+#ifdef plot
+		cerr<<"node"<<node<<" min row :"<<minRow<<endl;
+#endif
+
+		int c= m.data[minRow].data[0].index;
+		T value= m.data[minRow].data[0].value;
+		eliminate1(m,minRow,c);
+#ifdef plot
+		cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
+		cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=green];\n";
+#endif
+		return value*DEM(m,2*node);
+	}
+	else if(minRowSize==2)
+	{
+#ifdef plot
+		cerr<<"node"<<node<<" min row :"<<minRow<<endl;
+#endif
+
+		int	c1     = m.data[minRow].data[0].index;
+		int	c2     = m.data[minRow].data[1].index;
+		T		value1 = m.data[minRow].data[0].value;
+		T		value2 = m.data[minRow].data[1].value;
+		eliminate2(m,minRow,c1,c2,value1,value2);
+#ifdef plot
+		cerr<<"node"<<node<<" eliminate col :"<<c1<<','<<c2<<endl;
+		cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=blue];\n";
+#endif
+		return DEM(m,2*node);
+	}
+	else
+	{
+		vector<int>	colSize	 = m.col_nnzs();
+		int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
+		int	minColSize = colSize[minCol];
+		if(minColSize==0)
+			return 0;
+		if(minColSize==1)
+		{
+			for(int r=0;r<m.data.size();r++)
+			{
+				T temp=m(r,minCol);
+				if (temp != 0)
+				{
+					eliminate1(m,r,minCol);
+			return temp*IDEM3(m,2*node);
+				}
+			}
+		}
 		int		maxCol	 = max_element(colSize.begin(),colSize.end())-colSize.begin();
 		int		r;
 		for(r=0;r<m.data.size();r++)

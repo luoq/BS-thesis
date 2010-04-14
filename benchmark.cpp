@@ -27,7 +27,7 @@ int main()
 {
   Timer		timer;
   double	t=0;
-  ofstream	out("../data/benchmark-H-6.data",ofstream::app);
+  ofstream	out("../data/benchmark-H-8.data",ofstream::app);
   ofstream	out1("../data/benchmark-IDEM.data",ofstream::app);
   ofstream	out2("../data/benchmark-IDEM0.data",ofstream::app);
   ofstream	out3("../data/benchmark-RNW.data",ofstream::app);
@@ -41,7 +41,7 @@ int main()
   int max1=50;//for H IDEM IDEM0
   int max2=30;//for R-NW
   d	 = 3;
-  repeat = 5;
+  repeat = 10;
   smat<int>	m,m1,m2;
   fmat<int> fm;
   int P;

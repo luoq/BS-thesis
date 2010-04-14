@@ -1,9 +1,7 @@
 CC=g++
-#CXXFLAGS=-O3 -pg
-#CXXFALGS2=-pg
-CXXFLAGS=-march=i686 -mtune=native -O3 -pipe -pg
-CXXFALGS2=-pg
-all:research Per genRegular #benchmark benchmark-one RNW test_fmat test_mat test_vec test_load test_subsetGenerator
+CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
+CXXFALGS2=
+all:research Per genRegular benchmark-one #benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 
 research:research.o misc.o regular.o Timer.o
 	$(CC) $^ $(CXXFALGS2) -o $@

@@ -20,43 +20,63 @@
 #include "iSparseMatrix.h"
 #include <iostream>
 #include <fstream>
+#include <cstring>
 using	std::cout;
 using	std::cin;
 using	std::endl;
-int main()
+	template<typename T>
+void benchmark(T (*f)(smat<T>&,int),ofstream& out)
 {
-  Timer		timer;
-  double	t=0;
-  ofstream	out("../data/benchmark-DEM-inline.data",ofstream::app);
-  if(!out){
-    cout<<"Cannot open file\n";
-    return 1;
-  }
-
-  srand(time(NULL));
-  int		n,d,trytimes,repeat;
-  d	 = 3;
-  repeat = 5;
-  smat<int>	matrix;
-  int P;
-  //for odd n,no possible regular matrix
-  out<<"# bechmark for regular matrix generation with d = "<<d<<endl;
-  out<<"# size\ttime\tPermanent\n";
-  for(int n=4;n<=50;n+=2)
-    {
-      out<<n<<'\t';
-    for(int i=0;i<repeat;++i)
-      {
-	matrix = regular(n,d,trytimes);
-	timer.tic();
-	P=DEM(matrix);
-	t = timer.toc();
-	out<<t<<'\t'<<P<<'\t';
-      }
-    out<<endl;
-    }
-  out.close();
-  return 0;
+	Timer		timer;
+	double	t=0;
+	int		n,d,trytimes,repeat;
+	d	 = 3;
+	repeat = 50;
+	smat<int>	matrix;
+	int P;
+	//for odd n,no possible regular matrix
+	out<<"# bechmark for regular matrix generation with d = "<<d<<endl;
+	out<<"# size\ttime\tPermanent\n";
+	for(int n=4;n<=50;n+=2)
+	{
+		out<<n<<'\t';
+		for(int i=0;i<repeat;++i)
+		{
+			matrix = regular(n,d,trytimes);
+			timer.tic();
+			P=f(matrix,1);
+			t = timer.toc();
+			out<<t<<'\t'<<P<<'\t';
+		}
+		out<<endl;
+	}
+	out.close();
+}
+int main(int argc,char** argv)
+{
+	if(argc!=3)
+	{
+		cout<<"usage: "<<argv[0]<<" method save-path\n";
+		return 1;
+	}
+	ofstream	out(argv[2]);
+	if(!out){
+		cout<<"Cannot open file\n";
+		return 1;
+	}
+	srand(time(NULL));
+	if(strcmp(argv[1],"IDEM")==0)
+		benchmark(&IDEM<int>,out);
+	else if(strcmp(argv[1],"H")==0)
+		benchmark(&H<int>,out);
+	else if(strcmp(argv[1],"DEM")==0)
+		benchmark(&DEM<int>,out);
+	else
+	{
+		cout<<"No such method\n";
+		return 2;
+	}
+	return 0;
 }
 // 
 // benchmark.cpp ends here
