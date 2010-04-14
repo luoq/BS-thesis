@@ -1,5 +1,5 @@
 CC=g++
-CXXFLAGS=-march=i686 -mtune=native -O3 -pipe
+CXXFLAGS=-march=i686 -mtune=native -O3 -pipe 
 CXXFALGS2=
 all:research Per genRegular benchmark-one #benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 
