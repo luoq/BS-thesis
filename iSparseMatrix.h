@@ -66,7 +66,7 @@ template<typename T> T	IDEM3(smat<T> &m,int node=1);
 //hybrid IDEM3 and RNW
 template<typename T> T	H3(smat<T> &m,int node=1);
 template<typename T> void	peelDEM(smat<T> &m,bool& end,T& ret);
-template<typename T> vector<int> aPerfectMatch(const smat<T>&,int& trytimes);
+template<typename T> vector<int> selectElements(const smat<T>&,int& trytimes);
 template<typename T> void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2);
 template<typename T> void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2);
 template<typename T> void eliminate1(smat<T> &m,int r,int c);
@@ -117,7 +117,7 @@ template <typename T> class svec
 	friend T DEM<>(smat<T> &m,int node);
 	friend T DEM2<>(smat<T> &m,int node);
 	friend T IDEM3<>(smat<T> &m,int node);
-	friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
+	friend vector<int> selectElements<>(const smat<T>&,int& trytimes);
 	friend void peelDEM<>(smat<T> &m,bool& end,T& ret);
 	friend T DEMiter<>(smat<T> &m,int node);
 	public:
@@ -264,7 +264,7 @@ template<typename T> class smat{
 	friend T DEM2<>(smat<T> &m,int node);
 	friend T IDEM3<>(smat<T> &m,int node);
 	//generate a perfect match
-	friend vector<int> aPerfectMatch<>(const smat<T>&,int& trytimes);
+	friend vector<int> selectElements<>(const smat<T>&,int& trytimes);
 	friend void peelDEM<>(smat<T> &m,bool& end,T& ret);
 	friend T DEMiter<>(smat<T> &m,int node);
 	public:
@@ -1760,7 +1760,7 @@ void smat<T>::print() const
 #endif
 }
 	template <typename T>
-vector<int> aPerfectMatch(const smat<T> &m,int& trytimes)
+vector<int> selectElements(const smat<T> &m,int& trytimes)
 {
 	vector<int>	ret;
 	trytimes = 1;

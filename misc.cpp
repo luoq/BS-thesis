@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/23/2010 10:33:04
 // Version: 
-// Last-Updated: 03/27/2010 19:46:49
+// Last-Updated: 04/16/2010 19:40:51
 //           By: Luo Qiang
-//     Update #: 39
+//     Update #: 40
 // Keywords: 
 
 // Commentary: 
@@ -18,6 +18,17 @@
 #include "misc.h"
 int randint(int n){
   return rand()%n;
+}
+vector<int> chooseKfromN(int n,int k)
+{
+	vector<int> ret;
+	ret.reserve(k);
+	for(int i=0;ret.size()<k;i++)
+	{
+		if(rand()%(n-i)<(k-ret.size()))
+			ret.push_back(i);
+	}
+	return ret;
 }
 
 subsetGenerator::subsetGenerator(int n)

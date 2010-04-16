@@ -64,7 +64,7 @@ void benchmark_RNW(ofstream& out)
 	//for odd n,no possible regular matrix
 	out<<"# bechmark for regular matrix generation with d = "<<d<<endl;
 	out<<"# size\ttime\tPermanent\n";
-	for(int n=4;n<=40;n+=2)
+	for(int n=4;n<=20;n+=2)
 	{
 		out<<n<<'\t';
 		for(int i=0;i<repeat;++i)

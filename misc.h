@@ -8,13 +8,8 @@
  * Last-Updated: 03/27/2010 17:14:55
  *           By: Luo Qiang
  *     Update #: 37
- * Keywords: 
+ * Keywords: */
 
-/* Commentary: 
-
-/* Change log:
-
-/* Code: */
 #ifndef MSIC_H
 #define MSIC_H
 #include	<stdlib.h>
@@ -32,6 +27,7 @@ ostream& operator<<(ostream& out,const vector<T> &vect)
   for(typename vector<T>::const_iterator iter=vect.begin();iter != vect.end();++iter)
     out<<*iter<<' ';
   out<<endl;
+  return out;
 }
 
 //return next subset in gray code order
@@ -48,5 +44,6 @@ private:
   bool _end;
   bool* set;
 };
+vector<int> chooseKfromN(int n,int k);
 #endif
 /* misc.h ends here */
