@@ -52,6 +52,33 @@ void benchmark(T (*f)(smat<T>&,int),ofstream& out)
 	}
 	out.close();
 }
+void benchmark_RNW(ofstream& out)
+{
+	Timer		timer;
+	double	t=0;
+	int		n,d,trytimes,repeat;
+	d	 = 3;
+	repeat = 50;
+	smat<int>	matrix;
+	int P;
+	//for odd n,no possible regular matrix
+	out<<"# bechmark for regular matrix generation with d = "<<d<<endl;
+	out<<"# size\ttime\tPermanent\n";
+	for(int n=4;n<=40;n+=2)
+	{
+		out<<n<<'\t';
+		for(int i=0;i<repeat;++i)
+		{
+			matrix = regular(n,d,trytimes);
+			timer.tic();
+			P=RNW(matrix.full());
+			t = timer.toc();
+			out<<t<<'\t'<<P<<'\t';
+		}
+		out<<endl;
+	}
+	out.close();
+}
 int main(int argc,char** argv)
 {
 	if(argc!=3)
@@ -67,10 +94,18 @@ int main(int argc,char** argv)
 	srand(time(NULL));
 	if(strcmp(argv[1],"IDEM")==0)
 		benchmark(&IDEM<int>,out);
+	else if(strcmp(argv[1],"IDEM3")==0)
+		benchmark(&IDEM3<int>,out);
 	else if(strcmp(argv[1],"H")==0)
 		benchmark(&H<int>,out);
+	else if(strcmp(argv[1],"H3")==0)
+		benchmark(&H3<int>,out);
 	else if(strcmp(argv[1],"DEM")==0)
 		benchmark(&DEM<int>,out);
+	else if(strcmp(argv[1],"DEMiter")==0)
+		benchmark(&DEMiter<int>,out);
+	else if(strcmp(argv[1],"RNW")==0)
+		benchmark_RNW(out);
 	else
 	{
 		cout<<"No such method\n";

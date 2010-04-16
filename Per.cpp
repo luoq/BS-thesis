@@ -23,11 +23,11 @@ void test(T (*f)(smat<T>&,int),smat<T> m,string name)
 {
 	Timer t;
 	double time;
-	int p;
+	T p;
 
 	t.tic();
 	p = f(m,1);
-	time		  = t.toc();
+	time = t.toc();
 #ifdef plot
 	cout<<"}\n";
 	cerr<<"Time elapsed : "<<time<<" ms\n";
@@ -37,6 +37,20 @@ void test(T (*f)(smat<T>&,int),smat<T> m,string name)
 	cout<<"Time elapsed : "<<time<<" ms\n";
 	cout<<"Result : "<<p<<endl<<endl;
 #endif
+}
+template<typename T>
+void test_RNW(smat<T> m,string name)
+{
+	Timer t;
+	double time;
+	T p;
+
+	t.tic();
+	p = RNW(m.full());
+	time = t.toc();
+	cout<<name<<"\n";
+	cout<<"Time elapsed : "<<time<<" ms\n";
+	cout<<"Result : "<<p<<endl<<endl;
 }
 int main(int argc,char** argv)
 {
@@ -57,6 +71,7 @@ int main(int argc,char** argv)
 	//test(&DEM<int>,m,"DEM");
 	//test(&DEM2<int>,m,"DEM2");
 	//test(&DEMiter<int>,m,"DEMiter");
+	//test_RNW(m,"RNW");
 	return 0;
 }
 // 

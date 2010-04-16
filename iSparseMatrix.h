@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 04/10/2010 11:25:59
+ * Last-Updated: 04/15/2010 10:32:18
  *           By: Luo Qiang
- *     Update #: 828
+ *     Update #: 832
  * Keywords:
  */
 
@@ -53,12 +53,12 @@ template<typename T> T	DEM(smat<T> &m,int node=1);
 //change some recursion to iteration
 template<typename T> T	DEMiter(smat<T> &m,int node=1);
 //for 3-regular only
-//eliminate row with <=2 elements 
+//eliminate row with <=2 elements
 //then column <=1 elements
 //then eliminate row intersecting with maxium column
 template<typename T> T	DEM2(smat<T> &m,int node=1);
 //for 3-regular only
-//eliminate row with <=2 elements 
+//eliminate row with <=2 elements
 //then column <=1 elements
 //then row with minimal elements
 template<typename T> T	IDEM3(smat<T> &m,int node=1);
@@ -281,6 +281,9 @@ template<typename T> class smat{
 #ifndef nonnz
 		_nnz=0;
 #endif
+#ifdef colnnzs
+		_col_nnzs.assign(_cols,0);
+#endif
 	}
 	bool	load(char* path);
 	//initialize with size and allocate at least eMaxCols for each row
@@ -299,7 +302,7 @@ template<typename T> class smat{
 
 	int rows() const {return data.size();}
 	int cols() const {return _cols;}
-	int nnz() const 
+	int nnz() const
 	{
 #ifndef nonnz
 		return _nnz;
@@ -323,6 +326,9 @@ template<typename T> class smat{
 #ifndef nonnz
 	unsigned _nnz;
 #endif
+#ifdef colnnzs
+	vector<int> _col_nnzs;
+#endif
 	vector<svec<T> > data;
 };
 	template<typename T>
@@ -334,6 +340,9 @@ template<typename T> class smat{
 #endif
 	data.reserve(rows);
 	data.assign(rows,svec<T>(cols,eMaxCols));
+#ifdef colnnzs
+	_col_nnzs.assign(_cols,0);
+#endif
 }
 	template <typename T>
 void smat<T>::set(int r,int c,T value)
@@ -353,10 +362,12 @@ void smat<T>::set(int r,int c,T value)
 		else
 			return;
 	}
+	int temp=data[r].set(c,value);
 #ifndef nonnz
-	_nnz+=data[r].set(c,value);
-#else
-	data[r].set(c,value);
+	_nnz+=temp;
+#endif
+#ifdef colnnzs
+	_col_nnzs[c]+=temp;
 #endif
 }
 template<typename T>
@@ -377,6 +388,10 @@ T smat<T>::erase(int r,int c)
 	if(ret!=0)
 		_nnz--;
 #endif
+#ifdef colnnzs
+	if(ret!=0)
+		_col_nnzs[c]--;
+#endif
 	return ret;
 }
 	template<typename T>
@@ -386,6 +401,10 @@ void smat<T>::erase_row(unsigned r)
 		return;
 #ifndef nonnz
 	_nnz-=data[r].data.size();
+#endif
+#ifdef colnnzs
+	for(int i=0;i<data[r].data.size();i++)
+		_col_nnzs[data[r].data[i].index]--;
 #endif
 	data.erase(data.begin()+r);
 }
@@ -413,6 +432,9 @@ void smat<T>::erase_col(unsigned c)
 #ifndef nonnz
 	_nnz-=numErased;
 #endif
+#ifdef colnnzs
+	_col_nnzs.erase(_col_nnzs.begin()+c);
+#endif
 	_cols--;
 }
 
@@ -436,6 +458,9 @@ void smat<T>::clear()
 {
 #ifndef nonnz
 	_nnz	= 0;
+#endif
+#ifdef colnnzs
+	_col_nnzs.assign(_cols,0);
 #endif
 	for(int r=0;r<data.size();r++)
 		data[r].clear();
@@ -470,10 +495,14 @@ int smat<T>::row_nnz(int r) const
 template<typename T>
 int smat<T>::col_nnz(int c) const
 {
+#ifdef colnnzs
+	return _col_nnzs[c];
+#else
 	int nnz  = 0;
 	for(int r=0;r<data.size();r++)
 		nnz+=int(data[r](c)!=0);
 	return nnz;
+#endif
 }
 
 	template<typename T>
@@ -501,9 +530,12 @@ bool smat<T>::load(char* path)
 	In.ignore(1024,':');
 	In>>cols;
 
-	_cols	= cols;
+	_cols = cols;
 	//3 is for later calculation
 	data.assign(rows,svec<T>(cols,nnz/rows));
+#ifdef colnnzs
+	_col_nnzs.assign(cols,0);
+#endif
 
 	int	r,c;
 	T	value;
@@ -520,6 +552,9 @@ bool smat<T>::load(char* path)
 template<typename T>
 vector<int> smat<T>::col_nnzs() const
 {
+#ifdef colnnzs
+	return _col_nnzs;
+#else
 	//get column with minimal elements
 	vector<int>	helpIndex(data.size(),-1);
 	vector<int>	colSize(_cols,0);
@@ -543,13 +578,14 @@ vector<int> smat<T>::col_nnzs() const
 		}
 	}
 	return colSize;
+#endif
 }
 
-const int changePoint=7;
+const int changePoint=8;
 	template<typename T>
-T H(smat<T> &m,int node=0)
+T H(smat<T> &m,int node=1)
 {
-	int	max   = 10;
+	int	max   = 4;
 	int	child =	1;
 
 	if(m.data.size() <= changePoint)
@@ -609,6 +645,10 @@ T H(smat<T> &m,int node=0)
 			m.data[minRow].data.erase(m.data[minRow].data.begin());
 #ifndef nonnz
 			m._nnz	       -= 2;
+#endif
+#ifdef colnnzs
+			m._col_nnzs[c1]--;
+			m._col_nnzs[c2]--;
 #endif
 
 			{
@@ -685,7 +725,7 @@ T H(smat<T> &m,int node=0)
 				ret += H(mtemp,node*max+child);
 			}
 #ifdef plot
-				child++;
+			child++;
 #endif
 		}
 		if(minColSize%2==1)
@@ -723,9 +763,8 @@ T IDEM(smat<T> &m,int node=0)
 	cout<<"\"];\n";
 #endif
 
-
-//	if(m.data.size() == 1)
-//		return m(0,0);
+	//	if(m.data.size() == 1)
+	//		return m(0,0);
 	if(m.data.size() == 3)
 	{
 #ifdef plot
@@ -734,7 +773,7 @@ T IDEM(smat<T> &m,int node=0)
 #ifdef stat
 		cerr<<m.data.size()<<endl;
 #endif
-		return 
+		return
 			m(0,0)*(m(1,1)*m(2,2)+m(1,2)*m(2,1))+
 			m(0,1)*(m(1,0)*m(2,2)+m(1,2)*m(2,0))+
 			m(0,2)*(m(1,0)*m(2,1)+m(1,1)*m(2,0));
@@ -748,6 +787,7 @@ T IDEM(smat<T> &m,int node=0)
 	int		minRowSize	= rowSize[minRow];
 
 	vector<int>	colSize	   = m.col_nnzs();
+
 	int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
 	int	minColSize = colSize[minCol];
 #ifdef stat
@@ -773,6 +813,10 @@ T IDEM(smat<T> &m,int node=0)
 			m.data[minRow].data.erase(m.data[minRow].data.begin());
 #ifndef nonnz
 			m._nnz	       -= 2;
+#endif
+#ifdef colnnzs
+			m._col_nnzs[c1]--;
+			m._col_nnzs[c2]--;
 #endif
 
 			{
@@ -874,7 +918,7 @@ T IDEM3(smat<T> &m,int node=1)
 #ifdef stat
 		cerr<<m.data.size()<<endl;
 #endif
-		return 
+		return
 			m(0,0)*(m(1,1)*m(2,2)+m(1,2)*m(2,1))+
 			m(0,1)*(m(1,0)*m(2,2)+m(1,2)*m(2,0))+
 			m(0,2)*(m(1,0)*m(2,1)+m(1,1)*m(2,0));
@@ -1087,6 +1131,10 @@ T IDEM0(smat<T> &m,int node=0)
 #ifndef nonnz
 		m._nnz	       -= 2;
 #endif
+#ifdef colnnzs
+		m._col_nnzs[c1]--;
+		m._col_nnzs[c2]--;
+#endif
 
 		{
 			smat<T> mtemp(m);
@@ -1128,12 +1176,12 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 	{
 		if(i1==-1)
 		{
-#ifdef plot
-			cerr<<"node"<<node<<" situation 4"<<" col "<<m.data[r1].data[i1].index<<"\t"<<m.data[r2].data[i2].index<<endl;
-#endif
 			m.data[r1].data.push_back(element<T>(m.data[r2].data[i2].index,value1*m.data[r2].data[i2].value));
 #ifndef nonnz
 			m._nnz++;
+#endif
+#ifdef colnnzs
+			m._col_nnzs[m.data[r2].data[i2].index]++;
 #endif
 			if(i2==m.data[r2].data.size()-1)
 				i2=-1;
@@ -1142,9 +1190,6 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 		}
 		else if(i2==-1)
 		{
-#ifdef plot
-			cerr<<"node"<<node<<" situation 5"<<" col "<<m.data[r1].data[i1].index<<"\t"<<m.data[r2].data[i2].index<<endl;
-#endif
 			m.data[r1].data[i1].value*=value2;
 			if(i1==m.data[r1].data.size()-1)
 				i1=-1;
@@ -1153,9 +1198,6 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 		}
 		else if(m.data[r1].data[i1].index<m.data[r2].data[i2].index)
 		{
-#ifdef plot
-			cerr<<"node"<<node<<" situation 1"<<" col "<<m.data[r1].data[i1].index<<"\t"<<m.data[r2].data[i2].index<<endl;
-#endif
 			m.data[r1].data[i1].value*=value2;
 			if(i1==m.data[r1].data.size()-1)
 				i1=-1;
@@ -1164,14 +1206,13 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 		}
 		else if(m.data[r1].data[i1].index>m.data[r2].data[i2].index)
 		{
-#ifdef plot
-			cerr<<"node"<<node<<" situation 2"<<" col "<<m.data[r1].data[i1].index<<"\t"<<m.data[r2].data[i2].index<<endl;
-			cerr<<"node"<<node<<" i2 = "<<i2<<" "<<m.data[r2].data.size()<<endl;
-#endif
 			m.data[r1].data.insert(m.data[r1].data.begin()+i1,
 					element<T>(m.data[r2].data[i2].index,value1*m.data[r2].data[i2].value));
 #ifndef nonnz
 			m._nnz++;//This is manaul managed
+#endif
+#ifdef colnnzs
+			m._col_nnzs[m.data[r2].data[i2].index]++;
 #endif
 			i1++;//because sth inser before
 			if(i2==m.data[r2].data.size()-1)
@@ -1181,9 +1222,6 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 		}
 		else
 		{
-#ifdef plot
-			cerr<<"node"<<node<<" situation 3"<<" col "<<m.data[r1].data[i1].index<<"\t"<<m.data[r2].data[i2].index<<" with new value "<<value2*m.data[r1].data[i1].value+value1*m.data[r2].data[i2].value<<endl;
-#endif
 			m.data[r1].data[i1].value=value2*m.data[r1].data[i1].value+value1*m.data[r2].data[i2].value;
 			if(i1==m.data[r1].data.size()-1)
 				i1=-1;
@@ -1233,7 +1271,7 @@ void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2)
 				m._nnz--;
 #endif
 			}
-			continue;
+			//continue;
 		}
 		if(info1==1)
 		{
@@ -1242,12 +1280,18 @@ void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2)
 				//value1!=0
 				m.data[r].data.insert(m.data[r].data.begin()+pos1,
 						element<T>(c1,value1*m.data[r].data[pos2].value));
+#ifdef colnnzs
+				m._col_nnzs[c1]++;
+#endif
 				//NOTE erase pos2+1 becuase the insert before
 				m.data[r].data.erase(m.data[r].data.begin()+pos2+1);
 			}
-			continue;
+			//continue;
 		}
 	}
+#ifdef colnnzs
+	m._col_nnzs.erase(m._col_nnzs.begin()+c2);
+#endif
 	m._cols--;
 }
 	template<typename T>
@@ -1381,7 +1425,7 @@ T DEM(smat<T> &m,int node=1)
 			cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=blue];\n";
 #endif
 			p=DEM(mtemp,2*node);
-		}	
+		}
 
 		T value = m.data[r].data[icc].value;
 		eliminate1(m,r,maxCol);
@@ -1484,7 +1528,7 @@ T DEM2(smat<T> &m,int node=1)
 				if (temp != 0)
 				{
 					eliminate1(m,r,minCol);
-			return temp*IDEM3(m,2*node);
+					return temp*IDEM3(m,2*node);
 				}
 			}
 		}
@@ -1534,7 +1578,7 @@ T DEM2(smat<T> &m,int node=1)
 			cout<<"\""<<2*node<<"\"->\""<<node<<"\"[color=blue];\n";
 #endif
 			p=DEM(mtemp,2*node);
-		}	
+		}
 
 		T value = m.data[r].data[icc].value;
 		eliminate1(m,r,maxCol);
@@ -1594,7 +1638,7 @@ void peelDEM(smat<T> &m,bool& end,T& ret)
 T DEMiter(smat<T> &m,int node=1)
 {
 #ifdef stat
-#ifndef nonnz	
+#ifndef nonnz
 	cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
 #endif
 #endif
@@ -1696,6 +1740,7 @@ template <typename T>
 void smat<T>::print() const
 {
 	//cout<<100*(double)_nnz/(_cols*_cols)<<" %\\n";
+#ifdef plot
 #ifndef nonnz
 	cout<<_nnz<<"\\n";
 #endif
@@ -1705,6 +1750,14 @@ void smat<T>::print() const
 			cout<<this->operator()(i,j)<<' ';
 		cout<<"\\n";
 	}
+#else
+	for(int i=0;i<data.size();i++)
+	{
+		for(int j=0;j<_cols;j++)
+			cout<<this->operator()(i,j)<<' ';
+		cout<<"\n";
+	}
+#endif
 }
 	template <typename T>
 vector<int> aPerfectMatch(const smat<T> &m,int& trytimes)
