@@ -1,16 +1,16 @@
-// misc.cpp --- 
-// 
+// misc.cpp ---
+//
 // Filename: misc.cpp
 // Description: miscellaneous functions
 // Author: Luo Qiang
 // Created: 03/23/2010 10:33:04
-// Version: 
-// Last-Updated: 04/16/2010 19:40:51
+// Version:
+// Last-Updated: 04/17/2010 10:13:56
 //           By: Luo Qiang
-//     Update #: 40
-// Keywords: 
+//     Update #: 43
+// Keywords:
 
-// Commentary: 
+// Commentary:
 
 // Change log:
 
@@ -21,14 +21,16 @@ int randint(int n){
 }
 vector<int> chooseKfromN(int n,int k)
 {
-	vector<int> ret;
-	ret.reserve(k);
-	for(int i=0;ret.size()<k;i++)
-	{
-		if(rand()%(n-i)<(k-ret.size()))
-			ret.push_back(i);
-	}
-	return ret;
+
+  vector<int> ret;
+  ret.reserve(k);
+  if(k==0)
+    return ret;
+  for(int i=0;ret.size()<k;i++)
+    {
+      if(rand()%(n-i)<(k-ret.size()))
+	ret.push_back(i);
+    }
 }
 
 subsetGenerator::subsetGenerator(int n)
@@ -69,5 +71,5 @@ void subsetGenerator::next(int &nextIndex,int &addOrRemove,int& k)
     cout<<"END\n";
 #endif
 }
-// 
+//
 // rand.cpp ends here

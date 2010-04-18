@@ -64,15 +64,15 @@ int main(int argc,char** argv)
 	cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;\n";
 #endif
 	//test(&IDEM0<int>,m,"IDEM0");
-	//test(&IDEM<int>,m,"IDEM");
-	test(&H<int>,m,"H");
+	test(&IDEM<int>,m,"IDEM");
+	//test(&H<int>,m,"H");
 	//test(&IDEM3<int>,m,"IDEM3");
 	//test(&H3<int>,m,"H3");
 	//test(&DEM<int>,m,"DEM");
 	//test(&DEM2<int>,m,"DEM2");
 	//test(&DEMiter<int>,m,"DEMiter");
 	//test_RNW(m,"RNW");
-	return 0;
+	//return 0;
 }
 // 
 // test_H.cpp ends here
