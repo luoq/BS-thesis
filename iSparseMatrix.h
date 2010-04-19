@@ -298,7 +298,7 @@ template<typename T> class smat{
 	void	erase_col(unsigned c);
 	void	clear();
 	//convert to a full matrix
-	void full(fmat<T>&) const;
+	fmat<T> full() const;
 
 	int rows() const {return data.size();}
 	int cols() const {return _cols;}
@@ -472,12 +472,13 @@ void smat<T>::clear()
 		data[r].clear();
 }
 template<typename T>
-void smat<T>::full(fmat<T>& m) const
+fmat<T> smat<T>::full() const
 {
-	m.setsize(data.size(),_cols);
+	fmat<T>	m(data.size(),_cols);
 	for(int r=0;r<data.size();r++)
 		for(int i=0;i<data[r].data.size();i++)
 			m(r,data[r].data[i].index)=data[r].data[i].value;
+	return m;
 }
 template<typename T>
 T smat<T>::row_sum(int r) const
@@ -601,9 +602,7 @@ T H(smat<T> &m,int node=1)
 		cout<<"end";
 		cout<<"\",fillcolor=red];\n";
 #endif
-		fmat<T> fm;
-		m.full(fm);
-		return RNW(fm);
+		return RNW(m.full());
 	}
 
 #ifdef stat
