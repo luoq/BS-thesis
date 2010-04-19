@@ -35,6 +35,7 @@ public:
   int cols ()const {return _cols;}
   T&		operator()(int r,int c);
   const T&	operator()(int r,int c) const;
+  void setsize(int rows,int cols);
  private:
   vector<T>	data;
   int		_rows;
@@ -47,6 +48,14 @@ fmat<T>::fmat(int rows,int cols)
 {
   data.reserve(_rows*_cols);
   data.assign(_rows*_cols,0);
+}
+template<typename T>
+void fmat<T>::setsize(int rows,int cols)
+{
+	_rows=rows;
+	_cols=cols;
+	data.reserve(_rows*_cols);
+	data.assign(_rows*_cols,0);
 }
 template<typename T>
 T& fmat<T>::operator()(int r,int c)

@@ -1,8 +1,8 @@
 #CC=icpc
-#CXXFLAGS=-O3 -Dcolnnzs -w -pipe
+#CXXFLAGS=-O3 -Dcolnnzs -w -pipe -Dnoautoenlarge -Dnonnz
 #CXXFLAGS=-ipo -prof-use -Dcolnnzs -Dnonnz -w
 CC=g++
-CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge
+CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz
 #CXXFLAGS=-march=i686 -O2 -Dcolnnzs
 CXXFLAGS2=
 all:benchmark-one
