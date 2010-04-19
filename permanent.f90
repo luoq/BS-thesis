@@ -1,9 +1,10 @@
 module permanent
+use mykind
 use gen_subsets
 contains
   subroutine printMatrix(A)
     implicit none
-    integer,dimension(:,:)::A
+    integer(matrix_type),dimension(:,:)::A
     integer r
     do r=1,size(A,1)
        write (*,*) A(r,:)
@@ -12,10 +13,11 @@ contains
   
   subroutine load(m,path)
     implicit none
-    integer,dimension(:,:),allocatable::m
+    integer(matrix_type),dimension(:,:),allocatable::m
     character(len=*)::path
     character(len=100)::buffer
-    integer r,c,e,i,rows,cols
+    integer(matrix_type) :: e
+    integer r,c,i,rows,cols
     integer :: start=1,off
     open(unit=10,file=path)
     read(10,'(A)') buffer
@@ -41,8 +43,8 @@ contains
   end subroutine load
   subroutine minor(A,r,c,A1)
     implicit none
-    integer,dimension(:,:)::A
-    integer,dimension(:,:)::A1
+    integer(matrix_type),dimension(:,:)::A
+    integer(matrix_type),dimension(:,:)::A1
     integer r,c
     A1(1:r-1,1:c-1)=A(1:r-1,1:c-1)
     A1(1:r-1,c:size(A1,2))=A(1:r-1,c+1:size(A,2))
@@ -50,11 +52,11 @@ contains
     A1(r:size(A1,1),c:size(A1,2))=A(r+1:size(A,1),c+1:size(A,2))
   end subroutine minor
 
-  recursive integer function IDEM(A) result(ret)
+  recursive integer(matrix_type) function IDEM(A) result(ret)
     implicit none
-    integer,dimension(:,:)::A
+    integer(matrix_type),dimension(:,:)::A
     logical,dimension(size(A,1),size(A,2))::nonzeros
-    integer,dimension(size(A,1)-1,size(A,2)-1)::A1
+    integer(matrix_type),dimension(size(A,1)-1,size(A,2)-1)::A1
     integer::rowSize(size(A,1)),colSize(size(A,2))
     integer minRow,minCol
     integer minRowSize,minColSize
@@ -153,10 +155,10 @@ contains
        deallocate(indices)
     end if
   end function IDEM
-  integer function RNW(A)
+  integer(matrix_type) function RNW(A)
     implicit none
-    integer,dimension(:,:)::A
-    integer,dimension(size(A,1))::S
+    integer(matrix_type),dimension(:,:)::A
+    integer(matrix_type),dimension(size(A,1))::S
     !for generating next subset
     integer::next,add_or_remove,k
     logical::end
@@ -176,11 +178,11 @@ contains
     RNW=RNW/2**(size(A,1)-1)
     if(mod(size(A,1),2)==0) RNW=-RNW
   end function RNW
-  recursive integer function H(A) result(ret)
+  recursive integer(matrix_type) function H(A) result(ret)
     implicit none
-    integer,dimension(:,:)::A
+    integer(matrix_type),dimension(:,:)::A
     logical,dimension(size(A,1),size(A,2))::nonzeros
-    integer,dimension(size(A,1)-1,size(A,2)-1)::A1
+    integer(matrix_type),dimension(size(A,1)-1,size(A,2)-1)::A1
     integer::rowSize(size(A,1)),colSize(size(A,2))
     integer minRow,minCol
     integer minRowSize,minColSize

@@ -39,16 +39,20 @@ contains
 end module gen_subsets
 module timer
 implicit none
-double precision,save,private::start_,end_
+real(8),save,private::start_,end_
 contains
   subroutine tic
     implicit none
-    call timw(start_)
+    call wtime(start_)
   end subroutine tic
   subroutine toc(time)
     implicit none
-    real time
-    call timw(end_)
+    real(8) :: time
+    call wtime(end_)
     time=end_-start_
   end subroutine toc  
 end module timer
+module mykind
+implicit none
+integer,parameter::matrix_type=4
+end module mykind

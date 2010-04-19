@@ -16,11 +16,11 @@ end subroutine test_gen_subsets
 subroutine test_timer
   use timer
   implicit none
-  real time
-  real x,result
+  real(8) time
+  integer x,result
   call tic
   do x=1,100
-     result=sin(x)
+     result=2**x
   end do
   call toc(time)
   write (*,*) 'Elapsed time:',time

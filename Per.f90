@@ -2,9 +2,9 @@ program Per
   use permanent
   use timer
   implicit none
-  integer,dimension(:,:),allocatable :: m
+  integer(matrix_type),dimension(:,:),allocatable :: m
   character(len=100)::path
-  real time
+  real(8) :: time
 #ifdef debug
 #endif
   call get_command_argument(1,path)
@@ -14,6 +14,6 @@ program Per
   call tic
   write (*,*) H(m)
   call toc(time)
-  write (*,*) 'Time elapsed:',time,'s'
+  write (*,*) 'Time elapsed:',time,'ms'
   deallocate(m)
 end program Per
