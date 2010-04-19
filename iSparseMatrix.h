@@ -537,7 +537,6 @@ bool smat<T>::load(char* path)
 	In>>cols;
 
 	_cols = cols;
-	//3 is for later calculation
 	data.assign(rows,svec<T>(cols,nnz/rows));
 #ifdef colnnzs
 	_col_nnzs.assign(cols,0);
@@ -605,11 +604,6 @@ T H(smat<T> &m,int node=1)
 		return RNW(m.full());
 	}
 
-#ifdef stat
-#ifndef nonnz
-	cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
-#endif
-#endif
 	//find the row with minimal element
 	vector<int>	rowSize(m.data.size());
 	for(unsigned r=0;r<rowSize.size();r++)
@@ -621,9 +615,12 @@ T H(smat<T> &m,int node=1)
 	int	minCol	   = min_element(colSize.begin(),colSize.end())-colSize.begin();
 	int	minColSize = colSize[minCol];
 #ifdef stat
-	cerr<<(minRowSize<=minColSize?minRowSize:minColSize)<<endl;
+	int		maxRow	= max_element(rowSize.begin(),rowSize.end())-rowSize.begin();
+	int		maxRowSize	= rowSize[maxRow];
+	int		maxCol	   = max_element(colSize.begin(),colSize.end())-colSize.begin();
+	int		maxColSize = colSize[maxCol];
+	cerr<<m.data.size()<<'\t'<<minRowSize<<'\t'<<maxRowSize<<'\t'<<minColSize<<'\t'<<maxColSize<<endl;
 #endif
-
 
 	if(minRowSize<=minColSize)
 	{
@@ -641,21 +638,12 @@ T H(smat<T> &m,int node=1)
 #endif
 
 		T ret=0;
-		for(int i=0;i<minRowSize/2;i++)
+		for(int i=0;i<minRowSize-1;i+=2)
 		{
-			int	c1	= m.data[minRow].data[0].index;
-			T		value1	= m.data[minRow].data[0].value;
-			int	c2	= m.data[minRow].data[1].index;
-			T		value2	= m.data[minRow].data[1].value;
-			m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
-			m.data[minRow].data.erase(m.data[minRow].data.begin());
-#ifndef nonnz
-			m._nnz	       -= 2;
-#endif
-#ifdef colnnzs
-			m._col_nnzs[c1]--;
-			m._col_nnzs[c2]--;
-#endif
+			int	c1	= m.data[minRow].data[i].index;
+			T		value1	= m.data[minRow].data[i].value;
+			int	c2	= m.data[minRow].data[i+1].index;
+			T		value2	= m.data[minRow].data[i+1].value;
 
 			{
 				smat<T> mtemp(m);
@@ -670,10 +658,10 @@ T H(smat<T> &m,int node=1)
 			child++;
 #endif
 		}
-		if(!m.data[minRow].data.empty())
+		if(minRowSize%2==1)
 		{
-			int c= m.data[minRow].data[0].index;
-			T value= m.data[minRow].data[0].value;
+			int c= m.data[minRow].data[minRowSize-1].index;
+			T value= m.data[minRow].data[minRowSize-1].value;
 			eliminate1(m,minRow,c);
 #ifdef plot
 			cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
@@ -757,11 +745,6 @@ T IDEM(smat<T> &m,int node=0)
 {
 	int	max   = 3;
 	int	child =	1;
-#ifdef stat
-#ifndef nonnz
-	cerr<<m.data.size()<<'\t'<<m._nnz<<'\t';
-#endif
-#endif
 
 #ifdef plot
 	cout<<"\""<<node<<"\"[label=\"node: "<<node<<"\\n";
@@ -775,9 +758,6 @@ T IDEM(smat<T> &m,int node=0)
 	{
 #ifdef plot
 		cerr<<"node"<<node<<" return :"<<m(0,0)<<endl;
-#endif
-#ifdef stat
-		cerr<<m.data.size()<<endl;
 #endif
 		return
 			m(0,0)*(m(1,1)*m(2,2)+m(1,2)*m(2,1))+
