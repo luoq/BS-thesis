@@ -54,6 +54,7 @@ void test_RNW(smat<T> m,string name)
 }
 int main(int argc,char** argv)
 {
+	typedef long long ll;
 	smat<int>	m;
 	if(!m.load(argv[1]))
 	{
@@ -64,8 +65,8 @@ int main(int argc,char** argv)
 	cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;\n";
 #endif
 	//test(&IDEM0<int>,m,"IDEM0");
-	test(&IDEM<int>,m,"IDEM");
-	//test(&H<int>,m,"H");
+	//test(&IDEM<int>,m,"IDEM");
+	test(&H<int>,m,"H");
 	//test(&IDEM3<int>,m,"IDEM3");
 	//test(&H3<int>,m,"H3");
 	//test(&DEM<int>,m,"DEM");

@@ -581,7 +581,7 @@ vector<int> smat<T>::col_nnzs() const
 #endif
 }
 
-const int changePoint=8;
+const int changePoint=7;
 template<typename T>
 T H(smat<T> &m,int node=1)
 {
