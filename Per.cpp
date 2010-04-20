@@ -16,7 +16,7 @@
 
 // Code:
 
-#include "iSparseMatrix.h"
+#include "permanent.h"
 #include "Timer.h"
 	template<typename T>
 void test(T (*f)(smat<T>&,int),smat<T> m,string name)
@@ -66,6 +66,7 @@ int main(int argc,char** argv)
 #endif
 	//test(&IDEM0<int>,m,"IDEM0");
 	//test(&IDEM<int>,m,"IDEM");
+	generate_travel_order();
 	test(&H<int>,m,"H");
 	//test(&IDEM3<int>,m,"IDEM3");
 	//test(&H3<int>,m,"H3");

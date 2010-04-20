@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/15/2010 16:34:41
  * Version: 
- * Last-Updated: 03/23/2010 11:14:16
+ * Last-Updated: 04/20/2010 13:35:16
  *           By: Luo Qiang
- *     Update #: 48
+ *     Update #: 52
  * Keywords: */
 
 /* Commentary: */
@@ -21,9 +21,7 @@
 #include<iostream>
 #include<vector>
 #include "iSparseMatrix.h"
-#include "misc.h"
 using namespace	std;
-//#define debug
 
 smat<int>	regular(int n,int d,int& trytimes);
 template<typename T> bool isregular(const smat<T> &m,int d);
