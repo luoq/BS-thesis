@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/27/2010 15:10:07
 // Version: 
-// Last-Updated: 03/27/2010 19:47:35
+// Last-Updated: 04/20/2010 16:26:24
 //           By: Luo Qiang
-//     Update #: 16
+//     Update #: 17
 // Keywords: 
 
 // Commentary: 
@@ -15,9 +15,7 @@
 // Change log:
 
 // Code:
-#include "iSparseMatrix.h"
-#include "iFullMatrix.h"
-#include "R-NW.h"
+#include "permanent.h"
 #include "Timer.h"
 
 int main(int argc,char** argv)

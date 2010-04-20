@@ -1,28 +1,22 @@
-#ifndef PERMANENR_H
-#define PERMANENR_H
+#ifndef PERMANENT_H
+#define PERMANENT_H
 #include "iSparseMatrix.h"
 #include "iFullMatrix.h"
 #include <cmath>
+using namespace std;
+
+const int changePoint=8;
+namespace presave
+{
+	int next[127],addOrRemove[127],card[127];
+	void generate_travel_order();
+};
 //eliminate minimal row
 template<typename T> T	IDEM0(smat<T> &m,int node=0);
 //eliminate minimal row and column
 template<typename T> T	IDEM(smat<T> &m,int node=0);
 //hybrd IDEM and RNW
 template<typename T> T	H(smat<T> &m,int node=0);
-const int changePoint=8;
-int _next[127],_addOrRemove[127],_card[127];
-void generate_travel_order()
-{
-	subsetGenerator g(changePoint-1);
-	int i=0;
-	while(!g.end())
-	{
-		g.next(_next[i],_addOrRemove[i],_card[i]);
-		i++;
-	}
-}
-
-
 //for 3-regular only
 //eliminate row with <=2 elements
 //then eliminate row intersecting with maxium column
@@ -44,25 +38,13 @@ template<typename T> T	IDEM3(smat<T> &m,int node=1);
 //hybrid IDEM3 and RNW
 template<typename T> T	H3(smat<T> &m,int node=1);
 template<typename T> void	peelDEM(smat<T> &m,bool& end,T& ret);
-template<typename T> T RNW(fmat<T> m);
-template<typename T> T RNW_presave(fmat<T> m);
-
 
 template<typename T> vector<int> selectElements(const smat<T>&,int& trytimes);
 template<typename T> void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2);
 template<typename T> void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2);
 template<typename T> void eliminate1(smat<T> &m,int r,int c);
-//info = -1,empty
-//info = 0,find
-//info = 1,not find,return first larger
-//info = 2,not find,at end
-template <class			ForwardIterator, class T>
-ForwardIterator lower_bound_find(ForwardIterator first, ForwardIterator last,
-		const T& value,int & info);
-
-
-	template<typename T>
-T H(smat<T> &m,int node=1)
+	template <typename T>
+T H(smat<T> &m,int node)
 {
 	int	max   = 4;
 	int	child =	1;
@@ -215,7 +197,7 @@ T H(smat<T> &m,int node=1)
 }
 
 	template<typename T>
-T IDEM(smat<T> &m,int node=0)
+T IDEM(smat<T> &m,int node)
 {
 	int	max   = 3;
 	int	child =	1;
@@ -1176,139 +1158,120 @@ T DEMiter(smat<T> &m,int node=1)
 		p+=value*ret*DEMiter(m);
 	return p;
 }
-
-template<typename T>
+	template<typename T>
 T RNW(fmat<T> m)
 {
-  int	n = m.rows();
-  T	P = 0,sigma=1;
-  T *	S = new T[n];
-  for(int r=0;r<n;r++)
-    S[r]=0;
-  
-  for(int r=0;r<n;r++)
-    {
-      for(int c=0;c<n;c++)
-	S[r] +=	m(r,c);
-      S[r]   *=	-1;
-      S[r]   +=	2*m(r,n-1);
-    }
+	int	n = m.rows();
+	T	P = 0,sigma=1;
+	T *	S = new T[n];
+	for(int r=0;r<n;r++)
+		S[r]=0;
 
-  int	index,addOrRemove,card;
-  subsetGenerator	g(n-1);
-  for(int r=0;r<n;r++)
-    sigma *= S[r];
-  P	  += sigma;
+	for(int r=0;r<n;r++)
+	{
+		for(int c=0;c<n;c++)
+			S[r] +=	m(r,c);
+		S[r]   *=	-1;
+		S[r]   +=	2*m(r,n-1);
+	}
+
+	int	index,addOrRemove,card;
+	subsetGenerator	g(n-1);
+	for(int r=0;r<n;r++)
+		sigma *= S[r];
+	P	  += sigma;
 #ifdef debug_rnw
-  for(int r=0;r<n;r++)
-    cout<<S[r]<<' ';
-  cout<<endl;
-  cout<<"sigma = "<<sigma<<endl;
-  cout<<" P = "<<P<<endl<<endl;
+	for(int r=0;r<n;r++)
+		cout<<S[r]<<' ';
+	cout<<endl;
+	cout<<"sigma = "<<sigma<<endl;
+	cout<<" P = "<<P<<endl<<endl;
 #endif
-  sigma	   = 1;
-  
-  while(!g.end())
-    {
-      g.next(index,addOrRemove,card);
-      for (int r = 0; r<n;r++)
-	S[r]  += 2*addOrRemove*m(r,index);
-      for(int r=0;r<n;r++)
-	sigma *= S[r];
-      if(card%2==1)
-	sigma=-sigma;
-      P	  += sigma;
+	sigma	   = 1;
+
+	while(!g.end())
+	{
+		g.next(index,addOrRemove,card);
+		for (int r = 0; r<n;r++)
+			S[r]  += 2*addOrRemove*m(r,index);
+		for(int r=0;r<n;r++)
+			sigma *= S[r];
+		if(card%2==1)
+			sigma=-sigma;
+		P	  += sigma;
 #ifdef debug_rnw
-      for(int r=0;r<n;r++)
-	cout<<S[r]<<' ';
-      cout<<endl;
-      cout<<"sigma = "<<sigma<<endl;
-      cout<<" P = "<<P<<endl<<endl;
+		for(int r=0;r<n;r++)
+			cout<<S[r]<<' ';
+		cout<<endl;
+		cout<<"sigma = "<<sigma<<endl;
+		cout<<" P = "<<P<<endl<<endl;
 #endif
-      sigma=1;
-    }
-  P /= pow(2,n-1);
-  delete[] S;
-  if(n%2==1)
-    return P;
-  else
-    return -P;
+		sigma=1;
+	}
+	P /= pow(2,n-1);
+	delete[] S;
+	if(n%2==1)
+		return P;
+	else
+		return -P;
 }
-template<typename T>
+	template<typename T>
 T RNW_presave(fmat<T> m)
 {
-  int	n=changePoint;
-  T	P = 0,sigma=1;
-  T *	S = new T[n];
-  for(int r=0;r<n;r++)
-    S[r]=0;
-  
-  for(int r=0;r<n;r++)
-    {
-      for(int c=0;c<n;c++)
-	S[r] +=	m(r,c);
-      S[r]   *=	-1;
-      S[r]   +=	2*m(r,n-1);
-    }
+	int	n=changePoint;
+	T	P = 0,sigma=1;
+	T *	S = new T[n];
+	for(int r=0;r<n;r++)
+		S[r]=0;
 
-  int	index,addOrRemove,card;
-  subsetGenerator	g(n-1);
-  for(int r=0;r<n;r++)
-    sigma *= S[r];
-  P	  += sigma;
-#ifdef debug_rnw
-  for(int r=0;r<n;r++)
-    cout<<S[r]<<' ';
-  cout<<endl;
-  cout<<"sigma = "<<sigma<<endl;
-  cout<<" P = "<<P<<endl<<endl;
-#endif
-  
-  for(int i=0;i<pow(2,changePoint-1)-1;i++)
-    {
-		sigma	   = 1;
-	  index=_next[i];addOrRemove=_addOrRemove[i];card=_card[i];
-      for (int r = 0; r<n;r++)
-	S[r]  += 2*addOrRemove*m(r,index);
-      for(int r=0;r<n;r++)
-	sigma *= S[r];
-      if(card%2==1)
-	sigma=-sigma;
-      P	  += sigma;
-#ifdef debug_rnw
-      for(int r=0;r<n;r++)
-	cout<<S[r]<<' ';
-      cout<<endl;
-      cout<<"sigma = "<<sigma<<endl;
-      cout<<" P = "<<P<<endl<<endl;
-#endif
-    }
-  P /= pow(2,n-1);
-  delete[] S;
-  if(n%2==1)
-    return P;
-  else
-    return -P;
-}
-
-	template <class ForwardIterator, class T>
-ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
-		const T& value,int & info)
-{
-	if(first>=last)
+	for(int r=0;r<n;r++)
 	{
-		info = -1;
-		return first;
+		for(int c=0;c<n;c++)
+			S[r] +=	m(r,c);
+		S[r]   *=	-1;
+		S[r]   +=	2*m(r,n-1);
 	}
-	ForwardIterator	ret = lower_bound(first,last,value);
-	if(ret>=last)
-		info = 2;
-	else if(*ret==value)
-		info = 0;
+
+	int	index,addOrRemove,card;
+	subsetGenerator	g(n-1);
+	for(int r=0;r<n;r++)
+		sigma *= S[r];
+	P	  += sigma;
+#ifdef debug_rnw
+	for(int r=0;r<n;r++)
+		cout<<S[r]<<' ';
+	cout<<endl;
+	cout<<"sigma = "<<sigma<<endl;
+	cout<<" P = "<<P<<endl<<endl;
+#endif
+
+	for(int i=0;i<pow(2,n-1)-1;i++)
+	{
+		sigma	   = 1;
+		index=presave::next[i];addOrRemove=presave::addOrRemove[i];card=presave::card[i];
+		for (int r = 0; r<n;r++)
+			S[r]  += 2*addOrRemove*m(r,index);
+		for(int r=0;r<n;r++)
+			sigma *= S[r];
+		if(card%2==1)
+			sigma=-sigma;
+		P	  += sigma;
+#ifdef debug_rnw
+		for(int r=0;r<n;r++)
+			cout<<S[r]<<' ';
+		cout<<endl;
+		cout<<"sigma = "<<sigma<<endl;
+		cout<<" P = "<<P<<endl<<endl;
+#endif
+	}
+	P /= pow(2,n-1);
+	delete[] S;
+	if(n%2==1)
+		return P;
 	else
-		info = 1;
-	return ret;
+		return -P;
 }
+
 	template <typename T>
 vector<int> selectElements(const smat<T> &m,int k,int& trytimes)
 {
@@ -1345,4 +1308,15 @@ tryagain:
 	}
 	return ret;
 }
+void presave::generate_travel_order()
+{
+	subsetGenerator g(changePoint-1);
+	int i=0;
+	while(!g.end())
+	{
+		g.next(presave::next[i],presave::addOrRemove[i],presave::card[i]);
+		i++;
+	}
+}
 #endif
+/* iSparseMatrix.h ends here */

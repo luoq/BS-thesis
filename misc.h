@@ -17,6 +17,7 @@
 #include <vector>
 #include <iostream>
 using namespace std;
+
 //generate a random integer from 0 to n
 int randint(int n);
 template<typename T> void printVector(const vector<T> &vect);

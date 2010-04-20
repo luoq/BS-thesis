@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/19/2010 12:55:51
 // Version: 
-// Last-Updated: 04/04/2010 11:55:54
+// Last-Updated: 04/20/2010 16:25:22
 //           By: Luo Qiang
-//     Update #: 75
+//     Update #: 76
 // Keywords: 
 
 // Commentary: 
@@ -17,7 +17,7 @@
 // Code:
 #include "Timer.h"
 #include "regular.h"
-#include "iSparseMatrix.h"
+#include "permanent.h"
 #include <iostream>
 #include <fstream>
 using	std::cout;

@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/15/2010 16:34:41
  * Version: 
- * Last-Updated: 04/20/2010 13:35:16
+ * Last-Updated: 04/20/2010 16:24:20
  *           By: Luo Qiang
- *     Update #: 52
+ *     Update #: 56
  * Keywords: */
 
 /* Commentary: */
@@ -20,7 +20,7 @@
 
 #include<iostream>
 #include<vector>
-#include "iSparseMatrix.h"
+#include"iSparseMatrix.h"
 using namespace	std;
 
 smat<int>	regular(int n,int d,int& trytimes);

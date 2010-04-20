@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/21/2010 15:27:10
 // Version: 
-// Last-Updated: 04/05/2010 10:41:10
+// Last-Updated: 04/20/2010 15:45:15
 //           By: Luo Qiang
-//     Update #: 86
+//     Update #: 87
 // Keywords: 
 
 // Commentary: 
@@ -17,6 +17,8 @@
 // Code:
 
 #include "permanent.h"
+#include "iSparseMatrix.h"
+#include "iFullMatrix.h"
 #include "Timer.h"
 	template<typename T>
 void test(T (*f)(smat<T>&,int),smat<T> m,string name)
@@ -66,7 +68,7 @@ int main(int argc,char** argv)
 #endif
 	//test(&IDEM0<int>,m,"IDEM0");
 	//test(&IDEM<int>,m,"IDEM");
-	generate_travel_order();
+	presave::generate_travel_order();
 	test(&H<int>,m,"H");
 	//test(&IDEM3<int>,m,"IDEM3");
 	//test(&H3<int>,m,"H3");
@@ -74,7 +76,7 @@ int main(int argc,char** argv)
 	//test(&DEM2<int>,m,"DEM2");
 	//test(&DEMiter<int>,m,"DEMiter");
 	//test_RNW(m,"RNW");
-	//return 0;
+	return 0;
 }
 // 
 // test_H.cpp ends here

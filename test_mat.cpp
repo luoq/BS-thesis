@@ -15,7 +15,7 @@
 // Change log:
 
 // Code:
-#include "iSparseMatrix.h"
+#include "permanent.h"
 #include "regular.h"
 
 char getch() {
