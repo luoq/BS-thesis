@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 04/20/2010 15:06:50
+ * Last-Updated: 04/20/2010 16:34:43
  *           By: Luo Qiang
- *     Update #: 848
+ *     Update #: 850
  * Keywords:
  */
 
@@ -29,13 +29,6 @@
 #include "misc.h"
 #include "iFullMatrix.h"
 using namespace std;
-//info = -1,empty
-//info = 0,find
-//info = 1,not find,return first larger
-//info = 2,not find,at end
-template <class			ForwardIterator, class T>
-ForwardIterator lower_bound_find(ForwardIterator first, ForwardIterator last,
-				 const T& value,int & info);
 template<typename T> class	element;
 template<typename T> bool operator<(const element<T> &,const element<T>&);
 template<typename T> bool operator==(const element<T> &,const element<T>&);
@@ -614,23 +607,5 @@ void smat<T>::print() const
       cout<<"\n";
     }
 #endif
-}
-template <class ForwardIterator, class T>
-ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
-				   const T& value,int & info)
-{
-  if(first>=last)
-    {
-      info = -1;
-      return first;
-    }
-  ForwardIterator	ret = lower_bound(first,last,value);
-  if(ret>=last)
-    info = 2;
-  else if(*ret==value)
-    info = 0;
-  else
-    info = 1;
-  return ret;
 }
 #endif /* _ISPARSEMATRIX_H_ */

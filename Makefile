@@ -2,11 +2,11 @@
 #CXXFLAGS=-O3 -Dcolnnzs -w -pipe
 #CXXFLAGS=-ipo -prof-use -Dcolnnzs -Dnonnz -w
 CC=g++ 
-CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz -g
+CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz -pg
 #CXXFLAGS=-march=i686 -O2 -Dcolnnzs
-CXXFLAGS2=
-#all:Per
-all:Per genRegular benchmark-one genRegular benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
+CXXFLAGS2=-pg
+all:Per
+#all:Per genRegular benchmark-one genRegular benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 
 research:research.o misc.o regular.o Timer.o
 	$(CC) $^ $(CXXFLAGS2) -o $@

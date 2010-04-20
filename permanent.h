@@ -2,6 +2,7 @@
 #define PERMANENT_H
 #include "iSparseMatrix.h"
 #include "iFullMatrix.h"
+#include "misc.h"
 #include <cmath>
 using namespace std;
 
