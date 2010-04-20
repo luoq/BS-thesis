@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/21/2010 15:27:10
 // Version: 
-// Last-Updated: 04/20/2010 15:45:15
+// Last-Updated: 04/20/2010 16:31:16
 //           By: Luo Qiang
-//     Update #: 87
+//     Update #: 88
 // Keywords: 
 
 // Commentary: 
@@ -68,7 +68,7 @@ int main(int argc,char** argv)
 #endif
 	//test(&IDEM0<int>,m,"IDEM0");
 	//test(&IDEM<int>,m,"IDEM");
-	presave::generate_travel_order();
+	generate_travel_order();
 	test(&H<int>,m,"H");
 	//test(&IDEM3<int>,m,"IDEM3");
 	//test(&H3<int>,m,"H3");
