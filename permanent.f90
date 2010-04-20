@@ -1,7 +1,24 @@
 module permanent
 use mykind
 use gen_subsets
+integer,parameter::changeSize=8
+!prestore the traval ordet to speed up
+integer,dimension(3,2**(changeSize-1)-1)::order_
 contains
+  subroutine generate_traval_order
+    implicit none
+    integer i
+    logical end
+
+    call initialize_sub(changeSize-1)
+    i=1
+    do 
+       call next_sub(order_(1,i),order_(2,i),order_(3,i),end)
+       i=i+1
+       if(end) exit
+    end do
+  end subroutine generate_traval_order
+  
   subroutine printMatrix(A)
     implicit none
     integer(matrix_type),dimension(:,:)::A
@@ -178,6 +195,24 @@ contains
     RNW=RNW/2**(size(A,1)-1)
     if(mod(size(A,1),2)==0) RNW=-RNW
   end function RNW
+  integer(matrix_type) function RNW_presave(A)
+    implicit none
+    integer(matrix_type),dimension(changeSize,changeSize)::A
+    integer(matrix_type),dimension(changeSize)::S
+    integer i
+    S=-sum(A,2)+2*A(:,changeSize)
+    RNW_presave=product(S,1)
+    do i=1,size(order_,2)
+       S=S+2*order_(2,i)*A(:,order_(1,i))
+       if (mod(order_(3,i),2)==0) then
+          RNW_presave=RNW_presave+product(S,1)
+       else
+          RNW_presave=RNW_presave-product(S,1)
+       end if
+    end do
+    RNW_presave=RNW_presave/2**(size(A,1)-1)
+    if(mod(size(A,1),2)==0) RNW_presave=-RNW_presave
+  end function RNW_presave
   recursive integer(matrix_type) function H(A) result(ret)
     implicit none
     integer(matrix_type),dimension(:,:)::A
@@ -192,8 +227,8 @@ contains
 #ifdef debug
        call printMatrix(A)
 #endif
-    if(size(A,1)<=7) then
-	   ret=RNW(A)
+    if(size(A,1)<=changeSize) then
+	   ret=RNW_presave(A)
        return
     end if
     nonzeros=(A/=0)

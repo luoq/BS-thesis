@@ -11,9 +11,12 @@ program Per
   call load(m,path)
   !write (*,*) IDEM(m)
   !write (*,*) RNW(m)
+  
   call tic
+  call generate_traval_order
   write (*,*) H(m)
   call toc(time)
   write (*,*) 'Time elapsed:',time,'ms'
+
   deallocate(m)
 end program Per
