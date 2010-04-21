@@ -61,7 +61,7 @@ T H(smat<T> &m,int node)
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r] = m.data[r].data.size();
+    rowSize[r] = m.row_nnz(r);
   int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int		minRowSize	= rowSize[minRow];
 
@@ -94,10 +94,10 @@ T H(smat<T> &m,int node)
       T ret=0;
       for(int i=0;i<minRowSize-1;i+=2)
 	{
-	  int	c1	= m.data[minRow].data[i].index;
-	  T		value1	= m.data[minRow].data[i].value;
-	  int	c2	= m.data[minRow].data[i+1].index;
-	  T		value2	= m.data[minRow].data[i+1].value;
+	  int	c1	= m.int_element(minRow,i).index;
+	  T		value1	= m.int_element(minRow,i).value;
+	  int	c2	= m.int_element(minRow,i+1).index;
+	  T		value2	= m.int_element(minRow,i+1).value;
 
 	  {
 	    smat<T> mtemp(m);
@@ -114,8 +114,8 @@ T H(smat<T> &m,int node)
 	}
       if(minRowSize%2==1)
 	{
-	  int c= m.data[minRow].data[minRowSize-1].index;
-	  T value= m.data[minRow].data[minRowSize-1].value;
+	  int c= m.int_element(minRow,minRowSize-1).index;
+	  T value= m.int_element(minRow,minRowSize-1).value;
 	  eliminate1(m,minRow,c);
 #ifdef plot
 	  cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
@@ -222,7 +222,7 @@ T IDEM(smat<T> &m,int node)
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r] = m.data[r].data.size();
+    rowSize[r] = m.row_nnz(r);
   int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int		minRowSize	= rowSize[minRow];
 
@@ -243,21 +243,12 @@ T IDEM(smat<T> &m,int node)
 	return 0;
 
       T ret=0;
-      for(int i=0;i<minRowSize/2;i++)
+      for(int i=0;i<minRowSize-1;i+=2)
 	{
-	  int	c1	= m.data[minRow].data[0].index;
-	  T		value1	= m.data[minRow].data[0].value;
-	  int	c2	= m.data[minRow].data[1].index;
-	  T		value2	= m.data[minRow].data[1].value;
-	  m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
-	  m.data[minRow].data.erase(m.data[minRow].data.begin());
-#ifndef nonnz
-	  m._nnz	       -= 2;
-#endif
-#ifdef colnnzs
-	  m._col_nnzs[c1]--;
-	  m._col_nnzs[c2]--;
-#endif
+	  int	c1	= m.int_element(minRow,i).index;
+	  T		value1	= m.int_element(minRow,i).value;
+	  int	c2	= m.int_element(minRow,i+1).index;
+	  T		value2	= m.int_element(minRow,i+1).value;
 
 	  {
 	    smat<T> mtemp(m);
@@ -272,10 +263,10 @@ T IDEM(smat<T> &m,int node)
 	  child++;
 #endif
 	}
-      if(!m.data[minRow].data.empty())
+      if(minRowSize%2==1)
 	{
-	  int c= m.data[minRow].data[0].index;
-	  T value= m.data[minRow].data[0].value;
+	  int c= m.int_element(minRow,minRowSize-1).index;
+	  T value= m.int_element(minRow,minRowSize-1).value;
 	  eliminate1(m,minRow,c);
 #ifdef plot
 	  cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
@@ -367,24 +358,24 @@ T IDEM3(smat<T> &m,int node=1)
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r] = m.data[r].data.size();
+    rowSize[r] = m.row_nnz(r);
   int	minRow= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int	minRowSize	= rowSize[minRow];
   if(minRowSize==0)
     return 0;
   else if(minRowSize==1)
     {
-      int c= m.data[minRow].data[0].index;
-      T value= m.data[minRow].data[0].value;
+      int c= m.int_element(minRow,0).index;
+      T value= m.int_element(minRow,0).value;
       eliminate1(m,minRow,c);
       return value*IDEM3(m,2*node);
     }
   else if(minRowSize==2)
     {
-      int	c1     = m.data[minRow].data[0].index;
-      int	c2     = m.data[minRow].data[1].index;
-      T		value1 = m.data[minRow].data[0].value;
-      T		value2 = m.data[minRow].data[1].value;
+      int	c1     = m.int_element(minRow,0).index;
+      int	c2     = m.int_element(minRow,1).index;
+      T		value1 = m.int_element(minRow,0).value;
+      T		value2 = m.int_element(minRow,1).value;
       eliminate2(m,minRow,c1,c2,value1,value2);
       return IDEM3(m,2*node);
     }
@@ -419,14 +410,14 @@ T IDEM3(smat<T> &m,int node=1)
 	  {
 	    smat<T> mtemp=m;
 	    eliminate2(mtemp,minRow,
-		       mtemp.data[minRow].data[0].index,
-		       mtemp.data[minRow].data[1].index,
-		       mtemp.data[minRow].data[0].value,
-		       mtemp.data[minRow].data[1].value);
+		       mtemp.int_element(minRow,0).index,
+		       mtemp.int_element(minRow,1).index,
+		       mtemp.int_element(minRow,0).value,
+		       mtemp.int_element(minRow,1).value);
 	    ret=IDEM3(mtemp,2*node);
 	  }
-	  T value=m.data[minRow].data[2].value;
-	  eliminate1(m,minRow,m.data[minRow].data[2].index);
+	  T value=m.int_element(minRow,2).value;
+	  eliminate1(m,minRow,m.int_element(minRow,2).index);
 	  ret+=value*IDEM3(m,2*node+1);
 	  return ret;
 	}
@@ -442,24 +433,24 @@ T H3(smat<T> &m,int node=1)
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r] = m.data[r].data.size();
+    rowSize[r] = m.row_nnz(r);
   int	minRow= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int	minRowSize	= rowSize[minRow];
   if(minRowSize==0)
     return 0;
   else if(minRowSize==1)
     {
-      int c= m.data[minRow].data[0].index;
-      T value= m.data[minRow].data[0].value;
+      int c= m.int_element(minRow,0).index;
+      T value= m.int_element(minRow,0).value;
       eliminate1(m,minRow,c);
       return value*H3(m,2*node);
     }
   else if(minRowSize==2)
     {
-      int	c1     = m.data[minRow].data[0].index;
-      int	c2     = m.data[minRow].data[1].index;
-      T	value1 = m.data[minRow].data[0].value;
-      T	value2 = m.data[minRow].data[1].value;
+      int	c1     = m.int_element(minRow,0).index;
+      int	c2     = m.int_element(minRow,1).index;
+      T	value1 = m.int_element(minRow,0).value;
+      T	value2 = m.int_element(minRow,1).value;
       eliminate2(m,minRow,c1,c2,value1,value2);
       return H3(m,2*node);
     }
@@ -499,14 +490,14 @@ T H3(smat<T> &m,int node=1)
 	  {
 	    smat<T> mtemp=m;
 	    eliminate2(mtemp,minRow,
-		       mtemp.data[minRow].data[0].index,
-		       mtemp.data[minRow].data[1].index,
-		       mtemp.data[minRow].data[0].value,
-		       mtemp.data[minRow].data[1].value);
+		       mtemp.int_element(minRow,0).index,
+		       mtemp.int_element(minRow,1).index,
+		       mtemp.int_element(minRow,0).value,
+		       mtemp.int_element(minRow,1).value);
 	    ret=H3(mtemp,2*node);
 	  }
-	  T value=m.data[minRow].data[2].value;
-	  eliminate1(m,minRow,m.data[minRow].data[2].index);
+	  T value=m.int_element(minRow,2).value;
+	  eliminate1(m,minRow,m.int_element(minRow,2).index);
 	  ret+=value*H3(m,2*node+1);
 	  return ret;
 	}
@@ -545,7 +536,7 @@ T IDEM0(smat<T> &m,int node=0)
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r] = m.data[r].data.size();
+    rowSize[r] = m.row_nnz(r);
   int		minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int		minRowSize	= rowSize[minRow];
 
@@ -562,10 +553,10 @@ T IDEM0(smat<T> &m,int node=0)
   T ret=0;
   for(int i=0;i<minRowSize/2;i++)
     {
-      int	c1	= m.data[minRow].data[0].index;
-      T		value1	= m.data[minRow].data[0].value;
-      int	c2	= m.data[minRow].data[1].index;
-      T		value2	= m.data[minRow].data[1].value;
+      int	c1	= m.int_element(minRow,0).index;
+      T		value1	= m.int_element(minRow,0).value;
+      int	c2	= m.int_element(minRow,1).index;
+      T		value2	= m.int_element(minRow,1).value;
       m.data[minRow].data.erase(m.data[minRow].data.begin()+1);
       m.data[minRow].data.erase(m.data[minRow].data.begin());
 #ifndef nonnz
@@ -591,8 +582,8 @@ T IDEM0(smat<T> &m,int node=0)
     }
   if(!m.data[minRow].data.empty())
     {
-      int c= m.data[minRow].data[0].index;
-      T value= m.data[minRow].data[0].value;
+      int c= m.int_element(minRow,0).index;
+      T value= m.int_element(minRow,0).value;
       eliminate1(m,minRow,c);
 #ifdef plot
       cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
@@ -623,7 +614,7 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 #ifdef colnnzs
 	  m._col_nnzs[m.int_element(r2,i2).index]++;
 #endif
-	  if(i2==m.data[r2].data.size()-1)
+	  if(i2==m.row_nnz(r2)-1)
 	    i2=-1;
 	  else
 	    i2++;
@@ -631,7 +622,7 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
       else if(i2==-1)
 	{
 	  m.int_element(r1,i1).value*=value2;
-	  if(i1==m.data[r1].data.size()-1)
+	  if(i1==m.row_nnz(r1)-1)
 	    i1=-1;
 	  else
 	    i1++;
@@ -639,7 +630,7 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
       else if(m.int_element(r1,i1).index<m.int_element(r2,i2).index)
 	{
 	  m.int_element(r1,i1).value*=value2;
-	  if(i1==m.data[r1].data.size()-1)
+	  if(i1==m.row_nnz(r1)-1)
 	    i1=-1;
 	  else
 	    i1++;
@@ -655,7 +646,7 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 	  m._col_nnzs[m.int_element(r2,i2).index]++;
 #endif
 	  i1++;//because sth inser before
-	  if(i2==m.data[r2].data.size()-1)
+	  if(i2==m.row_nnz(r2)-1)
 	    i2=-1;
 	  else
 	    i2++;
@@ -663,11 +654,11 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
       else
 	{
 	  m.int_element(r1,i1).value=value2*m.int_element(r1,i1).value+value1*m.int_element(r2,i2).value;
-	  if(i1==m.data[r1].data.size()-1)
+	  if(i1==m.row_nnz(r1)-1)
 	    i1=-1;
 	  else
 	    i1++;
-	  if(i2==m.data[r2].data.size()-1)
+	  if(i2==m.row_nnz(r2)-1)
 	    i2=-1;
 	  else
 	    i2++;
@@ -768,7 +759,7 @@ T DEM(smat<T> &m,int node=1)
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r] = m.data[r].data.size();
+    rowSize[r] = m.row_nnz(r);
   int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int	minRowSize	= rowSize[minRow];
 
@@ -788,8 +779,8 @@ T DEM(smat<T> &m,int node=1)
       cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
 
-      int c= m.data[minRow].data[0].index;
-      T value= m.data[minRow].data[0].value;
+      int c= m.int_element(minRow,0).index;
+      T value= m.int_element(minRow,0).value;
       eliminate1(m,minRow,c);
 #ifdef plot
       cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
@@ -803,10 +794,10 @@ T DEM(smat<T> &m,int node=1)
       cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
 
-      int	c1     = m.data[minRow].data[0].index;
-      int	c2     = m.data[minRow].data[1].index;
-      T		value1 = m.data[minRow].data[0].value;
-      T		value2 = m.data[minRow].data[1].value;
+      int	c1     = m.int_element(minRow,0).index;
+      int	c2     = m.int_element(minRow,1).index;
+      T		value1 = m.int_element(minRow,0).value;
+      T		value2 = m.int_element(minRow,1).value;
       eliminate2(m,minRow,c1,c2,value1,value2);
 #ifdef plot
       cerr<<"node"<<node<<" eliminate col :"<<c1<<','<<c2<<endl;
@@ -905,7 +896,7 @@ T DEM2(smat<T> &m,int node=1)
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
   for(unsigned r=0;r<rowSize.size();r++)
-    rowSize[r] = m.data[r].data.size();
+    rowSize[r] = m.row_nnz(r);
   int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
   int	minRowSize	= rowSize[minRow];
 
@@ -925,8 +916,8 @@ T DEM2(smat<T> &m,int node=1)
       cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
 
-      int c= m.data[minRow].data[0].index;
-      T value= m.data[minRow].data[0].value;
+      int c= m.int_element(minRow,0).index;
+      T value= m.int_element(minRow,0).value;
       eliminate1(m,minRow,c);
 #ifdef plot
       cerr<<"node"<<node<<" eliminate col :"<<c<<endl;
@@ -940,10 +931,10 @@ T DEM2(smat<T> &m,int node=1)
       cerr<<"node"<<node<<" min row :"<<minRow<<endl;
 #endif
 
-      int	c1     = m.data[minRow].data[0].index;
-      int	c2     = m.data[minRow].data[1].index;
-      T		value1 = m.data[minRow].data[0].value;
-      T		value2 = m.data[minRow].data[1].value;
+      int	c1     = m.int_element(minRow,0).index;
+      int	c2     = m.int_element(minRow,1).index;
+      T		value1 = m.int_element(minRow,0).value;
+      T		value2 = m.int_element(minRow,1).value;
       eliminate2(m,minRow,c1,c2,value1,value2);
 #ifdef plot
       cerr<<"node"<<node<<" eliminate col :"<<c1<<','<<c2<<endl;
@@ -1043,7 +1034,7 @@ void peelDEM(smat<T> &m,bool& end,T& ret)
 	}
       vector<int>	rowSize(m.data.size());
       for(unsigned r=0;r<rowSize.size();r++)
-	rowSize[r] = m.data[r].data.size();
+	rowSize[r] = m.row_nnz(r);
       int	minRow	= min_element(rowSize.begin(),rowSize.end())-rowSize.begin();
       int	minRowSize	= rowSize[minRow];
       if(minRowSize==0)
@@ -1055,17 +1046,17 @@ void peelDEM(smat<T> &m,bool& end,T& ret)
       else if(minRowSize==1)
 	{
 
-	  int c= m.data[minRow].data[0].index;
-	  ret*=m.data[minRow].data[0].value;
+	  int c= m.int_element(minRow,0).index;
+	  ret*=m.int_element(minRow,0).value;
 	  eliminate1(m,minRow,c);
 	}
       else if(minRowSize==2)
 	{
 
-	  int	c1     = m.data[minRow].data[0].index;
-	  int	c2     = m.data[minRow].data[1].index;
-	  T		value1 = m.data[minRow].data[0].value;
-	  T		value2 = m.data[minRow].data[1].value;
+	  int	c1     = m.int_element(minRow,0).index;
+	  int	c2     = m.int_element(minRow,1).index;
+	  T		value1 = m.int_element(minRow,0).value;
+	  T		value2 = m.int_element(minRow,1).value;
 	  eliminate2(m,minRow,c1,c2,value1,value2);
 	}
       else//minRowSize==3
@@ -1280,7 +1271,7 @@ vector<int> selectElements(const smat<T> &m,int k,int& trytimes)
   for(int r=0;r<k;r++)
     {
       vector<int>	candidates;
-      for(int i=0;i<m.data[r].data.size();i++)
+      for(int i=0;i<m.row_nnz(r);i++)
 	{
 	  int candidate = m.int_element(r,i).index;
 	  if(ret.empty()||find(ret.begin(),ret.end(),candidate)==ret.end())
