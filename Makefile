@@ -2,23 +2,23 @@
 #CXXFLAGS=-O3 -Dcolnnzs -w -pipe
 #CXXFLAGS=-ipo -prof-use -Dcolnnzs -Dnonnz -w
 CC=g++ 
-CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz 
+CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz
 #CXXFLAGS=-march=i686 -O2 -Dcolnnzs
 CXXFLAGS2=
-all:matrix2dot genRegular
+all:matrix2dot genRegular select-elements
 #all:Per genRegular benchmark-one genRegular benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 
 matrix2dot:matrix2dot.cpp
 	$(CC) $< $(CXXFLAGS) -o $@
-research:research.o misc.o regular.o Timer.o
+select-elements:select-elements.o misc.o regular.o Timer.o
 	$(CC) $^ $(CXXFLAGS2) -o $@
-research.o:research.cpp permanent.h Timer.h misc.h regular.h
+select-elements.o:select-elements.cpp permanent.h Timer.h misc.h regular.h
 	$(CC) $(CXXFLAGS) -c $<
 genRegular:genRegular.o regular.o Timer.o misc.o
 	$(CC) $^ $(CXXFLAGS2) -o $@
 genRegular.o:genRegular.cpp regular.h Timer.h
 	$(CC) $(CXXFLAGS) -c $<
-regular.o:regular.cpp regular.h permanent.h misc.h
+regular.o:regular.cpp regular.h misc.h
 	$(CC) $(CXXFLAGS) -c $<
 Timer.o:Timer.cpp Timer.h
 	$(CC) $(CXXFLAGS) -c $<
@@ -55,4 +55,4 @@ Per:Per.o Timer.o misc.o
 misc.o:misc.cpp misc.h
 	$(CC) $(CXXFLAGS) -c $<
 clean:
-	rm *.o test_vec test_mat test_load Per research benchmark benchmark-one genRegular test_fmat RNW test_subsetGenerator test_misc 1>/dev/null 2>&1
+	rm *.o test_vec test_mat test_load Per select-elements benchmark benchmark-one genRegular test_fmat RNW test_subsetGenerator test_misc 1>/dev/null 2>&1

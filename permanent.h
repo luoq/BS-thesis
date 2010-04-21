@@ -1260,40 +1260,33 @@ T RNW_presave(fmat<T> m)
 }
 
 template <typename T>
-vector<int> selectElements(const smat<T> &m,int k,int& trytimes)
+void selectElements(smat<T> &m,int k,vector<int>& rows,vector<int>& cols,int& trytimes)
 {
-  vector<int>	ret;
   trytimes = 1;
-  vector<int> rows=chooseKfromN(m.data.size(),k);
+  rows	   = chooseKfromN(m.rows(),k);
  tryagain:
+  cols.clear();
   //if(trytimes > 10000)
-  //  return ret;
-  for(int r=0;r<k;r++)
+  for(int i=0;i<k;i++)
     {
       vector<int>	candidates;
-      for(int i=0;i<m.row_nnz(r);i++)
+      for(int j=0;j<m.row_nnz(rows[i]);j++)
 	{
-	  int candidate = m.int_element(r,i).index;
-	  if(ret.empty()||find(ret.begin(),ret.end(),candidate)==ret.end())
+	  int candidate = m.int_element(rows[i],j).index;
+	  if(cols.empty()||find(cols.begin(),cols.end(),candidate)==cols.end())
 	    candidates.push_back(candidate);
 	}
 #ifdef debug
-      cout<<"At row : "<<r<<endl;
-      cout<<"ret = ";
-      printVector(ret);
-      cout<<"candidates = ";
-      printVector(candidates);
+      cout<<"At row "<<r<<" candidates: "<<candidates<<endl;
 #endif
       if(candidates.empty())
 	{
-	  ret.clear();
 	  trytimes++;
 	  goto tryagain;
 	}
       else
-	ret.push_back(candidates[randint(candidates.size())]);
+	cols.push_back(candidates[randint(candidates.size())]);
     }
-  return ret;
 }
 void generate_travel_order()
 {

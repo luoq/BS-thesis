@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 04/20/2010 15:01:56
+// Last-Updated: 04/21/2010 19:24:12
 //           By: Luo Qiang
-//     Update #: 176
+//     Update #: 177
 // Keywords:
 
 // Commentary:
@@ -43,7 +43,7 @@ smat<int> regular(int n,int d,int &trytimes){
     //cout<<"matrix: \n";
     //printMatrix(matrix);
     cout<<"points :\n";
-    printVector(points);
+    cout<<points;
     //cout<<"1st point: "<<points[index1]<<endl;
 #endif
     suitablePoints.clear();

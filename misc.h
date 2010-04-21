@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/23/2010 10:30:53
  * Version: 
- * Last-Updated: 04/20/2010 16:49:44
+ * Last-Updated: 04/21/2010 19:25:40
  *           By: Luo Qiang
- *     Update #: 41
+ *     Update #: 45
  * Keywords: */
 
 #ifndef MSIC_H
@@ -27,14 +27,12 @@ ForwardIterator lower_bound_find(ForwardIterator first, ForwardIterator last,
 				 const T& value,int & info);
 //generate a random integer from 0 to n
 int randint(int n);
-template<typename T> void printVector(const vector<T> &vect);
 
 template<typename T> 
 ostream& operator<<(ostream& out,const vector<T> &vect)
 {
   for(typename vector<T>::const_iterator iter=vect.begin();iter != vect.end();++iter)
-    out<<*iter<<' ';
-  out<<endl;
+    out<<*iter<<'\t';
   return out;
 }
 
