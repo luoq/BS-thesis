@@ -5,16 +5,16 @@
  * Author: Luo Qiang
  * Created: 03/27/2010 15:04:15
  * Version: 
- * Last-Updated: 03/27/2010 16:17:47
+ * Last-Updated: 04/21/2010 09:03:50
  *           By: Luo Qiang
- *     Update #: 26
+ *     Update #: 27
  * Keywords: 
 
-/* Commentary: 
+* Commentary: 
 
-/* Change log:
+* Change log:
 
-/* Code: */
+* Code: */
 #ifndef IFULLMATRIX_H
 #define IFULLMATRIX_H
 

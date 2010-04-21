@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/23/2010 10:33:04
 // Version:
-// Last-Updated: 04/20/2010 16:49:38
+// Last-Updated: 04/21/2010 09:04:38
 //           By: Luo Qiang
-//     Update #: 45
+//     Update #: 46
 // Keywords:
 
 // Commentary:
@@ -31,6 +31,7 @@ vector<int> chooseKfromN(int n,int k)
       if(rand()%(n-i)<(k-ret.size()))
 	ret.push_back(i);
     }
+  return ret;
 }
 
 subsetGenerator::subsetGenerator(int n)

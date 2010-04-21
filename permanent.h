@@ -616,12 +616,12 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
     {
       if(i1==-1)
 	{
-	  m.data[r1].data.push_back(element<T>(m.data[r2].data[i2].index,value1*m.data[r2].data[i2].value));
+	  m.data[r1].data.push_back(element<T>(m.int_element(r2,i2).index,value1*m.int_element(r2,i2).value));
 #ifndef nonnz
 	  m._nnz++;
 #endif
 #ifdef colnnzs
-	  m._col_nnzs[m.data[r2].data[i2].index]++;
+	  m._col_nnzs[m.int_element(r2,i2).index]++;
 #endif
 	  if(i2==m.data[r2].data.size()-1)
 	    i2=-1;
@@ -630,29 +630,29 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 	}
       else if(i2==-1)
 	{
-	  m.data[r1].data[i1].value*=value2;
+	  m.int_element(r1,i1).value*=value2;
 	  if(i1==m.data[r1].data.size()-1)
 	    i1=-1;
 	  else
 	    i1++;
 	}
-      else if(m.data[r1].data[i1].index<m.data[r2].data[i2].index)
+      else if(m.int_element(r1,i1).index<m.int_element(r2,i2).index)
 	{
-	  m.data[r1].data[i1].value*=value2;
+	  m.int_element(r1,i1).value*=value2;
 	  if(i1==m.data[r1].data.size()-1)
 	    i1=-1;
 	  else
 	    i1++;
 	}
-      else if(m.data[r1].data[i1].index>m.data[r2].data[i2].index)
+      else if(m.int_element(r1,i1).index>m.int_element(r2,i2).index)
 	{
 	  m.data[r1].data.insert(m.data[r1].data.begin()+i1,
-				 element<T>(m.data[r2].data[i2].index,value1*m.data[r2].data[i2].value));
+				 element<T>(m.int_element(r2,i2).index,value1*m.int_element(r2,i2).value));
 #ifndef nonnz
 	  m._nnz++;//This is manaul managed
 #endif
 #ifdef colnnzs
-	  m._col_nnzs[m.data[r2].data[i2].index]++;
+	  m._col_nnzs[m.int_element(r2,i2).index]++;
 #endif
 	  i1++;//because sth inser before
 	  if(i2==m.data[r2].data.size()-1)
@@ -662,7 +662,7 @@ void eliminate2T(smat<T> &m,int c,int r1,int r2,T value1,T value2)
 	}
       else
 	{
-	  m.data[r1].data[i1].value=value2*m.data[r1].data[i1].value+value1*m.data[r2].data[i2].value;
+	  m.int_element(r1,i1).value=value2*m.int_element(r1,i1).value+value1*m.int_element(r2,i2).value;
 	  if(i1==m.data[r1].data.size()-1)
 	    i1=-1;
 	  else
@@ -679,34 +679,32 @@ template<typename T>
 void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2)
 {
   m.erase_row(r);
-  element<T> target1(c1,0),target2(c2,0);
   int		info1,info2;
   int		pos1,pos2;
-  for(unsigned r=0;r<m.data.size();r++)
+  for(unsigned r=0;r<m.rows();r++)
     //eliminate two elements each row
     {
-      pos1 = lower_bound_find(m.data[r].data.begin(),m.data[r].data.end(),target1,info1)
-	-m.data[r].data.begin();
+      m.find(r,c1,0,m.row_nnz(r),pos1,info1);
       if(info1==-1 || info1==2)
 	continue;
-      pos2 = lower_bound_find(m.data[r].data.begin()+pos1,m.data[r].data.end(),target2,info2)-m.data[r].data.begin();
+      m.find(r,c2,pos1,m.row_nnz(r),pos2,info2);
       //#ifdef plot
       //	      cerr<<"node"<<node<<" row: "<<r<<" pos1,pos2 = "<<pos1<<" , "<<pos2<<endl;
       //	      cerr<<"node"<<node<<" row: "<<r<<" inf1,inf2 = "<<info1<<" , "<<info2<<endl;
       //#endif
-      for(unsigned c=pos2;c<m.data[r].data.size();c++)
-	m.data[r].data[c].index--;
+      for(unsigned c=pos2;c<m.row_nnz(r);c++)
+		  m.int_element(r,c).index--;
       if(info1==0)
 	{
 	  if(info2!=0)
-	    m.data[r].data[pos1].value = value2*m.data[r].data[pos1].value;
+	    m.int_element(r,pos1).value = value2*m.int_element(r,pos1).value;
 	  else
 	    {
-	      T	tempValue =	value2*m.data[r].data[pos1].value+value1*m.data[r].data[pos2].value;
+	      T	tempValue =	value2*m.int_element(r,pos1).value+value1*m.int_element(r,pos2).value;
 	      if(tempValue==0)
 		continue;
-	      m.data[r].data[pos1].value  =tempValue;
-	      m.data[r].data.erase(m.data[r].data.begin()+pos2);
+	      m.int_element(r,pos1).value  =tempValue;
+		  m.int_erase(r,pos2);
 #ifndef nonnz
 	      m._nnz--;
 #endif
@@ -718,13 +716,13 @@ void eliminate2(smat<T> &m,int r,int c1,int c2,T value1,T value2)
 	  if(info2==0)
 	    {
 	      //value1!=0
-	      m.data[r].data.insert(m.data[r].data.begin()+pos1,
-				    element<T>(c1,value1*m.data[r].data[pos2].value));
+		  m.int_insert(r,pos1,element<T>(c1,value1*m.int_element(r,pos2).value));
 #ifdef colnnzs
 	      m._col_nnzs[c1]++;
 #endif
 	      //NOTE erase pos2+1 becuase the insert before
-	      m.data[r].data.erase(m.data[r].data.begin()+pos2+1);
+		  m.int_erase(r,pos2+1);
+	      //m.data[r].data.erase(m.data[r].data.begin()+pos2+1);
 	    }
 	  //continue;
 	}
@@ -830,30 +828,30 @@ T DEM(smat<T> &m,int node=1)
 
       int		icc;	//index of column where c belongs to
       for(icc = 0;icc<3;icc++)
-	if(m.data[r].data[icc].index==maxCol)
+	if(m.int_element(r,icc).index==maxCol)
 	  break;
       int c1,c2;
       T value1,value2;
       if(icc==0)
 	{
-	  c1     = m.data[r].data[1].index;
-	  c2     = m.data[r].data[2].index;
-	  value1 = m.data[r].data[1].value;
-	  value2 = m.data[r].data[2].value;
+	  c1     = m.int_element(r,1).index;
+	  c2     = m.int_element(r,2).index;
+	  value1 = m.int_element(r,1).value;
+	  value2 = m.int_element(r,2).value;
 	}
       else if(icc==1)
 	{
-	  c1     = m.data[r].data[0].index;
-	  c2     = m.data[r].data[2].index;
-	  value1 = m.data[r].data[0].value;
-	  value2 = m.data[r].data[2].value;
+	  c1     = m.int_element(r,0).index;
+	  c2     = m.int_element(r,2).index;
+	  value1 = m.int_element(r,0).value;
+	  value2 = m.int_element(r,2).value;
 	}
       else
 	{
-	  c1     = m.data[r].data[0].index;
-	  c2     = m.data[r].data[1].index;
-	  value1 = m.data[r].data[0].value;
-	  value2 = m.data[r].data[1].value;
+	  c1     = m.int_element(r,0).index;
+	  c2     = m.int_element(r,1).index;
+	  value1 = m.int_element(r,0).value;
+	  value2 = m.int_element(r,1).value;
 	}
 
       T p=0;
@@ -867,7 +865,7 @@ T DEM(smat<T> &m,int node=1)
 	p=DEM(mtemp,2*node);
       }
 
-      T value = m.data[r].data[icc].value;
+      T value = m.int_element(r,icc).value;
       eliminate1(m,r,maxCol);
 #ifdef plot
       cerr<<"node"<<node<<" eliminate col :"<<maxCol<<endl;
@@ -983,30 +981,30 @@ T DEM2(smat<T> &m,int node=1)
 
       int		icc;	//index of column where c belongs to
       for(icc = 0;icc<3;icc++)
-	if(m.data[r].data[icc].index==maxCol)
+	if(m.int_element(r,icc).index==maxCol)
 	  break;
       int c1,c2;
       T value1,value2;
       if(icc==0)
 	{
-	  c1     = m.data[r].data[1].index;
-	  c2     = m.data[r].data[2].index;
-	  value1 = m.data[r].data[1].value;
-	  value2 = m.data[r].data[2].value;
+	  c1     = m.int_element(r,1).index;
+	  c2     = m.int_element(r,2).index;
+	  value1 = m.int_element(r,1).value;
+	  value2 = m.int_element(r,2).value;
 	}
       else if(icc==1)
 	{
-	  c1     = m.data[r].data[0].index;
-	  c2     = m.data[r].data[2].index;
-	  value1 = m.data[r].data[0].value;
-	  value2 = m.data[r].data[2].value;
+	  c1     = m.int_element(r,0).index;
+	  c2     = m.int_element(r,2).index;
+	  value1 = m.int_element(r,0).value;
+	  value2 = m.int_element(r,2).value;
 	}
       else
 	{
-	  c1     = m.data[r].data[0].index;
-	  c2     = m.data[r].data[1].index;
-	  value1 = m.data[r].data[0].value;
-	  value2 = m.data[r].data[1].value;
+	  c1     = m.int_element(r,0).index;
+	  c2     = m.int_element(r,1).index;
+	  value1 = m.int_element(r,0).value;
+	  value2 = m.int_element(r,1).value;
 	}
 
       T p=0;
@@ -1020,7 +1018,7 @@ T DEM2(smat<T> &m,int node=1)
 	p=DEM(mtemp,2*node);
       }
 
-      T value = m.data[r].data[icc].value;
+      T value = m.int_element(r,icc).value;
       eliminate1(m,r,maxCol);
 #ifdef plot
       cerr<<"node"<<node<<" eliminate col :"<<maxCol<<endl;
@@ -1100,30 +1098,30 @@ T DEMiter(smat<T> &m,int node=1)
 
   int		icc;	//index of column where c belongs to
   for(icc = 0;icc<3;icc++)
-    if(m.data[r].data[icc].index==maxCol)
+    if(m.int_element(r,icc).index==maxCol)
       break;
   int c1,c2;
   T value1,value2;
   if(icc==0)
     {
-      c1     = m.data[r].data[1].index;
-      c2     = m.data[r].data[2].index;
-      value1 = m.data[r].data[1].value;
-      value2 = m.data[r].data[2].value;
+      c1     = m.int_element(r,1).index;
+      c2     = m.int_element(r,2).index;
+      value1 = m.int_element(r,1).value;
+      value2 = m.int_element(r,2).value;
     }
   else if(icc==1)
     {
-      c1     = m.data[r].data[0].index;
-      c2     = m.data[r].data[2].index;
-      value1 = m.data[r].data[0].value;
-      value2 = m.data[r].data[2].value;
+      c1     = m.int_element(r,0).index;
+      c2     = m.int_element(r,2).index;
+      value1 = m.int_element(r,0).value;
+      value2 = m.int_element(r,2).value;
     }
   else
     {
-      c1     = m.data[r].data[0].index;
-      c2     = m.data[r].data[1].index;
-      value1 = m.data[r].data[0].value;
-      value2 = m.data[r].data[1].value;
+      c1     = m.int_element(r,0).index;
+      c2     = m.int_element(r,1).index;
+      value1 = m.int_element(r,0).value;
+      value2 = m.int_element(r,1).value;
     }
 
   T p;
@@ -1142,7 +1140,7 @@ T DEMiter(smat<T> &m,int node=1)
       p=ret*DEMiter(mtemp);
   }
 
-  T value = m.data[r].data[icc].value;
+  T value = m.int_element(r,icc).value;
   eliminate1(m,r,maxCol);
 #ifdef plot
   cerr<<"node"<<node<<" eliminate col :"<<maxCol<<endl;
@@ -1284,7 +1282,7 @@ vector<int> selectElements(const smat<T> &m,int k,int& trytimes)
       vector<int>	candidates;
       for(int i=0;i<m.data[r].data.size();i++)
 	{
-	  int candidate = m.data[r].data[i].index;
+	  int candidate = m.int_element(r,i).index;
 	  if(ret.empty()||find(ret.begin(),ret.end(),candidate)==ret.end())
 	    candidates.push_back(candidate);
 	}

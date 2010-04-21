@@ -2,9 +2,9 @@
 #CXXFLAGS=-O3 -Dcolnnzs -w -pipe
 #CXXFLAGS=-ipo -prof-use -Dcolnnzs -Dnonnz -w
 CC=g++ 
-CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz -pg
+CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz
 #CXXFLAGS=-march=i686 -O2 -Dcolnnzs
-CXXFLAGS2=-pg
+CXXFLAGS2=
 all:Per
 #all:Per genRegular benchmark-one genRegular benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 

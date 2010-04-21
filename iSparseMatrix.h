@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 04/20/2010 16:34:43
+ * Last-Updated: 04/21/2010 09:38:30
  *           By: Luo Qiang
- *     Update #: 850
+ *     Update #: 862
  * Keywords:
  */
 
@@ -296,6 +296,34 @@ public:
   //convert to a full matrix
   fmat<T> full() const;
 
+  //find element in a range,signal error info if fail
+  void find(int r,int c,int start,int end,int& pos,int& info)
+  {
+    element<T>	target(c,0);
+    pos	= lower_bound_find(data[r].data.begin()+start,
+			   data[r].data.begin()+end,
+			   target,
+			   info)-data[r].data.begin();
+  }
+  element<T>& int_element(int r,int i)
+  {
+    return data[r].data[i];
+  }
+  void int_erase(int r,int i)
+  {
+//#ifdef colnnzs
+//	  _col_nnzs[int_element(r,i).index]--;
+//#endif
+	  data[r].data.erase(data[r].data.begin()+i);
+  }
+  void int_insert(int r,int i,element<T> e)
+  {
+//#ifdef colnnzs
+//	  _col_nnzs[int_element(r,i).index]++;
+//#endif
+	  data[r].data.insert(data[r].data.begin()+i,e);
+  }
+
   int rows() const {return data.size();}
   int cols() const {return _cols;}
   int nnz() const
@@ -309,7 +337,6 @@ public:
     return nnz;
 #endif
   }
-
 
   T	row_sum(int r) const;
   T	col_sum(int c) const;
