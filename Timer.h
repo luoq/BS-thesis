@@ -36,7 +36,7 @@ public:
     double getElapsedTime();                    // get elapsed time in second
     double getElapsedTimeInSec();               // get elapsed time in second (same as getElapsedTime)
     double getElapsedTimeInMilliSec();          // get elapsed time in milli-second
-    double toc(){return getElapsedTimeInMilliSec();}
+    double toc(){return getElapsedTimeInSec();}
     double getElapsedTimeInMicroSec();          // get elapsed time in micro-second
 
 

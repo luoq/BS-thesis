@@ -578,6 +578,7 @@ bool smat<T>::load(char* path)
       //data[r].data.push_back(element<T>(c,value));
       this->set(r,c,value);
     }
+  In.close();
   return true;
 }
 

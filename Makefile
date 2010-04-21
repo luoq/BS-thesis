@@ -2,12 +2,14 @@
 #CXXFLAGS=-O3 -Dcolnnzs -w -pipe
 #CXXFLAGS=-ipo -prof-use -Dcolnnzs -Dnonnz -w
 CC=g++ 
-CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz
+CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz 
 #CXXFLAGS=-march=i686 -O2 -Dcolnnzs
 CXXFLAGS2=
-all:Per
+all:matrix2dot genRegular
 #all:Per genRegular benchmark-one genRegular benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 
+matrix2dot:matrix2dot.cpp
+	$(CC) $< $(CXXFLAGS) -o $@
 research:research.o misc.o regular.o Timer.o
 	$(CC) $^ $(CXXFLAGS2) -o $@
 research.o:research.cpp permanent.h Timer.h misc.h regular.h

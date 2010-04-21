@@ -26,6 +26,7 @@ void test(T (*f)(smat<T>&,int),smat<T> m,string name)
 	Timer t;
 	double time;
 	T p;
+	int size=m.rows();
 
 	t.tic();
 	p = f(m,1);
@@ -35,9 +36,10 @@ void test(T (*f)(smat<T>&,int),smat<T> m,string name)
 	cerr<<"Time elapsed : "<<time<<" ms\n";
 	cerr<<"Result : "<<p<<endl;
 #else
-	cout<<name<<"\n";
-	cout<<"Time elapsed : "<<time<<" ms\n";
-	cout<<"Result : "<<p<<endl<<endl;
+	//cout<<name<<"\n";
+	//cout<<"Time elapsed : "<<time<<" ms\n";
+	//cout<<"Result : "<<p<<endl<<endl;
+	cout<<size<<'\t'<<p<<'\t'<<time<<endl;
 #endif
 }
 template<typename T>
@@ -67,7 +69,7 @@ int main(int argc,char** argv)
 	cout<<"digraph \"call-tree\" {\nnode [shape=box,style=filled,fillcolor=yellow]; \nrankdir=BT;\n";
 #endif
 	//test(&IDEM0<int>,m,"IDEM0");
-	test(&IDEM<int>,m,"IDEM");
+	//test(&IDEM<int>,m,"IDEM");
 	generate_travel_order();
 	test(&H<int>,m,"H");
 	//test(&IDEM3<int>,m,"IDEM3");
