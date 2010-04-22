@@ -9,5 +9,5 @@ void wtime_(double* time)
 	ierr = gettimeofday(&time1, NULL) ; 
 	tim[0] = time1.tv_sec;
 	tim[1] = time1.tv_usec; 
-	*time=tim[0]*1000+tim[1]/1000;
+	*time=tim[0]+tim[1]*1e-6;
 }

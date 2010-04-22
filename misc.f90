@@ -50,7 +50,7 @@ contains
     real(8) :: time
     call wtime(end_)
     time=end_-start_
-  end subroutine toc  
+  end subroutine toc
 end module timer
 module mykind
 implicit none
