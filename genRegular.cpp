@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 16:38:40
 // Version: 
-// Last-Updated: 03/22/2010 14:31:14
+// Last-Updated: 05/18/2010 09:55:39
 //           By: Luo Qiang
-//     Update #: 71
+//     Update #: 72
 // Keywords: 
 
 // Commentary: 
@@ -46,7 +46,7 @@ int main(int argc,char** argv){
   }
   
   timer.tic();
-  matrix = regular(n,d,trytimes);
+  matrix = regular2(n,d,trytimes);
   time   = timer.toc();
   cout<<"tryed "<<trytimes<<" times\n";
   cout<<"Time elapsed: "<<time<<" ms\n";

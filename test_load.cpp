@@ -18,10 +18,10 @@
 
 #include "iSparseMatrix.h"
 
-int main()
+int main(int argc,char** argv)
 {
   smat<int>	m;
-  if(!m.load("../data/matrix.data"))
+  if(!m.load(argv[1]))
     return 1;
   cout<<m;
   return 0;

@@ -35,15 +35,14 @@ int main(int argc,char** argv)
 	in>>cols;
 
 
-	out<<"graph \""<<path<<"\" {\n";
+	out<<"digraph \""<<path<<"\" {\n";
 	int	r,c;
 	int value;
 	while(in>>r>>c>>value)
 	{
 		r	-= minindex;
 		c	-= minindex;
-		if(r<=c)
-			out<<'\t'<<r<<"\t--\t"<<c<<";\n";
+		out<<'\t'<<r<<"\t->\t"<<c<<";\n";
 	}
 	out<<"}\n";
 	in.close();

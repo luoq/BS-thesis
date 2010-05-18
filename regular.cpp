@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 04/21/2010 19:24:12
+// Last-Updated: 05/18/2010 11:16:17
 //           By: Luo Qiang
-//     Update #: 177
+//     Update #: 213
 // Keywords:
 
 // Commentary:
@@ -96,5 +96,66 @@ smat<int> regular(int n,int d,int &trytimes){
 }
 int group(int point,int d){
   return int(point/d);
+}
+smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes)
+{
+  vector<int>	lefted_in_col;
+  vector<int>	candidates;
+  vector<int>	choosed_cols;
+  int		r,c,j;
+  smat<int>	m(row_nnzs.size(),col_nnzs.size());
+  candidates.reserve(col_nnzs.size());
+  trytimes	= 0;
+ tryagain:
+  trytimes++;
+  lefted_in_col	= col_nnzs;
+  candidates.clear();
+  m.clear();
+#ifdef debug
+  cout<<"try time "<<trytimes<<endl;
+#endif
+  for (r = 0; r<row_nnzs.size(); ++r)
+    {
+#ifdef debug
+      cout<<"handle row "<<r<<endl;
+#endif
+      for(c=0;c<col_nnzs.size();c++)
+	if(lefted_in_col[c]!=0)
+	  candidates.push_back(c);
+      if(candidates.size()<row_nnzs[r])
+	{
+#ifdef debug
+	  cout<<"try again\n";
+#endif
+	  goto tryagain;
+	}
+      choosed_cols = chooseKfromN(candidates.size(),row_nnzs[r]);
+      for(j=0;j<choosed_cols.size();j++)
+	{
+	  choosed_cols[j]=candidates[choosed_cols[j]];
+	  m.set(r,choosed_cols[j],1);
+	  lefted_in_col[choosed_cols[j]]--;
+	}
+#ifdef debug
+      cout<<choosed_cols<<endl;
+#endif
+      candidates.clear();
+    }
+  return m;
+}
+smat<int> regular2(int n,int d,int &trytimes)
+{
+  vector<int>	row_nnzs(n,d),col_nnzs(n,d);
+  return gen_with_nnzs(row_nnzs,col_nnzs,trytimes);
+}
+smat<int> mix_regular(int n,int k,int d,int& trytimes)
+{
+  vector<int>	row_nnzs(n-k,d-1),col_nnzs(n-k,d-1);
+  for(int i=0;i<k;i++)
+    {
+      row_nnzs.push_back(d);
+      col_nnzs.push_back(d);
+    }
+  return gen_with_nnzs(row_nnzs,col_nnzs,trytimes);
 }
 // regular.cpp ends here

@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/15/2010 16:34:41
  * Version: 
- * Last-Updated: 04/20/2010 16:24:20
+ * Last-Updated: 05/18/2010 11:08:32
  *           By: Luo Qiang
- *     Update #: 56
+ *     Update #: 61
  * Keywords: */
 
 /* Commentary: */
@@ -24,6 +24,10 @@
 using namespace	std;
 
 smat<int>	regular(int n,int d,int& trytimes);
+smat<int>	regular2(int n,int d,int& trytimes);
+//n:size,k:num of d,other is d-1
+smat<int>	mix_regular(int n,int k,int d,int& trytimes);
+smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes);
 template<typename T> bool isregular(const smat<T> &m,int d);
 
 template<typename T>

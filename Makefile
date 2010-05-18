@@ -2,12 +2,14 @@
 #CXXFLAGS=-O3 -Dcolnnzs -w -pipe
 #CXXFLAGS=-ipo -prof-use -Dcolnnzs -Dnonnz -w
 CC=g++ 
-CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz
+CXXFLAGS=-O3 -pipe -Dcolnnzs -Dnoautoenlarge -Dnonnz -Ddebug -g
 #CXXFLAGS=-march=i686 -O2 -Dcolnnzs
 CXXFLAGS2=
-all:matrix2dot genRegular select-elements
+all:matrix2dot genRegular select-elements select-calcu
 #all:Per genRegular benchmark-one genRegular benchmark RNW test_fmat test_mat test_vec test_load test_subsetGenerator
 
+select-calcu:select-calcu.cpp
+	$(CC) $< $(CXXFLAGS) misc.o -o $@
 matrix2dot:matrix2dot.cpp
 	$(CC) $< $(CXXFLAGS) -o $@
 select-elements:select-elements.o misc.o regular.o Timer.o
@@ -17,6 +19,10 @@ select-elements.o:select-elements.cpp permanent.h Timer.h misc.h regular.h
 genRegular:genRegular.o regular.o Timer.o misc.o
 	$(CC) $^ $(CXXFLAGS2) -o $@
 genRegular.o:genRegular.cpp regular.h Timer.h
+	$(CC) $(CXXFLAGS) -c $<
+genMixRegular:genMixRegular.o regular.o Timer.o misc.o
+	$(CC) $^ $(CXXFLAGS2) -o $@
+genMixRegular.o:genMixRegular.cpp regular.h Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 regular.o:regular.cpp regular.h misc.h
 	$(CC) $(CXXFLAGS) -c $<
