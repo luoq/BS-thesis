@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/23/2010 10:30:53
  * Version: 
- * Last-Updated: 04/21/2010 19:25:40
+ * Last-Updated: 05/21/2010 09:06:43
  *           By: Luo Qiang
- *     Update #: 45
+ *     Update #: 47
  * Keywords: */
 
 #ifndef MSIC_H
@@ -16,7 +16,10 @@
 #include <time.h>
 #include <vector>
 #include <iostream>
+#include <sys/time.h>
 using namespace std;
+
+void seed_rand();
 
 //info = -1,empty
 //info = 0,find

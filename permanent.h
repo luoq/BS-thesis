@@ -1288,6 +1288,31 @@ void selectElements(smat<T> &m,int k,vector<int>& rows,vector<int>& cols,int& tr
 	cols.push_back(candidates[randint(candidates.size())]);
     }
 }
+
+template <typename T>
+void addElements(smat<T> &m,vector<int>& cols,int& trytimes)
+{
+  trytimes = 0;
+ tryagain:
+  trytimes++;
+  cols.clear();
+  //if(trytimes > 10000)
+  for(int r=0;r<m.rows();r++)
+    {
+      vector<int> candidates;
+      for(int c=0;c<m.cols();c++)
+	if((m(r,c)==0)&&(cols.empty()||find(cols.begin(),cols.end(),c)==cols.end()))
+	  candidates.push_back(c);
+#ifdef debug
+      cout<<"At row "<<r<<" candidates: "<<candidates<<endl;
+#endif
+      if(candidates.empty())
+	goto tryagain;
+      else
+	cols.push_back(candidates[randint(candidates.size())]);
+    }
+}
+
 void generate_travel_order()
 {
   subsetGenerator g(changePoint-1);

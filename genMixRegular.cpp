@@ -5,8 +5,18 @@
 using	std::cout;
 using	std::cin;
 using	std::endl;
+bool is_mix_regular(const smat<int>& m,int n,int k,int d)
+{
+  for(int i=0;i<n-k;i++)
+    if(m.row_nnz(i) != d-1||m.col_nnz(i)!=d-1)
+      return false;
+  for(int i=n-k;i<n;i++)
+    if(m.row_nnz(i) != d||m.col_nnz(i)!=d)
+      return false;
+  return true;
+}
 int main(int argc,char** argv){
-  srand(time(NULL));
+  seed_rand();
   int	n,k,d,trytimes;
   Timer	timer;
   double time;
@@ -32,12 +42,11 @@ int main(int argc,char** argv){
   cout<<"tryed "<<trytimes<<" times\n";
   cout<<"Time elapsed: "<<time<<" ms\n";
   out<<matrix;
-  //  if(!isregular(matrix,d))
-  //  {
-  //    cout<<"regular check failed\n";
-  //    out.close();
-  //    return 1;
-  //  }
   out.close();
+  //if(!is_mix_regular(matrix,n,k,d))
+  //{
+  //  cout<<"regular check failed\n";
+  //  return 1;
+  //}
   return 0;
 }

@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/23/2010 10:33:04
 // Version:
-// Last-Updated: 04/21/2010 09:04:38
+// Last-Updated: 05/21/2010 09:06:49
 //           By: Luo Qiang
-//     Update #: 46
+//     Update #: 51
 // Keywords:
 
 // Commentary:
@@ -16,6 +16,13 @@
 
 // Code:
 #include "misc.h"
+
+void seed_rand()
+{
+   struct timeval tv;
+   gettimeofday(&tv, NULL);
+   srand(tv.tv_sec * tv.tv_usec);
+}
 int randint(int n){
   return rand()%n;
 }

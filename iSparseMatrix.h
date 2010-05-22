@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/17/2010 14:32:26
  * Version:
- * Last-Updated: 04/21/2010 09:38:30
+ * Last-Updated: 05/18/2010 22:22:04
  *           By: Luo Qiang
- *     Update #: 862
+ *     Update #: 864
  * Keywords:
  */
 
@@ -515,9 +515,9 @@ T smat<T>::row_sum(int r) const
 template<typename T>
 T smat<T>::col_sum(int c) const
 {
-  T	sum  = 0;
+  T sum  = 0;
   for(int r=0;r<data.size();r++)
-    sum	    += data[r](c);
+    sum += data[r](c);
   return sum;
 }
 template<typename T>

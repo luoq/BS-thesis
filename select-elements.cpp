@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/23/2010 11:08:58
 // Version:
-// Last-Updated: 04/21/2010 19:17:07
+// Last-Updated: 05/22/2010 10:51:43
 //           By: Luo Qiang
-//     Update #: 82
+//     Update #: 83
 // Keywords:
 
 // Commentary:
@@ -41,9 +41,9 @@ int main(int argc,char** argv)
 
   for(int i=0;i<repeat;i++)
   {
-	  selectElements(m,k,rows,cols,trytimes);
-	  cout<<rows<<endl;
-	  cout<<cols<<endl;
+    selectElements(m,k,rows,cols,trytimes);
+    cout<<rows<<endl;
+    cout<<cols<<endl;
   }
   return 0;
 }
