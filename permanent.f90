@@ -227,8 +227,11 @@ contains
 #ifdef debug
        call printMatrix(A)
 #endif
-    if(size(A,1)<=changeSize) then
-	   ret=RNW_presave(A)
+    if(size(A,1)==changeSize) then
+       ret=RNW_presave(A)
+       return
+    elseif (size(A,1)<changeSize) then
+       ret=RNW(A)
        return
     end if
     nonzeros=(A/=0)

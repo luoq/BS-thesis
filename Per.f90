@@ -6,10 +6,10 @@ program Per
   integer(matrix_type),dimension(:,:),allocatable :: m
   integer(matrix_type)::result
   character(len=100)::path
-  real(8) :: time
+  real(8) :: time,time1
 #ifdef debug
 #endif
-  call get_command_argument(1,path) 
+  call get_command_argument(1,path)
   call load(m,path)
   m(13,1)=0
   !write (*,*) IDEM(m)
@@ -19,6 +19,18 @@ program Per
   call generate_traval_order
   result=H(m)
   call toc(time)
+
+  if ( time<1e-1 ) then
+     do
+        call tic
+        result=H(m)
+        call toc(time1)
+        if ( time1>=(1+0.0)*time ) then
+           exit
+        end if
+        time=time1
+     end do
+  end if
   write (*,*) size(m,1),result,time
 
   deallocate(m)

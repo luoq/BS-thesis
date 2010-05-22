@@ -2,8 +2,10 @@
 #FLAGS=-fpp -O3
 CC=gfortran
 FLAGS=-cpp -O3
-all:Per test select_and_cal
+all:Per test select_and_cal add_and_cal
 select_and_cal:select_and_cal.f90 misc.o timw.o permanent.o
+	$(CC) $(FLAGS) -o $@ $^
+add_and_cal:add_and_cal.f90 misc.o timw.o permanent.o
 	$(CC) $(FLAGS) -o $@ $^
 Per:Per.f90 permanent.o  misc.o timw.o
 	$(CC) $(FLAGS) -o $@ $^
