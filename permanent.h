@@ -47,7 +47,7 @@ T H(smat<T> &m,int node)
   int	max   = 4;
   int	child =	1;
 
-  if(m.data.size() <= changePoint)
+  if(m.data.size() == changePoint)
     {
 #ifdef plot
       cout<<"\""<<node<<"\"[label=\"";
@@ -57,6 +57,8 @@ T H(smat<T> &m,int node)
 #endif
       return RNW_presave(m.full());
     }
+  else if(m.data.size()<changePoint)
+  	return RNW(m.full());
 
   //find the row with minimal element
   vector<int>	rowSize(m.data.size());
