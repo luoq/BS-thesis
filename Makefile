@@ -9,6 +9,8 @@ add_and_cal:add_and_cal.f90 misc.o timw.o permanent.o
 	$(CC) $(FLAGS) -o $@ $^
 Per:Per.f90 permanent.o  misc.o timw.o
 	$(CC) $(FLAGS) -o $@ $^
+RNW:RNW.f90 permanent.o  misc.o timw.o
+	$(CC) $(FLAGS) -o $@ $^
 test:test.f90 misc.o timw.o
 	$(CC) $(FLAGS) -o $@ $^
 permanent.o:permanent.f90 misc.o 

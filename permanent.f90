@@ -179,7 +179,8 @@ contains
     !for generating next subset
     integer::next,add_or_remove,k
     logical::end
-    S=-sum(A,2)+2*A(:,size(A,2))
+    S=-sum(A,2)
+    S=S+2*A(:,size(A,2))
     RNW=product(S,1)
     call initialize_sub(size(A,1)-1)
     do 

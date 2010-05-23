@@ -11,12 +11,11 @@ program Per
 #endif
   call get_command_argument(1,path)
   call load(m,path)
-  m(13,1)=0
   !write (*,*) IDEM(m)
   !write (*,*) RNW(m)
   
-  call tic
   call generate_traval_order
+  call tic
   result=H(m)
   call toc(time)
 

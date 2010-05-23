@@ -30,12 +30,9 @@ program select_and_cal
 	  read (11,*)
   end do
   read (11,*,end=10) (cols(i),i=1,num_add)
-  call printMatrix(m)
   do i=1,num_add
 	  m(i,cols(i)+1)=1
   end do
-  write (*,*) 
-  call printMatrix(m)
 
   call generate_traval_order
   call tic
