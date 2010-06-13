@@ -46,7 +46,7 @@ int main(int argc,char** argv){
   }
   
   timer.tic();
-  matrix = regular2(n,d,trytimes);
+  matrix = regular(n,d,trytimes);
   time   = timer.toc();
   cout<<"tryed "<<trytimes<<" times\n";
   cout<<"Time elapsed: "<<time<<" ms\n";

@@ -1176,10 +1176,10 @@ T RNW(fmat<T> m)
   cout<<"sigma = "<<sigma<<endl;
   cout<<" P = "<<P<<endl<<endl;
 #endif
-  sigma	   = 1;
 
   while(!g.end())
     {
+      sigma=1;
       g.next(index,addOrRemove,card);
       for (int r = 0; r<n;r++)
 	S[r]  += 2*addOrRemove*m(r,index);
@@ -1195,7 +1195,6 @@ T RNW(fmat<T> m)
       cout<<"sigma = "<<sigma<<endl;
       cout<<" P = "<<P<<endl<<endl;
 #endif
-      sigma=1;
     }
   P /= pow(2,n-1);
   delete[] S;

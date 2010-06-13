@@ -23,6 +23,9 @@ void	printMatrix(const smat<int> &matrix);
 
 smat<int> regular(int n,int d,int &trytimes){
   smat<int> matrix(n,n,d);
+#ifdef prob
+  double K;
+#endif
   trytimes=1;
   if(n*d%2!=0){
     return matrix;
@@ -33,6 +36,9 @@ smat<int> regular(int n,int d,int &trytimes){
   vector<int> points(n*d);
   vector<int> suitablePoints,suitablePointsIndex;
  tryagain:
+#ifdef prob
+  K=1;
+#endif
   for(unsigned i=0;i!=points.size();++i){
     points[i]=i;
   }
@@ -64,6 +70,9 @@ smat<int> regular(int n,int d,int &trytimes){
       trytimes++;
       goto tryagain;
     }
+#ifdef prob
+	K*=suitablePoints.size();
+#endif
     int index2		      = randint(suitablePoints.size());
     int group2		      = group(suitablePoints[index2],d);
     matrix.set(group1,group2,1);
@@ -92,6 +101,9 @@ smat<int> regular(int n,int d,int &trytimes){
     else
       points.erase(points.begin()+suitablePointsIndex[index2]);
   }
+#ifdef prob
+  cout<<"1/p="<<K<<endl;
+#endif
   return matrix;
 }
 int group(int point,int d){
@@ -103,10 +115,16 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
   vector<int>	candidates;
   vector<int>	choosed_cols;
   int		r,c,j;
+#ifdef prob
+  double K;
+#endif
   smat<int>	m(row_nnzs.size(),col_nnzs.size());
   candidates.reserve(col_nnzs.size());
   trytimes	= 0;
  tryagain:
+#ifdef prob
+  K=1;
+#endif
   trytimes++;
   lefted_in_col	= col_nnzs;
   candidates.clear();
@@ -129,6 +147,12 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
 #endif
 	  goto tryagain;
 	}
+#ifdef prob
+	  double C=1.0;//choose row_nnzs[r] from candidates.size()
+	  for(int i=0;i<row_nnzs[r];i++)
+		  C*=(candidates.size()-i)/(row_nnzs[r]-i);
+	  K*=C;
+#endif
       choosed_cols = chooseKfromN(candidates.size(),row_nnzs[r]);
       for(j=0;j<choosed_cols.size();j++)
 	{
@@ -141,6 +165,9 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
 #endif
       candidates.clear();
     }
+#ifdef prob
+  cout<<"1/p="<<K<<endl;
+#endif
   return m;
 }
 smat<int> regular2(int n,int d,int &trytimes)
