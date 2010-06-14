@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/23/2010 10:33:04
 // Version:
-// Last-Updated: 05/21/2010 09:06:49
+// Last-Updated: 06/14/2010 09:50:01
 //           By: Luo Qiang
-//     Update #: 51
+//     Update #: 73
 // Keywords:
 
 // Commentary:
@@ -26,6 +26,10 @@ void seed_rand()
 int randint(int n){
   return rand()%n;
 }
+double rand1()
+{
+  return rand()/double(RAND_MAX);
+}
 vector<int> chooseKfromN(int n,int k)
 {
 
@@ -39,6 +43,22 @@ vector<int> chooseKfromN(int n,int k)
 	ret.push_back(i);
     }
   return ret;
+}
+int choose1_with_weight(vector<int> w)
+{
+  double	S  = 0;
+  for(int i=0;i<w.size();i++)
+    S		  += w[i];
+  if(S<=0)
+    return -1;			//No selection
+  double	p  = rand1();
+  double A=0.0;
+  for(int i=0;i<w.size();i++)
+    {
+      A	+= w[i];
+      if(p<A/S)
+	return i;
+    }
 }
 
 subsetGenerator::subsetGenerator(int n)

@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/23/2010 10:30:53
  * Version: 
- * Last-Updated: 05/21/2010 09:06:43
+ * Last-Updated: 06/14/2010 09:50:21
  *           By: Luo Qiang
- *     Update #: 47
+ *     Update #: 52
  * Keywords: */
 
 #ifndef MSIC_H
@@ -20,6 +20,8 @@
 using namespace std;
 
 void seed_rand();
+int randint(int n);
+double rand1();
 
 //info = -1,empty
 //info = 0,find
@@ -29,7 +31,6 @@ template <class	ForwardIterator, class T>
 ForwardIterator lower_bound_find(ForwardIterator first, ForwardIterator last,
 				 const T& value,int & info);
 //generate a random integer from 0 to n
-int randint(int n);
 
 template<typename T> 
 ostream& operator<<(ostream& out,const vector<T> &vect)
@@ -54,6 +55,7 @@ private:
   bool* set;
 };
 vector<int> chooseKfromN(int n,int k);
+int choose1_with_weight(vector<int> w);
 template <class ForwardIterator, class T>
 ForwardIterator lower_bound_find ( ForwardIterator first, ForwardIterator last,
 				   const T& value,int & info)

@@ -5,9 +5,9 @@
  * Author: Luo Qiang
  * Created: 03/15/2010 16:34:41
  * Version: 
- * Last-Updated: 05/18/2010 11:08:32
+ * Last-Updated: 06/14/2010 09:45:21
  *           By: Luo Qiang
- *     Update #: 61
+ *     Update #: 63
  * Keywords: */
 
 /* Commentary: */
@@ -23,11 +23,13 @@
 #include"iSparseMatrix.h"
 using namespace	std;
 
-smat<int>	regular(int n,int d,int& trytimes);
+smat<int>	regular(int n,int d);
 smat<int>	regular2(int n,int d,int& trytimes);
 //n:size,k:num of d,other is d-1
 smat<int>	mix_regular(int n,int k,int d,int& trytimes);
+smat<int> gen_with_nnzs0(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes);
 smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes);
+smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes);
 template<typename T> bool isregular(const smat<T> &m,int d);
 
 template<typename T>

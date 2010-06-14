@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 06/14/2010 08:12:56
+// Last-Updated: 06/14/2010 10:26:16
 //           By: Luo Qiang
-//     Update #: 223
+//     Update #: 305
 // Keywords:
 
 // Commentary:
@@ -21,12 +21,11 @@
 int	group(int point,int d);
 void	printMatrix(const smat<int> &matrix);
 
-smat<int> regular(int n,int d,int &trytimes){
+smat<int> regular(int n,int d){
   smat<int> matrix(n,n,d);
 #ifdef prob
-  double K;
+  double K=1.0;
 #endif
-  trytimes=1;
   if(n*d%2!=0){
     return matrix;
   }
@@ -35,10 +34,6 @@ smat<int> regular(int n,int d,int &trytimes){
 #endif
   vector<int> points(n*d);
   vector<int> suitablePoints,suitablePointsIndex;
- tryagain:
-#ifdef prob
-  K=1;
-#endif
   for(unsigned i=0;i!=points.size();++i){
     points[i]=i;
   }
@@ -65,10 +60,7 @@ smat<int> regular(int n,int d,int &trytimes){
 #ifdef debug
       cout<<"try again"<<endl;
 #endif
-      matrix.clear();
-      points.resize(n*d);
-      trytimes++;
-      goto tryagain;
+      continue;
     }
 #ifdef prob
     K*=suitablePoints.size();
@@ -116,14 +108,14 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
   vector<int>	choosed_cols;
   int		r,c,j;
 #ifdef prob
-  double K;
+  double P;
 #endif
   smat<int>	m(row_nnzs.size(),col_nnzs.size());
   candidates.reserve(col_nnzs.size());
   trytimes	= 0;
  tryagain:
 #ifdef prob
-  K=1;
+  P=1;
 #endif
   trytimes++;
   lefted_in_col	= col_nnzs;
@@ -151,7 +143,7 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
       double C=1.0;//choose row_nnzs[r] from candidates.size()
       for(int i=0;i<row_nnzs[r];i++)
 	C*=double(candidates.size()-i)/double(row_nnzs[r]-i);
-      K*=C;
+      P/=C;
 #endif
       choosed_cols = chooseKfromN(candidates.size(),row_nnzs[r]);
       for(j=0;j<choosed_cols.size();j++)
@@ -166,11 +158,11 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
       candidates.clear();
     }
 #ifdef prob
-  cout<<"1/p="<<K<<endl;
+  cout<<"prob:"<<P<<endl;
 #endif
   return m;
 }
-smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes)
+smat<int> gen_with_nnzs0(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes)
 {
   vector<int>	lefted_in_col;
   vector<int>	choosed_cols;
@@ -206,6 +198,56 @@ smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,
     }
   return m;
 }
+smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,int &trytimes)
+{
+  vector<int>	lefted_in_col,lefted_in_row;
+  smat<int>	m(row_nnzs.size(),col_nnzs.size());
+  vector<int>	candidate;
+  candidate.reserve(col_nnzs.size());
+  trytimes = 0;
+#ifdef prob
+  double P;
+#endif
+ tryagain:
+#ifdef prob
+  P=1.0;
+#endif
+  trytimes++;
+  m.clear();
+  lefted_in_col	= col_nnzs;
+  lefted_in_row	= row_nnzs;
+  while(1)
+    {
+      int	i = choose1_with_weight(lefted_in_row);
+      if(i==-1)
+	break;
+
+      //check dead end
+      candidate.clear();
+      for(int c=0;c<lefted_in_col.size();c++)
+	if(lefted_in_col[c]!=0&&m(i,c) == 0)
+	  candidate.push_back(c);
+      if(candidate.empty())
+	goto tryagain;
+      
+      int	j = choose1_with_weight(lefted_in_col);
+      if(m(i,j) == 0)
+	{
+	  m.set(i,j,1);
+#ifdef prob
+	  P	 *= lefted_in_row[i]*lefted_in_col[j];
+#endif
+	  lefted_in_row[i]--;
+	  lefted_in_col[j]--;
+	}
+    }
+#ifdef prob
+  cout<<"prob: "<<P<<endl;
+#endif
+  return m;
+}
+
+
 smat<int> regular2(int n,int d,int &trytimes)
 {
   vector<int>	row_nnzs(n,d),col_nnzs(n,d);

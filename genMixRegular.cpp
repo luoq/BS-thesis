@@ -16,7 +16,6 @@ bool is_mix_regular(const smat<int>& m,int n,int k,int d)
   return true;
 }
 int main(int argc,char** argv){
-  seed_rand();
   int	n,k,d,trytimes;
   Timer	timer;
   double time;
@@ -36,6 +35,7 @@ int main(int argc,char** argv){
     return 1;
   }
   
+  seed_rand();
   timer.tic();
   matrix = mix_regular(n,k,d,trytimes);
   time   = timer.toc();
