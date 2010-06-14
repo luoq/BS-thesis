@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 05/18/2010 11:16:17
+// Last-Updated: 06/14/2010 08:12:56
 //           By: Luo Qiang
-//     Update #: 213
+//     Update #: 223
 // Keywords:
 
 // Commentary:
@@ -43,8 +43,8 @@ smat<int> regular(int n,int d,int &trytimes){
     points[i]=i;
   }
   while(!points.empty()){
-    int		index1				  = randint(points.size());
-    int		group1				  = group(points[index1],d);
+    int	index1 = randint(points.size());
+    int	group1 = group(points[index1],d);
 #ifdef debug
     //cout<<"matrix: \n";
     //printMatrix(matrix);
@@ -71,10 +71,10 @@ smat<int> regular(int n,int d,int &trytimes){
       goto tryagain;
     }
 #ifdef prob
-	K*=suitablePoints.size();
+    K*=suitablePoints.size();
 #endif
-    int index2		      = randint(suitablePoints.size());
-    int group2		      = group(suitablePoints[index2],d);
+    int index2	 = randint(suitablePoints.size());
+    int group2	 = group(suitablePoints[index2],d);
     matrix.set(group1,group2,1);
     matrix.set(group2,group1,1);
 #ifdef debug
@@ -148,10 +148,10 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
 	  goto tryagain;
 	}
 #ifdef prob
-	  double C=1.0;//choose row_nnzs[r] from candidates.size()
-	  for(int i=0;i<row_nnzs[r];i++)
-		  C*=(candidates.size()-i)/(row_nnzs[r]-i);
-	  K*=C;
+      double C=1.0;//choose row_nnzs[r] from candidates.size()
+      for(int i=0;i<row_nnzs[r];i++)
+	C*=double(candidates.size()-i)/double(row_nnzs[r]-i);
+      K*=C;
 #endif
       choosed_cols = chooseKfromN(candidates.size(),row_nnzs[r]);
       for(j=0;j<choosed_cols.size();j++)
@@ -168,6 +168,42 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
 #ifdef prob
   cout<<"1/p="<<K<<endl;
 #endif
+  return m;
+}
+smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes)
+{
+  vector<int>	lefted_in_col;
+  vector<int>	choosed_cols;
+  int		r,c,j;
+#ifdef prob
+  double K;
+#endif
+  smat<int>	m(row_nnzs.size(),col_nnzs.size());
+  trytimes	= 0;
+ tryagain:
+  trytimes++;
+  lefted_in_col	= col_nnzs;
+  m.clear();
+#ifdef debug
+  cout<<"try time "<<trytimes<<endl;
+#endif
+  for (r = 0; r<row_nnzs.size(); ++r)
+    {
+      choosed_cols = chooseKfromN(col_nnzs.size(),row_nnzs[r]);
+      for(j=0;j<choosed_cols.size();j++)
+	{
+	  if(lefted_in_col[choosed_cols[j]]>0)
+	    {
+	      m.set(r,choosed_cols[j],1);
+	      lefted_in_col[choosed_cols[j]]--;
+	    }
+	  else
+	    goto tryagain;
+	}
+#ifdef debug
+      cout<<choosed_cols<<endl;
+#endif
+    }
   return m;
 }
 smat<int> regular2(int n,int d,int &trytimes)
