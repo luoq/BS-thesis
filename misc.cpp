@@ -17,18 +17,21 @@
 // Code:
 #include "misc.h"
 
-void seed_rand()
-{
-   struct timeval tv;
-   gettimeofday(&tv, NULL);
-   srand(tv.tv_sec * tv.tv_usec);
-}
+MTRand mtrand;
+//void seed_rand()
+//{
+//   struct timeval tv;
+//   gettimeofday(&tv, NULL);
+//   srand(tv.tv_sec * tv.tv_usec);
+//}
 int randint(int n){
-  return rand()%n;
+  //return rand()%n;
+  return mtrand.randInt(n);
 }
 double rand1()
 {
-  return rand()/double(RAND_MAX);
+  //return rand()/double(RAND_MAX);
+  return mtrand.randExc(1.0);
 }
 vector<int> chooseKfromN(int n,int k)
 {

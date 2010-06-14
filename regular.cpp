@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 06/14/2010 13:44:31
+// Last-Updated: 06/14/2010 19:18:59
 //           By: Luo Qiang
-//     Update #: 319
+//     Update #: 320
 // Keywords:
 
 // Commentary:
@@ -230,7 +230,7 @@ smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,
 	  candidates.push_back(c);
       if(candidates.empty())
 	goto tryagain;
-      
+
       int	j = choose1_with_weight(lefted_in_col);
       if(m(i,j) == 0)
 	{
@@ -280,7 +280,7 @@ smat<int> regular2(int n,int d,int &trytimes)
 	  candidates.push_back(c);
       if(candidates.empty())
 	goto tryagain;
-      
+
       int	j = choose1_with_weight(lefted_in_col);
       if(i!=j&&m(i,j) == 0)
 	{

@@ -12,16 +12,17 @@
 
 #ifndef MSIC_H
 #define MSIC_H
-#include	<stdlib.h>
+#include <stdlib.h>
 #include <time.h>
 #include <vector>
 #include <iostream>
 #include <sys/time.h>
+#include "MersenneTwister.h"
 using namespace std;
 
-void seed_rand();
-int randint(int n);
-double rand1();
+//void seed_rand();
+int randint(int n);//integer in range [0,n]
+double rand1();//in range [0,1)
 
 //info = -1,empty
 //info = 0,find

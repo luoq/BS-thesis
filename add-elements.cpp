@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   int		trytimes;
   vector<int>	cols;
   cols.reserve(m.cols());
-  seed_rand();
+  //seed_rand();
   
   for(int i=0;i<repeat;i++)
   {
