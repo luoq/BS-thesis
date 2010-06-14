@@ -5,9 +5,9 @@
 // Author: Luo Qiang
 // Created: 03/15/2010 10:04:55
 // Version:
-// Last-Updated: 06/14/2010 10:26:16
+// Last-Updated: 06/14/2010 13:44:31
 //           By: Luo Qiang
-//     Update #: 305
+//     Update #: 319
 // Keywords:
 
 // Commentary:
@@ -32,6 +32,7 @@ smat<int> regular(int n,int d){
 #ifdef debug
   cout<<matrix<<endl;
 #endif
+ tryagain:
   vector<int> points(n*d);
   vector<int> suitablePoints,suitablePointsIndex;
   for(unsigned i=0;i!=points.size();++i){
@@ -60,7 +61,7 @@ smat<int> regular(int n,int d){
 #ifdef debug
       cout<<"try again"<<endl;
 #endif
-      continue;
+      goto tryagain;
     }
 #ifdef prob
     K*=suitablePoints.size();
@@ -202,8 +203,8 @@ smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,
 {
   vector<int>	lefted_in_col,lefted_in_row;
   smat<int>	m(row_nnzs.size(),col_nnzs.size());
-  vector<int>	candidate;
-  candidate.reserve(col_nnzs.size());
+  vector<int>	candidates;
+  candidates.reserve(col_nnzs.size());
   trytimes = 0;
 #ifdef prob
   double P;
@@ -223,11 +224,11 @@ smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,
 	break;
 
       //check dead end
-      candidate.clear();
+      candidates.clear();
       for(int c=0;c<lefted_in_col.size();c++)
 	if(lefted_in_col[c]!=0&&m(i,c) == 0)
-	  candidate.push_back(c);
-      if(candidate.empty())
+	  candidates.push_back(c);
+      if(candidates.empty())
 	goto tryagain;
       
       int	j = choose1_with_weight(lefted_in_col);
@@ -250,8 +251,54 @@ smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,
 
 smat<int> regular2(int n,int d,int &trytimes)
 {
-  vector<int>	row_nnzs(n,d),col_nnzs(n,d);
-  return gen_with_nnzs(row_nnzs,col_nnzs,trytimes);
+  vector<int>	lefted_in_col(n,d),lefted_in_row(n,d);
+  smat<int>	m(n,n,d);
+  vector<int>	candidates;
+  candidates.reserve(n);
+  trytimes = 0;
+#ifdef prob
+  double P;
+#endif
+ tryagain:
+#ifdef prob
+  P=1.0;
+#endif
+  trytimes++;
+  m.clear();
+  lefted_in_col.assign(n,d);
+  lefted_in_row.assign(n,d);
+  while(1)
+    {
+      int	i = choose1_with_weight(lefted_in_row);
+      if(i==-1)
+	break;
+
+      //check dead end
+      candidates.clear();
+      for(int c=0;c<lefted_in_col.size();c++)
+	if(lefted_in_col[c]!=0&&i!=c&&m(i,c) == 0)
+	  candidates.push_back(c);
+      if(candidates.empty())
+	goto tryagain;
+      
+      int	j = choose1_with_weight(lefted_in_col);
+      if(i!=j&&m(i,j) == 0)
+	{
+	  m.set(i,j,1);
+	  m.set(j,i,1);
+#ifdef prob
+	  P	 *= lefted_in_row[i]*lefted_in_col[j];
+#endif
+	  lefted_in_row[i]--;
+	  lefted_in_col[i]--;
+	  lefted_in_col[j]--;
+	  lefted_in_row[j]--;
+	}
+    }
+#ifdef prob
+  cout<<"prob: "<<P<<endl;
+#endif
+  return m;
 }
 smat<int> mix_regular(int n,int k,int d,int& trytimes)
 {
@@ -261,6 +308,6 @@ smat<int> mix_regular(int n,int k,int d,int& trytimes)
       row_nnzs.push_back(d);
       col_nnzs.push_back(d);
     }
-  return gen_with_nnzs(row_nnzs,col_nnzs,trytimes);
+  return gen_with_nnzs2(row_nnzs,col_nnzs,trytimes);
 }
 // regular.cpp ends here

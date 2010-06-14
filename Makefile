@@ -29,7 +29,7 @@ genMixRegular:genMixRegular.o regular.o Timer.o misc.o
 genMixRegular.o:genMixRegular.cpp regular.h Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 regular.o:regular.cpp regular.h misc.h
-	$(CC) $(CXXFLAGS) -Dprob -c $<
+	$(CC) $(CXXFLAGS) -c $<
 Timer.o:Timer.cpp Timer.h
 	$(CC) $(CXXFLAGS) -c $<
 
