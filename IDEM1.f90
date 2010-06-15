@@ -11,25 +11,10 @@ program Per
 #endif
   call get_command_argument(1,path)
   call load(m,path)
-  !write (*,*) IDEM(m)
-  !write (*,*) RNW(m)
   
-  !call generate_traval_order
   call tic
-  result=IDEM2(m)
+  result=IDEM1(m)
   call toc(time)
-
- ! if ( time<1e-1 ) then
- !    do
- !       call tic
- !       result=H(m)
- !       call toc(time1)
- !       if ( time1>=(1+0.0)*time ) then
- !          exit
- !       end if
- !       time=time1
- !    end do
- ! end if
   write (*,*) result,time
 
   deallocate(m)

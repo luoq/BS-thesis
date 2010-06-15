@@ -36,7 +36,7 @@ program select_and_cal
 
   call generate_traval_order
   call tic
-  result=H(m)
+  result=H1(m)
   call toc(time)
   write (*,*) size(m,1),result,time
 

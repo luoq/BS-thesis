@@ -1,4 +1,4 @@
-program Per
+program test_RNW
   use permanent
   use timer
   use mykind
@@ -14,23 +14,10 @@ program Per
   !write (*,*) IDEM(m)
   !write (*,*) RNW(m)
   
-  !call generate_traval_order
   call tic
-  result=IDEM2(m)
+  result=RNW(m)
   call toc(time)
-
- ! if ( time<1e-1 ) then
- !    do
- !       call tic
- !       result=H(m)
- !       call toc(time1)
- !       if ( time1>=(1+0.0)*time ) then
- !          exit
- !       end if
- !       time=time1
- !    end do
- ! end if
   write (*,*) result,time
 
   deallocate(m)
-end program Per
+end program test_RNW
