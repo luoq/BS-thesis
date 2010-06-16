@@ -102,6 +102,7 @@ smat<int> regular(int n,int d){
 int group(int point,int d){
   return int(point/d);
 }
+//naive method changed with no prob guarantee but faster
 smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes)
 {
   vector<int>	lefted_in_col;
@@ -163,6 +164,7 @@ smat<int> gen_with_nnzs(const vector<int> row_nnzs,const  vector<int> col_nnzs,i
 #endif
   return m;
 }
+//naive method
 smat<int> gen_with_nnzs0(const vector<int> row_nnzs,const  vector<int> col_nnzs,int& trytimes)
 {
   vector<int>	lefted_in_col;
@@ -199,6 +201,7 @@ smat<int> gen_with_nnzs0(const vector<int> row_nnzs,const  vector<int> col_nnzs,
     }
   return m;
 }
+//method similar to Steger1999
 smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,int &trytimes)
 {
   vector<int>	lefted_in_col,lefted_in_row;
@@ -232,12 +235,12 @@ smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,
 	goto tryagain;
 
       int	j = choose1_with_weight(lefted_in_col);
-      if(m(i,j) == 0)
-	{
-	  m.set(i,j,1);
 #ifdef prob
 	  P	 *= lefted_in_row[i]*lefted_in_col[j];
 #endif
+      if(m(i,j) == 0)
+	{
+	  m.set(i,j,1);
 	  lefted_in_row[i]--;
 	  lefted_in_col[j]--;
 	}
@@ -247,8 +250,39 @@ smat<int> gen_with_nnzs2(const vector<int> row_nnzs,const  vector<int> col_nnzs,
 #endif
   return m;
 }
+//method similar to Steger1999 with probability guarantee
+smat<int> gen_with_nnzs3(const vector<int> row_nnzs,const  vector<int> col_nnzs,int &trytimes)
+{
+  vector<int>	lefted_in_col,lefted_in_row;
+  smat<int>	m(row_nnzs.size(),col_nnzs.size());
+  vector<int>	candidates;
+  candidates.reserve(col_nnzs.size());
+  trytimes = 0;
+ tryagain:
+  trytimes++;
+  m.clear();
+  lefted_in_col	= col_nnzs;
+  lefted_in_row	= row_nnzs;
+  while(1)
+    {
+      int	i = choose1_with_weight(lefted_in_row);
+      if(i==-1)
+	break;
 
+      int	j = choose1_with_weight(lefted_in_col);
+      if(m(i,j) == 0)
+	{
+	  m.set(i,j,1);
+	  lefted_in_row[i]--;
+	  lefted_in_col[j]--;
+	}
+	  else
+		  goto tryagain;
+    }
+  return m;
+}
 
+//method similar to Steger1999
 smat<int> regular2(int n,int d,int &trytimes)
 {
   vector<int>	lefted_in_col(n,d),lefted_in_row(n,d);
