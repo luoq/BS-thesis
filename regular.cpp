@@ -342,6 +342,6 @@ smat<int> mix_regular(int n,int k,int d,int& trytimes)
       row_nnzs.push_back(d);
       col_nnzs.push_back(d);
     }
-  return gen_with_nnzs2(row_nnzs,col_nnzs,trytimes);
+  return gen_with_nnzs3(row_nnzs,col_nnzs,trytimes);
 }
 // regular.cpp ends here

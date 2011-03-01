@@ -1147,12 +1147,13 @@ T DEMiter(smat<T> &m,int node=1)
     p+=value*ret*DEMiter(m);
   return p;
 }
+typedef long long RNW_type;
 template<typename T>
-T RNW(fmat<T> m)
+RNW_type RNW(fmat<T> m)
 {
   int	n = m.rows();
-  T	P = 0,sigma=1;
-  T *	S = new T[n];
+  RNW_type	P = 0,sigma=1;
+  RNW_type *	S = new RNW_type[n];
   for(int r=0;r<n;r++)
     S[r]=0;
 
@@ -1204,11 +1205,11 @@ T RNW(fmat<T> m)
     return -P;
 }
 template<typename T>
-T RNW_presave(fmat<T> m)
+RNW_type RNW_presave(fmat<T> m)
 {
   int	n=changePoint;
-  T	P = 0,sigma=1;
-  T *	S = new T[n];
+  RNW_type	P = 0,sigma=1;
+  RNW_type *	S = new RNW_type[n];
   for(int r=0;r<n;r++)
     S[r]=0;
 

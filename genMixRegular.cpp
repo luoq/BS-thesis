@@ -39,14 +39,16 @@ int main(int argc,char** argv){
   timer.tic();
   matrix = mix_regular(n,k,d,trytimes);
   time   = timer.toc();
+
+  if(!is_mix_regular(matrix,n,k,d))
+  {
+    cout<<"regular check failed\n";
+    return 1;
+  }
+
   cout<<"tryed "<<trytimes<<" times\n";
   cout<<"Time elapsed: "<<time<<" ms\n";
   out<<matrix;
   out.close();
-  //if(!is_mix_regular(matrix,n,k,d))
-  //{
-  //  cout<<"regular check failed\n";
-  //  return 1;
-  //}
   return 0;
 }
